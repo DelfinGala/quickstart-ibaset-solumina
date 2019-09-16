@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: userinfo
+spec:
+  selector:
+    app: userinfo
+  ports:
+  - name: userinfo
+    protocol: TCP
+    port: 8091
+    targetPort: 8091
+#  type: LoadBalancer

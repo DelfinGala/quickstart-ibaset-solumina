@@ -1,0 +1,12 @@
+apiVersion: v1
+data:
+  loader.properties: |
+    loader.path=lib,config
+kind: ConfigMap
+metadata:
+  creationTimestamp: 2019-06-11T17:13:02Z
+  name: userinfo-cm-loader
+  namespace: default
+  resourceVersion: "1431147"
+  selfLink: /api/v1/namespaces/default/configmaps/userinfo-cm-loader
+  uid: 2b5e4df8-8c6c-11e9-9ba1-0af663ddcdfa

@@ -1,0 +1,53 @@
+Resources:
+  EFSFileSystem:
+    Type: AWS::EFS::FileSystem
+    Properties:
+      PerformanceMode: generalPurpose
+  EFSMountTarget1:
+    Type: AWS::EFS::MountTarget
+    Properties:
+      FileSystemId:
+        Ref: EFSFileSystem
+      SecurityGroups:
+      - Fn::GetAtt:
+        - EFSSecurityGroup
+        - GroupId
+      SubnetId:
+        !GetAtt VPCStack.Outputs.PrivateSubnet1AID
+  EFSMountTarget2:
+    Type: AWS::EFS::MountTarget
+    Properties:
+      FileSystemId:
+        Ref: EFSFileSystem
+      SecurityGroups:
+      - Fn::GetAtt:
+        - EFSSecurityGroup
+        - GroupId
+      SubnetId:
+        !GetAtt VPCStack.Outputs.PrivateSubnet2AID
+  EFSMountTarget3:
+    Type: AWS::EFS::MountTarget
+    Properties:
+      FileSystemId:
+        Ref: EFSFileSystem
+      SecurityGroups:
+      - Fn::GetAtt:
+        - EFSSecurityGroup
+        - GroupId
+          SubnetId:
+          !GetAtt VPCStack.Outputs.PrivateSubnet3AID
+  EFSSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Enable NFS access from EC2
+      SecurityGroupIngress:
+      - FromPort: '2049'
+        IpProtocol: tcp
+        ToPort: '2049'
+        SourceSecurityGroupId:
+          !GetAtt EKSStack.Outputs.NodeGroupSecurityGroup
+      VpcId:
+        !GetAtt VPCStack.Outputs.VPCID
+Output:
+  EfsId:
+    Value: !Ref EFSFileSystem

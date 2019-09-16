@@ -1,0 +1,34 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: operations
+  labels:
+    app: operations
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: operations
+  template:
+    metadata:
+      labels:
+        app: operations
+    spec:
+      containers:
+      - name: operations
+        image: "279559645400.dkr.ecr.us-west-1.amazonaws.com/solui/operations-view:G8R2SP4"
+        ports:
+        - containerPort: 5010
+        volumeMounts:
+        - name: operations-mount
+          mountPath: /opt/ibaset/solumina-web-operations/config/
+
+
+      volumes:
+       - name: operations-mount
+         configMap:
+            defaultMode: 420
+            items:
+            - key: operationsconfig
+              path: .env
+            name: operations-cm

@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: userinfo
+  labels:
+    app: userinfo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: userinfo
+  template:
+    metadata:
+      labels:
+        app: userinfo
+    spec:
+      containers:
+      - name: userinfo
+        image: "279559645400.dkr.ecr.us-west-1.amazonaws.com/solui/solumina-user-info:G8R2SP4"
+        ports:
+        - containerPort: 8091
+        volumeMounts:
+        - name: userinfo-config-mount
+          mountPath: /opt/solumina-user-info/config/
+
+        - name: userinfo-driver
+          mountPath: /opt/solumina-user-info/lib      
+
+      volumes:
+       - name: userinfo-config-mount
+         projected:
+          sources:
+
+          -  configMap:
+               name: userinfo-cm-application 
+
+          -  configMap:
+               name: userinfo-cm-mongodb
+
+          -  configMap:
+               name: userinfo-cm-oracle
+
+          -  configMap:
+               name: userinfo-cm-sqlserver
+
+          -  configMap:
+               name: userinfo-cm-loader
+
+          -  configMap:
+               name: userinfo-cm-logback
+
+          -  configMap:
+               name: userinfo-cm-redis
+
+       - name: userinfo-driver
+         nfs:
+          server: --fs--.efs.--region--.amazonaws.com 
+          path: /driver
+

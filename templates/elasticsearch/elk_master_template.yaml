@@ -1,0 +1,128 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: ElasticsearchDomain resource
+Parameters:
+  ELKSearchDomain:
+    Description: User defined Elasticsearch Domain name
+    Type: String
+  ELKVersion:
+    AllowedValues:
+      - 6.7
+    Default: 6.7
+    Description: User defined Elasticsearch Version
+    Type: String
+  InstanceType:
+    AllowedValues:
+      - r5.large.elasticsearch
+      - r5.xlarge.elasticsearch
+      - r5.2xlarge.elasticsearch
+      - r4.large.elasticsearch
+      - r4.xlarge.elasticsearch
+      - r4.2xlarge.elasticsearch
+      - r4.4xlarge.elasticsearch
+      - r3.xlarge.elasticsearch
+      - r3.2xlarge.elasticsearch
+    Default: r5.large.elasticsearch
+    Type: String
+  SecurityGroupName:
+    Type: String
+    Description: Elastic search security group name
+  VPCID:
+    Description: ID of the VPC (e.g., vpc-0343606e)
+    Type: AWS::EC2::VPC::Id
+  PrivateSubnet1ID:
+    Description: ID of the private subnet 1 in Availability Zone 1 (e.g., subnet-a0246dcd)
+    Type: AWS::EC2::Subnet::Id
+  PrivateSubnet2ID:
+    Description: ID of the private subnet 2 in Availability Zone 2 (e.g., subnet-a0246dcd)
+    Type: AWS::EC2::Subnet::Id
+  PrivateSubnet3ID:
+    Description: ID of the private subnet 3 in Availability Zone 3 (e.g., subnet-a0246dcd)
+    Type: AWS::EC2::Subnet::Id
+  ELKS3BucketName:
+    Description: S3 bucket name
+    Type: String
+    Default: 'ibaset-cloudformation'
+  ELKS3KeyPrefixLambdaZip:
+    Description: S3 Bucket Key
+    Type: String
+    Default: 'templates/elasticsearch/postscripts/elkpostscript.zip'
+  RandomString:
+    Description: Unique suffix
+    Type: String
+Resources:
+  ElasticsearchDomain:
+    Type: AWS::Elasticsearch::Domain
+    Properties:
+      DomainName: !Ref ELKSearchDomain
+      ElasticsearchVersion: !Ref ELKVersion
+      ElasticsearchClusterConfig:
+        InstanceCount: '4'
+        InstanceType: !Ref InstanceType
+        ZoneAwarenessEnabled: 'true'
+        DedicatedMasterCount: '3'
+        DedicatedMasterEnabled: 'true'
+      EBSOptions:
+        EBSEnabled: 'true'
+        Iops: 0
+        VolumeSize: 10
+        VolumeType: standard
+      SnapshotOptions:
+        AutomatedSnapshotStartHour: '0'
+      AccessPolicies:
+          Version: 2012-10-17
+          Statement:
+          - Effect: Allow
+            Principal:
+              AWS: '*'
+            Action:
+            - '*'
+            Resource: '*'
+      AdvancedOptions:
+        rest.action.multi.allow_explicit_index: 'true'
+      Tags:
+        - Key: foo
+          Value: bar
+      VPCOptions:
+        SubnetIds:
+          - !Ref 'PrivateSubnet1ID'
+          - !Ref 'PrivateSubnet2ID'
+        SecurityGroupIds:
+          - !Ref ElkSecurityGroup
+  ElkSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: 'ELK security group'
+      VpcId: !Ref VPCID
+      GroupName: !Ref SecurityGroupName
+      SecurityGroupIngress:
+        - FromPort: '443'
+          IpProtocol: tcp
+          ToPort: '443'
+          CidrIp: 0.0.0.0/0
+  LambdaStack:
+    DependsOn: ElkSecurityGroup
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub 'https://${ELKS3BucketName}.s3.amazonaws.com/templates/elasticsearch/elk_lambda_template.yaml'
+#      TemplateURL: 'https://ibaset-west-cloudformation.s3.us-east-2.amazonaws.com/templates/elasticsearch/elk_lambda_template.yaml'
+      Parameters:
+        VpcId: !Ref 'VPCID'
+        ELKSearchDomainURL: !GetAtt ElasticsearchDomain.DomainEndpoint
+        LambdaSecurityGroup: !Join
+          - ','
+          - - !GetAtt ElkSecurityGroup.GroupId
+        ELKS3BucketName: !Ref ELKS3BucketName
+        ELKS3KeyPrefixLambdaZip: !Ref ELKS3KeyPrefixLambdaZip
+        LambdaSubnetID: !Join
+           - ','
+           - - !Ref PrivateSubnet1ID
+             - !Ref PrivateSubnet2ID
+             - !Ref PrivateSubnet3ID
+        RandomString: !Ref RandomString
+Outputs:
+  DomainArn:
+    Value: !GetAtt [ElasticsearchDomain, DomainArn ]
+  ELKSearchDomain:
+    Value: !GetAtt ElasticsearchDomain.DomainEndpoint
+  SecurityGroupId:
+    Value: !GetAtt ElkSecurityGroup.GroupId

@@ -1,0 +1,19 @@
+apiVersion: v1
+data:
+  oauth-config.properties: |
+    oauth2.refresh-token.support = true
+    oauth2.access-token.validityseconds = 3600
+    oauth2.access-token.cache.validitydelta.seconds = 60
+    oauth2.refresh-token.validityseconds = 24600
+    oauth2.refresh-token.reuseable = false
+
+    oauth2.jwt.signingKey = solumina+$ibaset
+kind: ConfigMap
+metadata:
+  creationTimestamp: 2019-06-05T21:40:40Z
+  name: iba-cm-authconfig
+  namespace: default
+  resourceVersion: "668158"
+  selfLink: /api/v1/namespaces/default/configmaps/authconfig
+  uid: 907e1f49-87da-11e9-9ba1-0af663ddcdfa
+

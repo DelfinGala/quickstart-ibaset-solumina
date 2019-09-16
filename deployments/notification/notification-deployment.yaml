@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: notification
+  labels:
+    app: notification
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: notification
+  template:
+    metadata:
+      labels:
+        app: notification
+    spec:
+      containers:
+      - name: notification
+        image: "279559645400.dkr.ecr.us-west-1.amazonaws.com/solui/notification-server:G8R2SP4"
+        ports:
+        - containerPort: 8040
+        resources:
+           requests:
+            cpu: "200m"
+            memory: "80Mi"
+        volumeMounts:
+
+        - name: notification-mount
+          mountPath: /opt/notification/dist/envvars.production
+          subPath: envvars.production
+
+      volumes:
+       - name: notification-mount
+         configMap:
+            defaultMode: 420
+            items:
+            - key: notificationConfig
+              path: envvars.production
+            name: notification-cm

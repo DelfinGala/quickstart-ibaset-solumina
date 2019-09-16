@@ -1,0 +1,51 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Resources:
+
+  EFSFileSystem:
+    Type: AWS::EFS::FileSystem
+    Properties:
+      PerformanceMode: generalPurpose
+  EFSMountTarget1:
+    Type: AWS::EFS::MountTarget
+    Properties:
+      FileSystemId:
+        Ref: EFSFileSystem
+      SecurityGroups:
+      - Fn::GetAtt:
+        - EFSSecurityGroup
+        - GroupId
+      SubnetId:
+        subnet-089566e47110030fe
+  EFSMountTarget2:
+    Type: AWS::EFS::MountTarget
+    Properties:
+      FileSystemId:
+        Ref: EFSFileSystem
+      SecurityGroups:
+      - Fn::GetAtt:
+        - EFSSecurityGroup
+        - GroupId
+      SubnetId:
+        subnet-0e07c389f44ac403a
+  EFSMountTarget3:
+    Type: AWS::EFS::MountTarget
+    Properties:
+      FileSystemId:
+        Ref: EFSFileSystem
+      SecurityGroups:
+      - Fn::GetAtt:
+        - EFSSecurityGroup
+        - GroupId
+      SubnetId:
+        subnet-0e89b9064f084168a
+  EFSSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Enable NFS access from EC2
+      SecurityGroupIngress:
+      - FromPort: '2049'
+        IpProtocol: tcp
+        ToPort: '2049'
+        CidrIp: 0.0.0.0/0
+      VpcId:
+         vpc-0c8430cec0aa7f059

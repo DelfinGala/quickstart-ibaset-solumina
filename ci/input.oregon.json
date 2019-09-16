@@ -1,0 +1,36 @@
+[
+    {
+        "ParameterKey": "AvailabilityZones",
+        "ParameterValue": "$[taskcat_getaz_3]"
+    },
+    {
+        "ParameterKey": "KeyPairName",
+        "ParameterValue": "ibaset-cloudformation"
+    },
+    {
+        "ParameterKey": "ELKS3BucketName",
+        "ParameterValue": "ibaset-cloudformation"
+    },
+    {
+        "ParameterKey": "DatabaseUsername",
+        "ParameterValue": "admin"
+    },
+    {
+        "ParameterKey": "DatabasePassword",
+        "ParameterValue": "Solumina123"
+    },
+    {
+        "ParameterKey": "PostRDSWindowsAmiId",
+        "ParameterValue": "ami-07d058e36c01b7968"
+    },
+    {
+        "ParameterKey": "MongoDBAdminPassword",
+        "ParameterValue": "Solumina123"
+    },
+    {
+        "ParameterKey": "RandomString",
+        "ParameterValue": "$[taskcat_random-string]"
+    }
+]
+
+

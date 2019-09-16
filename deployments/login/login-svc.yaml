@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: login
+spec:
+  selector:
+    app: login
+  ports:
+  - name: http
+    protocol: TCP
+    port: 5000
+    targetPort: 5000
+#  type: LoadBalancer

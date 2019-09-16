@@ -1,0 +1,20 @@
+apiVersion: v1
+data:
+  application.yml: "server:\n  port: 9090\n  context-path: /api/v1.0/workorders\nspring:\n
+    \ application:\n    name: elksearch\n\nendpoints:\n  shutdown:\n    enabled: true\n
+    \   sensitive: false\nelastic:\n   hostnames: ec2-18-144-69-133.us-west-1.compute.amazonaws.com,
+    ec2-13-57-9-63.us-west-1.compute.amazonaws.com, ec2-52-53-193-107.us-west-1.compute.amazonaws.com\n
+    \  port: 9200\n   maxrows: 10\n   maxthreads: 10\n   retrytimeout: 10000\n   maxngramdiff:
+    8\n\nsecurity:\n  oauth2:\n    resource:\n      filter-order: 3\n      jwt:\n
+    \       key-value: \"solumina+$ibaset\"\n    client:\n      id: SOLUMINA-ADMIN-API\n
+    \     client-secret: solumina123\n      scope: \n        read, write\n      grant-type:
+    password\n"
+kind: ConfigMap
+metadata:
+  creationTimestamp: 2019-06-03T21:43:35Z
+  name: search-cm
+  namespace: default
+  resourceVersion: "406707"
+  selfLink: /api/v1/namespaces/default/configmaps/search-configmap
+  uid: a3b8a134-8648-11e9-9ba1-0af663ddcdfa
+

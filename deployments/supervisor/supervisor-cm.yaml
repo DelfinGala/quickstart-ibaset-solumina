@@ -1,0 +1,21 @@
+apiVersion: v1
+data:
+  supervisorconfig: |
+   PORT=5020
+   API_ENDPOINT=/solumina-G8/api/v1.0
+   AUTH_API_ENDPOINT=/authorizations/
+   #ZIPKIN_SERVER_URL=http://ZIPKIN_URL
+   SERVICE_NAME=supervisor
+   ENABLE_CUSTOM_THEME=false
+   APP_DOMAIN=/supervisor
+   APP_SERVER_URL=http://--ELB--
+
+kind: ConfigMap
+metadata:
+  creationTimestamp: 2019-06-06T21:55:29Z
+  name: supervisor-cm
+  namespace: default
+  resourceVersion: "932278"
+  selfLink: /api/v1/namespaces/default/configmaps/supervisor-configmap
+  uid: cca9c6f2-88a5-11e9-9ba1-0af663ddcdfa
+

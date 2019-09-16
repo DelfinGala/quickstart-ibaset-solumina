@@ -1,0 +1,37 @@
+apiVersion: v1
+data:
+  application.properties: |
+    #disbale Spring banner
+    spring.main.banner-mode=off
+
+    server.contextPath=/docconverter
+    server.port=8090
+
+    # DB settings
+    app.datasource.jdbcUrl=jdbc:sqlserver://--sqlip--
+    app.datasource.username=MT_CONPOOL_USER
+    app.datasource.password=MT_CONPOOL_USER
+    app.datasource.driver-class-name=com.microsoft.sqlserver.jdbc.SQLServerDriver
+
+    app.datasource.default-auto-commit=false
+    app.datasource.max-idle=2
+    app.datasource.min-idle=2
+    app.datasource.max-wait=2
+    app.datasource.validation-query=select sysdate from dual
+    app.datasource.max-active=5
+
+    # HikariCP settings
+    # spring.datasource.hikari.*
+    spring.datasource.hikari.connection-timeout=60000
+    spring.datasource.hikari.maximum-pool-size=5
+
+    spring.jpa.show-sql=true
+kind: ConfigMap
+metadata:
+  creationTimestamp: 2019-06-12T21:00:32Z
+  name: converter-cm-sql
+  namespace: default
+  resourceVersion: "1583764"
+  selfLink: /api/v1/namespaces/default/configmaps/converter-cm
+  uid: 1de8ec33-8d55-11e9-9ba1-0af663ddcdfa
+

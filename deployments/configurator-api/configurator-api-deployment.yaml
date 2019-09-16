@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: configurator-api
+  labels:
+    app: configurator-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: configurator-api
+  template:
+    metadata:
+      labels:
+        app: configurator-api
+    spec:
+      containers:
+      - name: configurator-api
+        image: "279559645400.dkr.ecr.us-west-1.amazonaws.com/solui/configurator-api:G8R2SP4"
+        ports:
+        - containerPort: 8050
+        volumeMounts:
+        - name: configurator-api-mount
+          mountPath: /opt/configurator_api/.env
+          subPath: .env
+
+      volumes:
+       - name: configurator-api-mount
+         configMap:
+            name: configurator-api-cm

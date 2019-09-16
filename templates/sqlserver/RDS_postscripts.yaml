@@ -1,0 +1,223 @@
+AWSTemplateFormatVersion: '2010-09-09'
+
+Description: Deploys Windows instances with the same configuration, from the specified AMI ; Create a InstanceProfileRole that assigns permissions specified in the IAM policy 
+Parameters:
+  RDSPSInstanceType:
+    Description: Amazon EC2 Instance Type
+    Type: String
+    #Default: t3.xlarge
+    #AllowedValues: [
+    #  t2.micro,
+    #  t2.medium, 
+    #  t3.xlarge
+    #]
+  PostRDSWindowsAmiId:
+    Description: Ami Id for Windows - default- Windows_Server-2019-English-Full-SQL_2017_Standard-2019.06.12
+    Type: String
+    #Default: ami-028b0c704793d21de # Oregon
+    #Default: ami-012438e8922082a19 # North Virginia
+    #Default: ami-082e8be0dd587c7bc # Ohio
+  InstanceProfileRoleName:
+    Description: EC2 Instance profile role name to attach
+    Type: String
+  VpcId:
+    Description: ID of the VPC (e.g., vpc-0343606e).
+    Type: AWS::EC2::VPC::Id
+  PrivateSubnet1:
+    Description: List of private subnet ids to deploy SQL Server
+    Type: AWS::EC2::Subnet::Id
+  KeyPairName:
+    Description: The name of an existing public/private key pair, which allows you
+      to securely connect to your instance after it launches
+    Type: AWS::EC2::KeyPair::KeyName
+  SQLDatabaseEndpointURL:
+    Description: URL of RDS
+    Type: String
+
+Resources:
+
+  BasicParameter:
+    Type: "AWS::SSM::Parameter"
+    Properties:
+      Name: "PostRDSStackName"
+      Type: "String"
+      Value: !Ref "AWS::StackName"
+      Description: "SSM Parameter for getting stack name as a parameter"
+      Tags:
+        "Name": "PostRDSStackName"
+
+  RDSURLParameter:
+    Type: "AWS::SSM::Parameter"
+    Properties:
+      Name: "SQLDatabaseEndpoint"
+      Type: "String"
+      Value: !Ref SQLDatabaseEndpointURL
+      Description: "SSM Parameter for getting URL as a parameter"
+      Tags:
+        "Name": "RDSURLParameter"
+
+  EC2SecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Windows EC2 Security Group
+      SecurityGroupIngress:
+      - IpProtocol: tcp
+        FromPort: '3389'
+        ToPort: '3389'
+        CidrIp: 0.0.0.0/0
+      VpcId: !Ref VpcId
+
+  InstanceProfileRole:
+    Description: Create a InstanceProfileRole that assigns permissions specified in the IAM policy 
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+        - Action:
+          - sts:AssumeRole
+          Effect: Allow
+          Principal:
+            Service: [ec2.amazonaws.com]
+        Version: '2012-10-17'
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AmazonEC2RoleforSSM
+        - arn:aws:iam::aws:policy/AmazonS3FullAccess
+        - arn:aws:iam::aws:policy/AmazonEC2FullAccess
+      Path: "/"
+      Policies:
+        -
+          PolicyName: "DeleteRDSPostScriptStack"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              -
+                Effect: "Allow"
+                Action:
+                  - "cloudformation:DeleteStackInstances"
+                  - "cloudformation:DeleteStack"
+                  - "cloudformation:DeleteStackSet"
+                  - "cloudformation:DeleteChangeSet"
+                  - "ssm:DeleteDocument"
+                  - "ssm:DeleteAssociation"
+                  - "iam:DeleteRolePolicy"
+                  - "iam:RemoveRoleFromInstanceProfile"
+                  - "iam:DetachRolePolicy"
+                  - "iam:DeleteInstanceProfile"
+                  - "iam:DeleteRole"
+                  - "ssm:DescribeParameters"
+                  - "ssm:GetParameter"
+                  - "ssm:GetParameters"
+                  - "ssm:DeleteParameter"
+                  - "ssm:DeleteParameters"
+                Resource: "*"
+      RoleName: !Ref InstanceProfileRoleName
+    Type: AWS::IAM::Role
+  
+  InstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties: 
+      Roles:
+        - !Ref InstanceProfileRole
+      InstanceProfileName: !Ref InstanceProfileRoleName
+    DependsOn: InstanceProfileRole
+  
+  # SSMParameterStorePolicy:
+  #   Description: Example of custom policy that can be added to the role defined above policy. e.g. Add any DB permissions that you want EC2 instance to have in order to execute the DB scripts. Replce the section Action. 
+  #   Type: AWS::IAM::Policy
+  #   Properties: 
+  #     PolicyDocument: 
+  #       Version: '2012-10-17'
+  #       Statement:
+  #       - Effect: Allow
+  #         Action:
+  #         - ssm:GetParameters
+  #         - ssm:GetParameter
+  #         - ssm:DescribeParameters
+  #         - ec2:TerminateInstances
+  #         Resource: !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/prod/*'
+  #     PolicyName: SSMParameterStoreDBPolicy
+  #     Roles:
+  #       - !Ref InstanceProfileRole
+  #   DependsOn: InstanceProfileRole
+  
+  Instance1:
+    Description: Example of an instance that has user data and can run shell or powershell script  
+    Type: AWS::EC2::Instance
+    Properties:
+      InstanceType: !Ref RDSPSInstanceType
+      ImageId: !Ref PostRDSWindowsAmiId
+      IamInstanceProfile: !Ref InstanceProfileRoleName
+      SecurityGroupIds:
+        - !Ref EC2SecurityGroup
+      SubnetId: !Ref PrivateSubnet1
+      KeyName: !Ref KeyPairName
+      Tags:
+      - Key: Name
+        Value: WindowsServer
+      - Key: ServerType
+        Value: IISServer
+      - Key: Environment
+        Value: Production
+      - Key: Patch Group
+        Value: Windows
+    DependsOn: InstanceProfile
+
+  RDSPostscripts: 
+    Type: "AWS::SSM::Document"
+    Properties: 
+      DocumentType: 'Command'
+      Content: 
+        schemaVersion: "2.2"
+        description: ".Net installation and solumina installation"
+        mainSteps:
+        - action: "aws:runPowerShellScript"
+          name: "postscripts"
+          inputs:
+            runCommand:
+            -  | 
+                  echo "postscripts working"
+                  ## Set some variables ###
+                  $availabilityZone = curl http://169.254.169.254/latest/meta-data/placement/availability-zone -UseBasicParsing
+                  $results = Get-EC2Snapshot -Owner amazon -Filter @{ Name="description"; Values="Windows 2019 English Installation Media" }
+                  $volume = New-EC2Volume -AvailabilityZone $availabilityZone -VolumeType gp2 -SnapshotId $results.SnapshotId
+                  $instance = curl http://169.254.169.254/latest/meta-data/instance-id -UseBasicParsing
+                  ## Install .NET###
+                  sleep 20
+                  Add-EC2Volume -InstanceId $instance.content -VolumeId $volume.VolumeId -Device xvdh
+                  Set-Disk -Number 1 -IsOffline $False
+                  Install-WindowsFeature Net-Framework-Core -source D:\SW_DVD9_Win_Server_STD_CORE_2019_64Bit_English_DC_STD_MLF_X21-96581.ISO
+                  ### Solumina  Installation###
+                  cd C:\Users\Administrator\Desktop\
+                  mkdir solumina
+                  cd .\solumina\
+                  Read-S3Object -BucketName ibaset-cloudformation -Key templates/sqlserver/G8R2SP4.1_UPD_SQLServer_RC.zip  -File G8R2SP4.1_UPD_SQLServer_RC.zip
+                  Read-S3Object -BucketName ibaset-cloudformation -Key templates/sqlserver/G8_SQL_fi_vG8R2.2SS_20190529.zip  -File G8_SQL_fi_vG8R2.2SS_20190529.zip
+                  Read-S3Object -BucketName ibaset-cloudformation -Key templates/sqlserver/solumina_license_grants.sql   -File solumina_license_grants.sql
+                  expand-archive G8_SQL_fi_vG8R2.2SS_20190529.zip
+                  expand-archive G8R2SP4.1_UPD_SQLServer_RC.zip
+                  cd .\G8_SQL_fi_vG8R2.2SS_20190529\G8_SQL_fi_vG8R2.2SS_20190529\
+                  $RDSENDPOINT = (Get-SSMParameter -Name /SQLDatabaseEndpoint).Value
+                  sqlcmd -S $RDSENDPOINT -U admin -P Solumina123 -I -i create_solumina_database.sql
+                  ECHO Y | .\SoluminaDatabaseInstall.exe $RDSENDPOINT Solumina SFMFG SFMFG
+                  cd ..\..
+                  cd .\G8R2SP4.1_UPD_SQLServer_RC\G8R2SP4.1_UPD_SQLServer_RC
+                  .\Update.exe $RDSENDPOINT Solumina SFMFG SFMFG -i
+                  cd ..\..
+                  sqlcmd -S $RDSENDPOINT -U SFMFG -P SFMFG -I -i solumina_license_grants.sql
+                  ## Sending Success Message#
+                  $UIWaitHandle = (Get-SSMParameter -Name /UIWaitHandle).Value
+                  Invoke-RestMethod -Method Put -body '{"Status" : "SUCCESS","Reason" : "Configuration Complete","UniqueId" : "ID1234","Data" : "Application has completed configuration."}' -Uri "$UIWaitHandle"
+                  ##clean up
+                  $StackName = (Get-SSMParameter -Name /PostRDSStackName).Value
+                  # Remove-CFNStack -StackName $StackName -Force
+
+  association:
+    Type: AWS::SSM::Association
+    Properties:      
+      Name: !Ref RDSPostscripts
+      OutputLocation:
+        S3Location:
+          OutputS3BucketName: ibaset-cloudformation
+          OutputS3KeyPrefix: system-logs
+      Targets:
+      - Key: InstanceIds
+        Values: [!Ref Instance1]
