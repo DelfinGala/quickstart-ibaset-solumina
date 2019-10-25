@@ -38,10 +38,14 @@ Parameters:
   PrivateSubnet3ID:
     Description: ID of the private subnet 3 in Availability Zone 3 (e.g., subnet-a0246dcd)
     Type: AWS::EC2::Subnet::Id
-  ELKS3BucketName:
+  QSS3BucketName:
     Description: S3 bucket name
     Type: String
-    Default: 'ibaset-cloudformation'
+  QSS3KeyPrefix: 
+    Type: String
+  LambdaZipQSS3BucketName:
+    Description: S3 bucket name for Lambda zip file
+    Type: String
   ELKS3KeyPrefixLambdaZip:
     Description: S3 Bucket Key
     Type: String
@@ -103,16 +107,17 @@ Resources:
     DependsOn: ElkSecurityGroup
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: !Sub 'https://${ELKS3BucketName}.s3.amazonaws.com/templates/elasticsearch/elk_lambda_template.yaml'
-#      TemplateURL: 'https://ibaset-west-cloudformation.s3.us-east-2.amazonaws.com/templates/elasticsearch/elk_lambda_template.yaml'
+      TemplateURL: !Sub 'https://${QSS3BucketName}.s3.amazonaws.com/${QSS3KeyPrefix}templates/elasticsearch/elk_lambda_template.yaml'
       Parameters:
         VpcId: !Ref 'VPCID'
         ELKSearchDomainURL: !GetAtt ElasticsearchDomain.DomainEndpoint
         LambdaSecurityGroup: !Join
           - ','
           - - !GetAtt ElkSecurityGroup.GroupId
-        ELKS3BucketName: !Ref ELKS3BucketName
-        ELKS3KeyPrefixLambdaZip: !Ref ELKS3KeyPrefixLambdaZip
+#        QSS3BucketName: !Ref 'QSS3BucketName'
+        QSS3BucketName: !Ref LambdaZipQSS3BucketName
+        QSS3KeyPrefix: !Ref 'QSS3KeyPrefix'
+        ELKS3KeyPrefixLambdaZip: !Sub ${QSS3KeyPrefix}templates/elasticsearch/postscripts/elkpostscript.zip
         LambdaSubnetID: !Join
            - ','
            - - !Ref PrivateSubnet1ID

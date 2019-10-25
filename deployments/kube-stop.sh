@@ -20,4 +20,4 @@ kubectl delete -f iba/.
 kubectl delete -f nginx/.
 kubectl delete -f logstash/.
 kubectl delete -f efs/.
-
+kubectl delete -f metric/.

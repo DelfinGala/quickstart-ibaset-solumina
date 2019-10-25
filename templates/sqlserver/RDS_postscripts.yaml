@@ -2,21 +2,18 @@ AWSTemplateFormatVersion: '2010-09-09'
 
 Description: Deploys Windows instances with the same configuration, from the specified AMI ; Create a InstanceProfileRole that assigns permissions specified in the IAM policy 
 Parameters:
+  LogsBucketName:
+    Type: String
+    Description: Logs S3 Bucket
+  LogsKeyPrefix:
+    Type: String
+    Description: Logs KeyPrefix
   RDSPSInstanceType:
     Description: Amazon EC2 Instance Type
     Type: String
-    #Default: t3.xlarge
-    #AllowedValues: [
-    #  t2.micro,
-    #  t2.medium, 
-    #  t3.xlarge
-    #]
   PostRDSWindowsAmiId:
     Description: Ami Id for Windows - default- Windows_Server-2019-English-Full-SQL_2017_Standard-2019.06.12
     Type: String
-    #Default: ami-028b0c704793d21de # Oregon
-    #Default: ami-012438e8922082a19 # North Virginia
-    #Default: ami-082e8be0dd587c7bc # Ohio
   InstanceProfileRoleName:
     Description: EC2 Instance profile role name to attach
     Type: String
@@ -120,25 +117,6 @@ Resources:
       InstanceProfileName: !Ref InstanceProfileRoleName
     DependsOn: InstanceProfileRole
   
-  # SSMParameterStorePolicy:
-  #   Description: Example of custom policy that can be added to the role defined above policy. e.g. Add any DB permissions that you want EC2 instance to have in order to execute the DB scripts. Replce the section Action. 
-  #   Type: AWS::IAM::Policy
-  #   Properties: 
-  #     PolicyDocument: 
-  #       Version: '2012-10-17'
-  #       Statement:
-  #       - Effect: Allow
-  #         Action:
-  #         - ssm:GetParameters
-  #         - ssm:GetParameter
-  #         - ssm:DescribeParameters
-  #         - ec2:TerminateInstances
-  #         Resource: !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/prod/*'
-  #     PolicyName: SSMParameterStoreDBPolicy
-  #     Roles:
-  #       - !Ref InstanceProfileRole
-  #   DependsOn: InstanceProfileRole
-  
   Instance1:
     Description: Example of an instance that has user data and can run shell or powershell script  
     Type: AWS::EC2::Instance
@@ -186,12 +164,14 @@ Resources:
                   Set-Disk -Number 1 -IsOffline $False
                   Install-WindowsFeature Net-Framework-Core -source D:\SW_DVD9_Win_Server_STD_CORE_2019_64Bit_English_DC_STD_MLF_X21-96581.ISO
                   ### Solumina  Installation###
+                  $QSS3SourceBucketName = (Get-SSMParameter -Name /QSS3BucketName).Value
+                  $QSS3SourceKeyPrefix = (Get-SSMParameter -Name /QSS3KeyPrefix).Value
                   cd C:\Users\Administrator\Desktop\
                   mkdir solumina
                   cd .\solumina\
-                  Read-S3Object -BucketName ibaset-cloudformation -Key templates/sqlserver/G8R2SP4.1_UPD_SQLServer_RC.zip  -File G8R2SP4.1_UPD_SQLServer_RC.zip
-                  Read-S3Object -BucketName ibaset-cloudformation -Key templates/sqlserver/G8_SQL_fi_vG8R2.2SS_20190529.zip  -File G8_SQL_fi_vG8R2.2SS_20190529.zip
-                  Read-S3Object -BucketName ibaset-cloudformation -Key templates/sqlserver/solumina_license_grants.sql   -File solumina_license_grants.sql
+                  Read-S3Object -BucketName $QSS3SourceBucketName -Key ${QSS3SourceKeyPrefix}templates/sqlserver/G8R2SP4.1_UPD_SQLServer_RC.zip  -File G8R2SP4.1_UPD_SQLServer_RC.zip
+                  Read-S3Object -BucketName $QSS3SourceBucketName -Key ${QSS3SourceKeyPrefix}templates/sqlserver/G8_SQL_fi_vG8R2.2SS_20190529.zip  -File G8_SQL_fi_vG8R2.2SS_20190529.zip
+                  Read-S3Object -BucketName $QSS3SourceBucketName -Key ${QSS3SourceKeyPrefix}templates/sqlserver/solumina_license_grants.sql   -File solumina_license_grants.sql
                   expand-archive G8_SQL_fi_vG8R2.2SS_20190529.zip
                   expand-archive G8R2SP4.1_UPD_SQLServer_RC.zip
                   cd .\G8_SQL_fi_vG8R2.2SS_20190529\G8_SQL_fi_vG8R2.2SS_20190529\
@@ -208,7 +188,7 @@ Resources:
                   Invoke-RestMethod -Method Put -body '{"Status" : "SUCCESS","Reason" : "Configuration Complete","UniqueId" : "ID1234","Data" : "Application has completed configuration."}' -Uri "$UIWaitHandle"
                   ##clean up
                   $StackName = (Get-SSMParameter -Name /PostRDSStackName).Value
-                  # Remove-CFNStack -StackName $StackName -Force
+                  Remove-CFNStack -StackName $StackName -Force
 
   association:
     Type: AWS::SSM::Association
@@ -216,8 +196,8 @@ Resources:
       Name: !Ref RDSPostscripts
       OutputLocation:
         S3Location:
-          OutputS3BucketName: ibaset-cloudformation
-          OutputS3KeyPrefix: system-logs
+          OutputS3BucketName: !Ref 'LogsBucketName'
+          OutputS3KeyPrefix: !Ref 'LogsKeyPrefix'
       Targets:
       - Key: InstanceIds
         Values: [!Ref Instance1]

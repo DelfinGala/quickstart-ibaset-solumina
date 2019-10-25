@@ -12,19 +12,23 @@ aws ssm get-parameter --region $EC2_REGION --name "EFSId"
 
 efs_id=$(aws ssm get-parameters --name "EFSId" --region $EC2_REGION --query "Parameters[0].Value")
 
-efs_id=${efs_id//\"/} 
+efs_id=${efs_id//\"/}
 
 ELKdomain=$(aws ssm get-parameters --name "ELKDomain" --region $EC2_REGION --query "Parameters[0].Value")
 ELKdomain=${ELKdomain//\"/}
 
-#cheate efs mount directory
+#create efs mount directory
 sudo mkdir -p /mnt/efs
 sudo chmod 777 /mnt/efs
 
-
-#change premissions
+## Get S3 Bucket ##
+QSS3BucketName=$(aws ssm get-parameters --name "QSS3BucketName" --region $EC2_REGION --query "Parameters[0].Value")
+QSS3KeyPrefix=$(aws ssm get-parameters --name "QSS3KeyPrefix" --region $EC2_REGION --query "Parameters[0].Value")
+QSS3KeyPrefix=${QSS3KeyPrefix//\"/}
+QSS3BucketName=${QSS3BucketName//\"/}
+S3SyncURL=s3://${QSS3BucketName}/${QSS3KeyPrefix}deployments
 cd /exec-ui
-aws s3 sync s3://ibaset-cloudformation/deployments .
+aws s3 sync ${S3SyncURL} .
 
 sleep 5
 
@@ -108,7 +112,7 @@ sed -i  "s|--mongosecondaryip1--|$mongosecondaryip1|"  /exec-ui/userinfo/userinf
 
 
 # get RDS endpoint ip
-sqlip=$(aws ssm get-parameters --name "SQLatabaseEndpointIP" --region $EC2_REGION --query "Parameters[0].Value")
+sqlip=$(aws ssm get-parameters --name "SQLDatabaseJdbcURL" --region $EC2_REGION --query "Parameters[0].Value")
 
 sqlip=${sqlip//\"/}
 
@@ -119,26 +123,26 @@ sed -i  "s|--sqlip--|$sqlip|"  /exec-ui/iba/iba-cm-soluminag8-sql.yaml
 sed -i  "s|--instance_name--|$instance_name|"  /exec-ui/iba/iba-cm-soluminag8-sql.yaml
 
 # change appconfig for Userinfo to use RDS SQL
-sed -i  "s|--sqlip--|$sqlip|"  /exec-ui/userinfo/userinfo-cm-sqlserver.yaml 
+sed -i  "s|--sqlip--|$sqlip|"  /exec-ui/userinfo/userinfo-cm-sqlserver.yaml
 
 
 
 
-#change Placeholders for Logstash Component Lot 
+#change Placeholders for Logstash Component Lot
 sed -i  "s|--es--|$ELKdomain|"  /exec-ui/logstash/logstash-componentlot-cm-sql.yaml
 sed -i  "s|--fs--|$efs_id|"  /exec-ui/logstash/logstash-componentlot-deployment.yaml
 sed -i  "s|--region--|$EC2_REGION|"  /exec-ui/logstash/logstash-componentlot-cm-sql.yaml
 sed -i  "s|--sqlip--|$sqlip|"  /exec-ui/logstash/logstash-componentlot-cm-sql.yaml
 sed -i  "s|--region--|$EC2_REGION|"  /exec-ui/logstash/logstash-componentlot-deployment.yaml
 
-#change Placeholders for Logstash Component Part 
+#change Placeholders for Logstash Component Part
 sed -i  "s|--es--|$ELKdomain|"  /exec-ui/logstash/logstash-componentpart-cm-sql.yaml
 sed -i  "s|--sqlip--|$sqlip|"  /exec-ui/logstash/logstash-componentpart-cm-sql.yaml
 sed -i  "s|--fs--|$efs_id|"  /exec-ui/logstash/logstash-componentpart-deployment.yaml
 sed -i  "s|--sqlip--|$sqlip|"  /exec-ui/logstash/logstash-componentpart-deployment.yaml
 sed -i  "s|--region--|$EC2_REGION|"  /exec-ui/logstash/logstash-componentpart-deployment.yaml
 
-#change Placeholders for Logstash Component Serial 
+#change Placeholders for Logstash Component Serial
 sed -i  "s|--es--|$ELKdomain|"  /exec-ui/logstash/logstash-componentserial-deployment.yaml
 sed -i  "s|--fs--|$efs_id|"  /exec-ui/logstash/logstash-componentserial-deployment.yaml
 sed -i  "s|--sqlip--|$sqlip|"  /exec-ui/logstash/logstash-componentserial-cm-sql.yaml
@@ -153,14 +157,14 @@ sed -i  "s|--fs--|$efs_id|"  /exec-ui/logstash/logstash-lot-deployment.yaml
 sed -i  "s|--region--|$EC2_REGION|"  /exec-ui/logstash/logstash-lot-deployment.yaml
 
 
-#change Placeholders for Logstash Component Order 
+#change Placeholders for Logstash Component Order
 sed -i  "s|--es--|$ELKdomain|"  /exec-ui/logstash/logstash-order-cm-sql.yaml
 sed -i  "s|--sqlip--|$sqlip|"  /exec-ui/logstash/logstash-order-cm-sql.yaml
 sed -i  "s|--fs--|$efs_id|"   /exec-ui/logstash/logstash-order-deployment.yaml
 sed -i  "s|--region--|$EC2_REGION|"   /exec-ui/logstash/logstash-order-deployment.yaml
 
 
-#change Placeholders for Logstash  Serial 
+#change Placeholders for Logstash  Serial
 sed -i  "s|--es--|$ELKdomain|"  /exec-ui/logstash/logstash-serial-cm-sql.yaml
 sed -i  "s|--sqlip--|$sqlip|"  /exec-ui/logstash/logstash-serial-cm-sql.yaml
 sed -i  "s|--fs--|$efs_id|"  /exec-ui/logstash/logstash-serial-deployment.yaml
@@ -208,3 +212,14 @@ mkdir -p /mnt/efs/converter/logs
 
 #run UI-stack
 sh /exec-ui/kube-start.sh
+sleep 30
+
+# Get Solumina Endpoint URL
+SoluminaEndpoint=$(kubectl get svc | grep nginx | awk '{ print $4 }')
+aws ssm put-parameter --name SoluminaEndpoint --value $SoluminaEndpoint --type "String" --region $EC2_REGION --overwrite
+
+# some cleanup #
+aws ssm delete-parameter --name UIWaitHandle --region $EC2_REGION
+aws ssm delete-parameter --name PostRDSStackName --region $EC2_REGION
+aws ssm delete-parameter --name QSS3BucketName --region $EC2_REGION
+aws ssm delete-parameter --name QSS3KeyPrefix --region $EC2_REGION

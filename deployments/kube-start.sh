@@ -21,6 +21,6 @@ sleep 10
 kubectl create -f userinfo/.
 kubectl create -f iba/.
 kubectl create -f nginx/.
-
+kubectl create -f metric/.
 sleep 120
 kubectl create -f logstash/.
