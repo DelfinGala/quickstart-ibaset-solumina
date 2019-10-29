@@ -1,0 +1,26 @@
+apiVersion: v1
+data:
+  application-sqlserver.yml: |
+    # Sql-Server configuration
+    app:
+      db-name: microsoftSQLServer
+      datasource:
+        jdbc-url: jdbc:sqlserver://--sqlip--;applicationName=SoluminaFND;instanceName=--instance_name--;databaseName=Solumina;schemaName=SFMFG;sendStringParametersAsUnicode=false
+        username: MT_CONPOOL_USER
+        password: MT_CONPOOL_USER
+        driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
+        default-auto-commit: false
+        max-idle: 25
+        min-idle: 25
+        max-wait: 2
+        validation-query: select getdate()
+        max-active: 50
+kind: ConfigMap
+metadata:
+  creationTimestamp: 2019-06-11T17:12:34Z
+  name: userinfo-cm-sqlserver
+  namespace: default
+  resourceVersion: "1431106"
+  selfLink: /api/v1/namespaces/default/configmaps/userinfo-cm-sqlserver
+  uid: 1ae4713b-8c6c-11e9-9ba1-0af663ddcdfa
+

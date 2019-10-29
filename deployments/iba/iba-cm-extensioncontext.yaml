@@ -1,0 +1,53 @@
+apiVersion: v1
+data:
+  soluminaExtensionContext.xml: "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<!--\n\n
+    \   Proprietary and Confidential\n    Copyright 1995-2015 iBASEt, Inc.\n    Unpublished-rights
+    reserved under the Copyright Laws of the United States\n    US Government Procurements:\n
+    \   Commercial Software licensed with Restricted Rights.\n    Use, reproduction,
+    or disclosure is subject to restrictions set forth in\n    license agreement and
+    purchase contract.\n    iBASEt, Inc. 27442 Portola Parkway, Suite 300, Foothill
+    Ranch, CA 92610\n\n    Solumina software may be subject to United States Dept
+    of Commerce Export Controls.\n    Contact iBASEt for specific Expert Control Classification
+    information.\n\n-->\n<beans xmlns=\"http://www.springframework.org/schema/beans\"\n
+    \       xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n        xmlns:jms=\"http://www.springframework.org/schema/jms\"\n
+    \       xmlns:aop=\"http://www.springframework.org/schema/aop\"\n        xmlns:tx=\"http://www.springframework.org/schema/tx\"\n
+    \       xsi:schemaLocation=\"http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd\n
+    \   http://www.springframework.org/schema/jms http://www.springframework.org/schema/jms/spring-jms-2.1.xsd\n
+    \   http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.0.xsd\n
+    \   http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.0.xsd\"\n
+    \       default-lazy-init=\"false\"\n        default-autowire=\"no\">\n\n      <!--
+    ALL BEAN DEFINITIONS THAT DEPENDS ON BEANS IN integrationContext.xml SHOULD GO
+    IN integrationExtensionContext.xml -->\n\t  <!-- UNCOMMENT TO ENABLE JGROUPS -
+    START -->\n\t \n\t  <!--\n      <bean id=\"soluminaClusterConfig\" class=\"java.lang.String\">\n\t\t
+    \ <constructor-arg type=\"java.lang.String\">\n\t\t  <value type=\"java.lang.String\">jgroupconfig.xml</value>\n\t\t
+    \ </constructor-arg>\n      </bean>\n      -->\n\t \n\t <!-- UNCOMMENT TO ENABLE
+    JGROUPS - END -->\n\t  \n\t <!--  SSO CONFIGURATION FOR IBA RUNNING BEHIND PROXY.
+    PLEASE CHANGE URL ACCORDINGLY YOUR REQUIRE SERVICE PROVIDER (SOLUMINA) METADATA
+    - UNCOMMENT TO ENABLE SSO IN IBA - START -->\n\t <!--\n\t <bean id=\"metadataGeneratorFilter\"
+    class=\"org.springframework.security.saml.metadata.MetadataGeneratorFilter\">\n\t\t\t
+    <constructor-arg>\n\t\t\t\t\t <bean class=\"org.springframework.security.saml.metadata.MetadataGenerator\">\n\t\t\t\t\t\t
+    \ <property name=\"extendedMetadata\">\n\t\t\t\t\t\t\t\t\t <bean class=\"org.springframework.security.saml.metadata.ExtendedMetadata\">\n\t\t\t\t\t\t\t\t\t\t
+    <property name=\"requireLogoutRequestSigned\" value=\"false\"/>\n\t\t\t\t\t\t\t\t\t
+    \ </bean>\n\t\t\t\t\t\t </property>\n\t\t\t\t\t\t<property name=\"entityBaseURL\"
+    \ value=\"https://domain.com/solumina-G8\"/>\n\t\t\t\t\t </bean>\n\t\t\t  </constructor-arg>\n
+    \    </bean>\n\t <bean id=\"contextProvider\" class=\"org.springframework.security.saml.context.SAMLContextProviderLB\">\n\t\t\t<property
+    name=\"scheme\" value=\"https\"/>\n\t\t\t<property name=\"serverName\" value=\"domain.com\"/>\n\t\t\t<property
+    name=\"serverPort\" value=\"443\"/>\n\t\t\t<property name=\"includeServerPortInRequestURL\"
+    value=\"false\"/>\n\t\t\t<property name=\"contextPath\" value=\"/solumina-G8\"/>\n\t</bean>\n\t
+    \n\t \n\t <bean id=\"webSSOprofileConsumer\" class=\"org.springframework.security.saml.websso.WebSSOProfileConsumerImpl\">\n\t\t<property
+    name=\"responseSkew\" value=\"86400\"/> \n\t </bean>\n\t\n\t <bean id=\"logoutprofile\"
+    class=\"org.springframework.security.saml.websso.SingleLogoutProfileImpl\">\n\t\t<property
+    name=\"responseSkew\" value=\"86400\"/> \n\t </bean>\n     -->\n\t <!-- UNCOMMENT
+    TO ENABLE SSO IN IBA - END  -->\n\t <!-- ABOVE TWO BEANS ARE USED TO SET SAML
+    TOKEN EXPIRATION TIME FROM GENERATION TO CONSUPTION. CURRENTLY IT IS SET TO 24
+    HOURS. GENERALLY, IT IS DEPENDS ON IDP AND YOUR MACHINE CLOCK DIFFERENCE -->\t\n\t
+    \n\t \n</beans>\n"
+kind: ConfigMap
+metadata:
+  creationTimestamp: 2019-07-03T16:08:12Z
+  name: iba-cm-extensioncontext
+  namespace: default
+  resourceVersion: "1482929"
+  selfLink: /api/v1/namespaces/default/configmaps/iba-cm-extensioncontext
+  uid: c23828cf-9dac-11e9-988c-023c9c1f2270
+

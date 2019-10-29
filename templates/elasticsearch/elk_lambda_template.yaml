@@ -1,0 +1,126 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Deploys Lambda to run the APIs on ELK Domain and create indices
+Parameters:
+  VpcId:
+    Description: VPC id for the security group
+    Type: AWS::EC2::VPC::Id
+  ELKSearchDomainURL:
+    Description: Endpoint of the ELK domain
+    Type: String
+  ELKDomainEndpointResource:
+    Description: Endpoint of the ELK domain
+    Type: String
+    Default: '/_template/solumina_template_search'
+  LambdaSubnetID:
+    Description: SubnetID for Lambda
+    Type: 'List<AWS::EC2::Subnet::Id>'
+  LambdaSecurityGroup:
+    Description: LambdaSecurityGroup for Lambda
+    Type: AWS::EC2::SecurityGroup::Id
+  ELKS3KeyPrefixLambdaZip:
+    Description: S3 Bucket Key
+    Type: String
+    Default: 'templates/elasticsearch/postscripts/elkpostscript.zip'
+  RandomString:
+    Description: Unique suffix
+    Type: String
+  QSS3BucketName:
+    Description: S3 bucket name
+    Type: String
+  QSS3KeyPrefix: 
+    Type: String
+Resources:
+  LambdaCustomResource:
+    Type: 'Custom::LambdaCustomResource'
+    Properties:
+      ServiceToken: !GetAtt
+        - LambdaFunction
+        - Arn
+      Id: !Join
+        - ''
+        - - 'LambdaRes'
+          - !Ref RandomString
+  LambdaFunctionLogGroup:
+    DeletionPolicy : Retain
+    Type: "AWS::Logs::LogGroup"
+    DependsOn: "LambdaFunction"
+    Properties:
+      RetentionInDays: 14
+      LogGroupName: !Join
+        - ''
+        - - '/aws/lambda/elk/'
+          - !Ref RandomString
+  LambdaRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action:
+              - 'sts:AssumeRole'
+            Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+        Version: 2012-10-17
+      Policies:
+        - PolicyName: LambdaELKPolicy
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action: '*'
+                Resource: '*'
+      Path: /
+      RoleName: !Join
+        - ''
+        - - 'LambdaRole'
+          - !Ref RandomString
+
+  LambdaFunction:
+    Type: 'AWS::Lambda::Function'
+    Properties:
+      Environment:
+        Variables:
+          stackName: !Ref AWS::StackName
+          Method: 'PUT'
+          DomainEndpoint: !Join
+            - ''
+            - - 'https://'
+              - !Ref ELKSearchDomainURL
+              - !Ref ELKDomainEndpointResource
+      Code:
+        S3Bucket: !Ref QSS3BucketName
+        S3Key: !Ref ELKS3KeyPrefixLambdaZip
+      Timeout: 400
+      Handler: 'elkpostscriptlambda.lambda_handler'
+      Runtime: 'python2.7'
+
+      FunctionName: !Join
+        - ''
+        - - 'ElkFunction'
+          - !Ref RandomString
+      VpcConfig:
+        SecurityGroupIds: !Split [ "," , !Ref LambdaSecurityGroup ]
+        SubnetIds: !Ref LambdaSubnetID
+      Role:
+        Fn::GetAtt:
+          - LambdaRole
+          - Arn
+    DependsOn:
+      - LambdaRole
+      # - Name_of_the_ELK_Stack_Resource
+
+Outputs:
+  # Result:
+    # Value: !GetAtt
+    #   - LambdaCustomResource
+    #   - Result
+
+  DomainEndpoint:
+    Value: !Join
+      - ''
+      - - 'https://'
+        - !Ref ELKSearchDomainURL
+        - !Ref ELKDomainEndpointResource
+  RoleName:
+    Value: LambdaRole['RoleName']

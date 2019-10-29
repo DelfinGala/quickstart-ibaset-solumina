@@ -1,0 +1,17 @@
+apiVersion: v1
+data:
+  application.yml: "server:\n  context-path: /solumina-user-info/api\n  port: 8091\nspring:\n
+    \ profiles: \n    include: \n     - tomcat # must have profile\n     - redis #
+    must have profile\n     - sqlserver # Possible values - oracle, sqlserver\n     -
+    mongodb # must have profile\n  devtools:\n    restart:\n      exclude: logs/**\n
+    \ http:\n    multipart:\n      max-file-size: 100MB\n      max-request-size: 100MB\nsecurity:\n
+    \ oauth2:\n    resource:\n      jwt:\n        key-value: solumina+$ibaset\n"
+kind: ConfigMap
+metadata:
+  creationTimestamp: 2019-06-11T17:12:48Z
+  name: userinfo-cm-application
+  namespace: default
+  resourceVersion: "1431127"
+  selfLink: /api/v1/namespaces/default/configmaps/userinfo-cm-application
+  uid: 22d37eb1-8c6c-11e9-b6be-06e36b0b2240
+

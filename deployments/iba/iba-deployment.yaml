@@ -1,0 +1,76 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: iba
+  labels:
+    app: iba
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: iba
+  template:
+    metadata:
+      labels:
+        app: iba
+    spec:
+      containers:
+      - name: iba
+        image: "279559645400.dkr.ecr.us-west-1.amazonaws.com/solui/iba:G8R2SP4"
+        ports:
+        - containerPort: 8080
+        - containerPort: 8009
+        resources:
+           requests:
+            cpu: 800m
+            memory: 900Mi
+
+        volumeMounts:
+
+        - name: pv-volume
+          mountPath: /opt/config/driver   
+
+        - name: iba-tomcat-folder
+          mountPath: /opt/apache-tomcat-9.0.4/conf/Catalina/localhost/
+
+        - name: iba-config-folder
+          mountPath: /opt/config/props
+
+      volumes:
+
+       - name: pv-volume
+         nfs:
+          server: --fs--.efs.--region--.amazonaws.com 
+          path: /driver
+
+       - name: iba-tomcat-folder
+         configMap:
+            defaultMode: 420
+            items:
+            - key: solumina-G8.xml
+              path: solumina-G8.xml
+            name: iba-cm-soluminag8-sql
+
+       - name: iba-config-folder
+         projected:
+          sources:
+
+          -  configMap:
+               name: iba-cm-redis
+
+          -  configMap:
+              name: iba-cm-authconfig
+
+          -  configMap:
+               name: iba-cm-log4j
+
+          -  configMap:
+               name: iba-cm-configprop
+
+          -  configMap:
+               name: iba-cm-extensioncontext
+
+          -  configMap:
+               name: iba-cm-jgroups
+
+      restartPolicy: Always

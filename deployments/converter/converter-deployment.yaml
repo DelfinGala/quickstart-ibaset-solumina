@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: converter
+  labels:
+    app: converter
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: converter
+  template:
+    metadata:
+      labels:
+        app: converter
+    spec:
+      containers:
+      - name: converter
+        image: "279559645400.dkr.ecr.us-west-1.amazonaws.com/solui/doc-converter:v1.0.0"
+        ports:
+        - containerPort: 8090
+        volumeMounts:
+
+        - name: converter-config
+          mountPath: /opt/ibaset/doc-converter/config/
+
+        - name: logs 
+          mountPath: /opt/ibaset/doc-converter/logs
+          readOnly: false
+
+        - name: driver
+          mountPath: /opt/ibaset/doc-converter/lib/extras
+          readOnly: true
+
+      volumes:
+
+       - name: converter-config
+         configMap:
+            name: converter-cm-sql
+
+       - name: logs
+         nfs:
+          server: --fs--.efs.--region--.amazonaws.com 
+          path: /converter/logs
+
+       - name: driver
+         nfs:
+          server: --fs--.efs.--region--.amazonaws.com 
+          path: /driver

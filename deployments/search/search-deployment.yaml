@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: search
+  labels:
+    app: search
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: search
+  template:
+    metadata:
+      labels:
+        app: search
+    spec:
+      containers:
+      - name: search
+        image: "279559645400.dkr.ecr.us-west-1.amazonaws.com/solui/solumina-search:G8R2SP4"
+        ports:
+        - containerPort: 9090
+        volumeMounts:
+
+        - name: search-mount
+          mountPath: /opt/solumina-search/config/
+
+
+      volumes:
+
+       - name: search-mount
+         projected:
+          sources:
+          -  configMap:
+               name: search-cm
+
+          -  configMap:
+               name: search-cm-logback
+
+
+      restartPolicy: Always
+

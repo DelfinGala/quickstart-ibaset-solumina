@@ -1,0 +1,45 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: logstash-serial-cm-sql
+data:
+  logstash.conf: |-
+    input {
+            jdbc {
+                type => "solumina_serial_number"
+                jdbc_driver_library => "/opt/logstash/driver/sqljdbc4.jar"
+                jdbc_driver_class => "com.microsoft.sqlserver.jdbc.SQLServerDriver"
+                jdbc_connection_string => "jdbc:sqlserver://--sqlip--;applicationName=SoluminaFND;instanceName=--instance_name--;databaseName=Solumina;schemaName=SFMFG;sendStringParametersAsUnicode=false"
+                jdbc_user => "MT_CONPOOL_USER"
+                jdbc_password => "MT_CONPOOL_USER"
+                jdbc_fetch_size => 1000
+                schedule => "*/5 * * * *"
+                statement => "select concat('serial',d.rowid) as rid_obj, a.order_id, a.order_no, b.oper_key, b.oper_no, c.serial_no, a.security_group from sfwid_order_desc a, sfwid_oper_desc b, sfwid_serial_desc c, sfwid_serial_oper d where a.order_id = b.order_id and b.step_key = -1 and a.order_id = c.order_id and b.order_id = d.order_id and b.oper_key = d.oper_key and b.step_key = d.step_key and c.serial_id = d.serial_id and c.lot_id = d.lot_id and DATEADD(second, datediff(second, getdate(), getutcdate()), d.time_stamp) > :sql_last_value"
+                clean_run => false
+                record_last_run => true
+                sql_log_level => debug
+                last_run_metadata_path => "/opt/logstash/lastrun/.logstash_jdbc_last_run_serial_number"
+                connection_retry_attempts_wait_time => 30
+                connection_retry_attempts => 99999999
+                }
+        }
+        filter {
+            if[type] == "solumina_serial_number" {
+              mutate {
+                replace => { "type" => "serial_number" }
+                }
+            }
+        }
+        output {
+            elasticsearch {
+                hosts => "https://--es--:443"
+                index => "<solumina-serial_numbersearch-{now/d{YYYY.MM.dd}}>"
+                document_id => "%{rid_obj}"
+           }
+        }
+
+
+  logstash.yml: |-
+    http.host: "0.0.0.0"
+    path.config: /usr/share/logstash/pipeline
+    xpack.monitoring.enabled: false

@@ -1,0 +1,76 @@
+apiVersion: v1
+data:
+  rev_proxy.conf: "# Use this configuration for local implementation of NGINX\n# define
+    2 domain names local.soldev.ibaset.com and lpo-ektap.amd.ibaset.com as outlined
+    in the README.md\n\n#events {\n#    worker_connections  256;\n#}\n#http {\n#server_names_hash_bucket_size
+    \ 64;\n#    include       mime.types;\n#    default_type  application/octet-stream;\n#\n#
+    \   log_format  main  '$remote_addr - $remote_user [$time_local] \"$request\"
+    '\n#                      '$status $body_bytes_sent \"$http_referer\" '\n#                      '\"$http_user_agent\"
+    \"$http_x_forwarded_for\"';\n\n#    access_log  logs/access.log  main;\n#    error_log
+    \ logs/error.log  debug;\n#    sendfile        on;\n#    keepalive_timeout  65;\n\n
+    \   # Define upstream servers\n    upstream login-app {\n       ip_hash;\n       server
+    login:5000;\n    }\n     upstream supervisor-app {\n        ip_hash;\n        server
+    supervisor:5020;\n    }\n     upstream configurator-app {\n        ip_hash;\n
+    \       server configurator:5021;\n    }\n     upstream operation-app {\n       ip_hash;\n
+    \      server operations:5010;\n    }\n    upstream oauth-app {\n       ip_hash;\n
+    \      server iba:8080;\n    }\n    upstream search-app {\n       ip_hash;\n       server
+    search:9090;\n    }\n    upstream configurator-api {\n       ip_hash;\n       server
+    configurator-api:8050;\n    }\n     upstream notifications-server {\n       ip_hash;\n
+    \      server notification:8040;\n     }\n     upstream user-avatar-server {\n
+    \       ip_hash;\n        server userinfo:8091;\n    }\n\n    map $cookie_token
+    $auth_token {\n\t\tdefault $http_authorization;\n\t\t\"\" $http_authorization;\n\n\t\t\"~*\"
+    \"Bearer $cookie_token\";\n\t}\n    server {\n        listen 80;\n\t\t#ssl    on;\n\t\t#ssl_certificate
+    \   C:/workSpaceExecUI/ssl/traefikcert/wekan1.crt;\n\t\t#ssl_certificate_key    C:/workSpaceExecUI/ssl/traefikcert/wekan1.key;\n\t\tserver_name
+    \ localhost;\n        proxy_buffering
+    off;\n        rewrite_log on;\n\t\tclient_max_body_size 10M;\n\n###        add_header
+    Content-Security-Policy \"default-src 'none'; script-src 'self' 'unsafe-inline';
+    connect-src 'self' http://local.soldev.ibaset.com:* ws://local.soldev.ibaset.com:*
+    localhost:* ws://localhost:* http://vmlx-uiswarm:* https://*; img-src http://*
+    'self' data: blob:; style-src 'self' 'unsafe-inline'; font-src 'self' https://hpincfonts.s3.amazonaws.com
+    fonts.gstatic.com cdnjs.cloudflare.com data:; frame-ancestors http://local.soldev.ibaset.com:*;
+    frame-src http://local.soldev.ibaset.com:*;\";\n        ####index index.html index.htm;\n
+    \       location = /favicon.ico { \n            access_log off; \n            log_not_found
+    off; \n        }\n\n        location /solumina-G8/ {\n            error_log /var/log/nginx/solumina-error.log
+    debug;\n            #proxy_set_header Authorization $auth_token;\n            proxy_pass
+    http://oauth-app/solumina-G8/ ;\n            proxy_set_header Host $host;\n        }\n\n
+    \       location ~ /solumina-G8/api/v[0-9]+.[0-9]+/notification/([^\\s]*) {\n
+    \         proxy_pass http://notifications-server/$1;\n          proxy_set_header
+    Host $host;\n        }\n        location ~ /solumina-G8/api/(v[0-9]+.[0-9]+)/user-avatar/([^\\s]*)?([^\\s]*)
+    {\n            proxy_pass http://user-avatar-server/solumina-user-info/api/$1/$2?$args;\n
+    \           proxy_set_header Host $host;\n        }\n        location ~ /solumina-G8/api/(v[0-9]+.[0-9]+)/user-avatar/([^\\s]*)
+    {\n\t\t\tproxy_pass http://user-avatar-server/solumina-user-info/api/$1/$2;\n
+    \           proxy_set_header Host $host;\n        }\n\n\n\n        location /api/workorders/search
+    {\n            proxy_set_header Authorization $auth_token;\n            proxy_pass
+    http://search-app/api/v1.0/workorders/search;\n            proxy_set_header Host
+    $host;\n        } \n        location /api/ {\n            proxy_set_header Authorization
+    $auth_token;\n            proxy_pass http://oauth-app/solumina-G8/api/v1.0/;\n
+    \           proxy_set_header Host $host;\n        }\n        location /s2sapi/
+    {\n            proxy_set_header Authorization $auth_token;\n            proxy_pass
+    http://oauth-app/solumina-G8/api/s2s/v1.0/;\n            proxy_set_header Host
+    $host;\n                                }\n        location /solumina-mt/ {\n
+    \           proxy_set_header Authorization $auth_token;\n            proxy_pass
+    http://oauth-app/solumina-G8/;\n            proxy_set_header Host $host;\n        }\n
+    \          location /dashboard {\n               proxy_pass http://operation-app;\n
+    \           proxy_set_header Host $host;\n        }\n           location /supervisor/
+    {\n            proxy_pass http://supervisor-app;\n            proxy_set_header
+    Host $host;\n        }\n           location /configuration {\n            proxy_pass
+    http://configurator-app;\n            proxy_set_header Host $host;\n        }
+    \ \n           location /ui-schema {\n            proxy_pass http://configurator-api;\n
+    \           proxy_set_header Host $host;\n        } \n           location /alerts/
+    {\n               proxy_pass http://notifications-server;\n            proxy_set_header
+    Host $host;\n                proxy_http_version 1.1;\n                proxy_set_header
+    Upgrade $http_upgrade;\n                proxy_set_header Connection \"upgrade\";\n\n
+    \       } \n           location /socket.io/ {\n               proxy_pass http://notifications-server;\n
+    \           proxy_set_header Host $host;\n                proxy_http_version 1.1;\n
+    \               proxy_set_header Upgrade $http_upgrade;\n                proxy_set_header
+    Connection \"upgrade\";\n\n        }\n        location / {\n            proxy_pass
+    http://login-app;\n        }\t\t\n    }\n\n"
+kind: ConfigMap
+metadata:
+  creationTimestamp: 2019-06-17T17:44:15Z
+  name: nginx-cm
+  namespace: default
+  resourceVersion: "2219446"
+  selfLink: /api/v1/namespaces/default/configmaps/nginx-cm
+  uid: 862292b8-9127-11e9-b6be-06e36b0b2240
+
