@@ -4,42 +4,21 @@ Parameters:
   SqlServerInstanceName:
     Description: RDS SQL Server Instance Name
     Type: String
-  #  Default: SqlRdsDB
-  #  MinLength: '1'
-  #  MaxLength: '63'
-  #  AllowedPattern: "[a-zA-Z][a-zA-Z0-9]*"
   DatabaseUsername:
-  #  AllowedPattern: "[a-zA-Z0-9]+"
-  #  ConstraintDescription: must contain only alphanumeric characters.
     Description: The database admin account user name.
-  #  MaxLength: '16'
-  #  MinLength: '1'
     Type: String
   DatabasePassword:
-  #  AllowedPattern: "^(?=.*[0-9])(?=.*[a-zA-Z])([a-zA-Z0-9]+)"
-  #  ConstraintDescription: Must contain only alphanumeric characters with at least one capital letter and one number.
     Description: The database admin account password.
-  #  MaxLength: '41'
-  #  MinLength: '8'
-  #  NoEcho: 'true'
     Type: String
   VpcId:
     Description: ID of the VPC (e.g., vpc-0343606e).
     Type: AWS::EC2::VPC::Id
   AllocatedStorage:
-  #  ConstraintDescription: "Must be a valid Number from 100 GiB to 5120 GiB"
-  #  Default: "100"
     Description: "Enter the number of Gigabytes for RDS, between 100 GiB and 5120 GiB (5 TiB)."
     Type: Number
-  #  MinValue: '100'
-  #  MaxValue: '5120'
   SqlServerVersion:
-    #Default: "SQLServer2016"
     Description: "Enter the SQL Server version. SQLServer2012 and 2016 are supported."
     Type: String
-    #AllowedValues:
-    #  - "SQLServer2016"
-    #  - "SQLServer2012"
   PrivateSubnet1:
     Description: Private subnet ID
     Type: String
@@ -49,41 +28,8 @@ Parameters:
   PrivateSubnet3:
     Description: Private subnet ID
     Type: String
-  #PrivateSubnets:
-  #  Description: List of private subnet ids to deploy SQL Server
-    #Type: List<AWS::EC2::Subnet::Id>
-  #  Type: String
-    #Type: "AWS::EC2::Subnet::Id"
   DBInstanceClass: 
     Type: String
-    #AllowedValues: 
-    #  - db.r4.large
-    #  - db.r4.xlarge
-    #  - db.r4.2xlarge
-    #  - db.r4.4xlarge
-    #  - db.r4.8xlarge
-    #  - db.r4.16xlarge
-    #  - db.r5.large
-    #  - db.r5.xlarge
-    #  - db.r5.2xlarge
-    #  - db.r5.4xlarge
-    #  - db.r5.12xlarge
-    #  - db.r5.24xlarge
-    #  - db.m4.large
-    #  - db.m4.xlarge
-    #  - db.m4.2xlarge
-    #  - db.m4.4xlarge
-    #  - db.m4.10xlarge
-    #  - db.m4.16xlarge
-    #  - db.m5.large
-    #  - db.m5.xlarge
-    #  - db.m5.2xlarge
-    #  - db.m5.4xlarge
-    #  - db.m5.12xlarge
-    #  - db.m5.24xlarge
-    #ConstraintDescription: "Must select a valid database instance type."
-    #Default: db.m4.large
-    #Description: "The name of the compute and memory capacity class of the database instance."
 Mappings: 
   SqlServerVersionCode: 
     "SQLServer2016": 

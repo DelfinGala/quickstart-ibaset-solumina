@@ -169,9 +169,11 @@ Resources:
                   cd C:\Users\Administrator\Desktop\
                   mkdir solumina
                   cd .\solumina\
-                  Read-S3Object -BucketName $QSS3SourceBucketName -Key ${QSS3SourceKeyPrefix}templates/sqlserver/G8R2SP4.1_UPD_SQLServer_RC.zip  -File G8R2SP4.1_UPD_SQLServer_RC.zip
-                  Read-S3Object -BucketName $QSS3SourceBucketName -Key ${QSS3SourceKeyPrefix}templates/sqlserver/G8_SQL_fi_vG8R2.2SS_20190529.zip  -File G8_SQL_fi_vG8R2.2SS_20190529.zip
-                  Read-S3Object -BucketName $QSS3SourceBucketName -Key ${QSS3SourceKeyPrefix}templates/sqlserver/solumina_license_grants.sql   -File solumina_license_grants.sql
+                  # Read-S3Object -BucketName ${QSS3SourceBucketName} -Key ${QSS3SourceKeyPrefix}templates/sqlserver/G8R2SP4.1_UPD_SQLServer_RC.zip  -File G8R2SP4.1_UPD_SQLServer_RC.zip
+                  # Read-S3Object -BucketName ${QSS3SourceBucketName} -Key ${QSS3SourceKeyPrefix}templates/sqlserver/G8_SQL_fi_vG8R2.2SS_20190529.zip  -File G8_SQL_fi_vG8R2.2SS_20190529.zip
+                  Read-S3Object -BucketName ${QSS3SourceBucketName} -Key ${QSS3SourceKeyPrefix}templates/sqlserver/solumina_license_grants.sql   -File solumina_license_grants.sql
+                  Read-S3Object -BucketName aws-artifacts-ibaset -Key v1/templates/sqlserver/G8R2SP4.1_UPD_SQLServer_RC.zip  -File G8R2SP4.1_UPD_SQLServer_RC.zip
+                  Read-S3Object -BucketName aws-artifacts-ibaset -Key v1/templates/sqlserver/G8_SQL_fi_vG8R2.2SS_20190529.zip  -File G8_SQL_fi_vG8R2.2SS_20190529.zip
                   expand-archive G8_SQL_fi_vG8R2.2SS_20190529.zip
                   expand-archive G8R2SP4.1_UPD_SQLServer_RC.zip
                   cd .\G8_SQL_fi_vG8R2.2SS_20190529\G8_SQL_fi_vG8R2.2SS_20190529\
