@@ -1,0 +1,71 @@
+[
+    {
+        "ParameterKey": "VPCCIDR",
+        "ParameterValue": ""
+    },
+    {
+        "ParameterKey": "VPCID",
+        "ParameterValue": ""
+    },
+    {
+        "ParameterKey": "PrivateSubnet1ID",
+        "ParameterValue": ""
+    },
+    {
+        "ParameterKey": "PrivateSubnet2ID",
+        "ParameterValue": ""
+    },
+    {
+        "ParameterKey": "PrivateSubnet3ID",
+        "ParameterValue": ""
+    },
+    {
+        "ParameterKey": "PublicSubnet1ID",
+        "ParameterValue": ""
+    },
+    {
+        "ParameterKey": "PublicSubnet2ID",
+        "ParameterValue": ""
+    },
+    {
+        "ParameterKey": "PublicSubnet3ID",
+        "ParameterValue": ""
+    },
+    {
+        "ParameterKey": "AvailabilityZones",
+        "ParameterValue": "$[taskcat_getaz_3]"
+    },
+    {
+        "ParameterKey": "KeyPairName",
+        "ParameterValue": ""
+    },
+    {
+        "ParameterKey": "DatabaseUsername",
+        "ParameterValue": "admin"
+    },
+    {
+        "ParameterKey": "DatabasePassword",
+        "ParameterValue": "Solumina123"
+    },
+    {
+        "ParameterKey": "PostRDSWindowsAmiId",
+        "ParameterValue": ""
+    },
+    {
+        "ParameterKey": "MongoDBAdminPassword",
+        "ParameterValue": "Solumina123"
+    },
+    {
+        "ParameterKey": "RandomString",
+        "ParameterValue": "iba"
+    },
+    {
+        "ParameterKey": "JDBCDriverKeyPrefix",
+        "ParameterValue": "v1/"
+    },
+
+    {
+        "ParameterKey": "JDBCDriverBucketName",
+        "ParameterValue": "aws-artifacts-ibaset"
+    }
+]
