@@ -11,7 +11,7 @@ This Quick Start helps you deploy a fully functional Solumina environment on the
 ``` NEED TO ADD THE LINK```
 
 The Quick Start supports two standardized architectures and provides automatic deployment options for Solumina:
-- Standalone architecture. Installs Solumina on an Amazon EC2 instances running CentOS 7 x86_64 HVM, Server 16.04-LTS-HVM. 
+- Standalone architecture. Installs Solumina on an Amazon EC2 instances running CentOS 7 x86_64 HVM. 
 This architecture is deployed into a new or existing VPC.
 - Cluster architecture. Installs Solumina on at least three Amazon EC2  instances running CentOS 7 x86_64 HVM.
  This option builds a new AWS environment consisting of the VPC, subnets, NAT gateways, 
