@@ -20,7 +20,7 @@ global:
 tests:
   new-vpc:
     parameter_input: input.new.vpc.json
-    template_file: master/solumina-master.yaml
+    template_file: solumina-master.yaml
     regions:
       - us-east-2
 #  existing-vpc:

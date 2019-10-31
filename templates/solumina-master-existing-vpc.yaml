@@ -36,8 +36,6 @@ Metadata:
           default: RDS configuration
         Parameters:
           - SqlServerInstanceName
-          - DatabaseUsername
-          - DatabasePassword
           - AllocatedStorage
           - SqlServerVersion
           - DBInstanceClass
@@ -87,10 +85,6 @@ Metadata:
         default: Kubernetes version
       SqlServerInstanceName:
         default: SQL Server Instance Name
-      DatabaseUsername:
-        default: Database User Name
-      DatabasePassword:
-        default: Database password
       AllocatedStorage:
         default: Allocated Storage to DB
       SqlServerVersion:
@@ -272,23 +266,6 @@ Parameters:
     MinLength: '1'
     MaxLength: '63'
     AllowedPattern: "[a-zA-Z][a-zA-Z0-9]*"
-  DatabaseUsername:
-    AllowedPattern: "[a-zA-Z0-9]+"
-    ConstraintDescription: must contain only alphanumeric characters.
-    Description: The database admin account user name.
-    MaxLength: '16'
-    MinLength: '1'
-    Type: String
-    Default: "admin"
-  DatabasePassword:
-    AllowedPattern: "^(?=.*[0-9])(?=.*[a-zA-Z])([a-zA-Z0-9]+)"
-    ConstraintDescription: Must contain only alphanumeric characters with at least one capital letter and one number.
-    Description: The database admin account password.
-    MaxLength: '41'
-    MinLength: '8'
-    NoEcho: 'true'
-    Type: String
-    Default: Solumina123
   AllocatedStorage:
     ConstraintDescription: "Must be a valid Number from 100 GiB to 5120 GiB"
     Default: "100"
@@ -531,8 +508,8 @@ Resources:
       TemplateURL: !Sub 'https://${QSS3BucketName}.s3.amazonaws.com/${QSS3KeyPrefix}templates/sqlserver/ss2016se-rds.yml'
       Parameters:
         SqlServerInstanceName: !Ref 'SqlServerInstanceName'
-        DatabaseUsername: !Ref 'DatabaseUsername'
-        DatabasePassword: !Ref 'DatabasePassword'
+        DatabaseUsername: 'admin'
+        DatabasePassword: 'Solumina123'
         VpcId: !Ref 'VPCID'
         AllocatedStorage: !Ref 'AllocatedStorage'
         SqlServerVersion: !Ref 'SqlServerVersion'
@@ -597,8 +574,8 @@ Resources:
         QSS3KeyPrefix: !Sub ${QSS3KeyPrefix}submodules/quickstart-mongodb/
         ClusterReplicaSetCount: !Ref 'ClusterReplicaSetCount'
         MongoDBVersion: !Ref 'MongoDBVersion'
-        MongoDBAdminUsername: !Ref 'MongoDBAdminUsername'
-        MongoDBAdminPassword: !Ref 'MongoDBAdminPassword'
+        MongoDBAdminUsername: 'admin'
+        MongoDBAdminPassword: 'Solumina123'
         ReplicaShardIndex: !Ref 'ReplicaShardIndex'
         VolumeSize: !Ref 'VolumeSize'
         VolumeType: !Ref 'VolumeType'
