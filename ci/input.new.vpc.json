@@ -1,0 +1,42 @@
+[
+
+    {
+        "ParameterKey": "AvailabilityZones",
+        "ParameterValue": "$[taskcat_getaz_3]"
+    },
+    {
+        "ParameterKey": "KeyPairName",
+        "ParameterValue": ""
+    },
+    {
+        "ParameterKey": "DatabaseUsername",
+        "ParameterValue": "admin"
+    },
+    {
+        "ParameterKey": "DatabasePassword",
+        "ParameterValue": "Solumina123"
+    },
+    {
+        "ParameterKey": "PostRDSWindowsAmiId",
+        "ParameterValue": ""
+    },
+    {
+        "ParameterKey": "MongoDBAdminPassword",
+        "ParameterValue": "Solumina123"
+    },
+    {
+        "ParameterKey": "RandomString",
+        "ParameterValue": "iba"
+    },
+
+    {
+        "ParameterKey": "JDBCDriverKeyPrefix",
+        "ParameterValue": "v1/"
+    },
+
+    {
+        "ParameterKey": "JDBCDriverBucketName",
+        "ParameterValue": "aws-artifacts-ibaset"
+    }
+
+]

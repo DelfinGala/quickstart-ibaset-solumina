@@ -20,14 +20,11 @@ Parameters:
   ELKS3KeyPrefixLambdaZip:
     Description: S3 Bucket Key
     Type: String
-    Default: 'templates/elasticsearch/postscripts/elkpostscript.zip'
   RandomString:
     Description: Unique suffix
     Type: String
   QSS3BucketName:
     Description: S3 bucket name
-    Type: String
-  QSS3KeyPrefix: 
     Type: String
 Resources:
   LambdaCustomResource:
@@ -108,14 +105,8 @@ Resources:
           - Arn
     DependsOn:
       - LambdaRole
-      # - Name_of_the_ELK_Stack_Resource
 
 Outputs:
-  # Result:
-    # Value: !GetAtt
-    #   - LambdaCustomResource
-    #   - Result
-
   DomainEndpoint:
     Value: !Join
       - ''

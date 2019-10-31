@@ -49,7 +49,6 @@ Parameters:
   ELKS3KeyPrefixLambdaZip:
     Description: S3 Bucket Key
     Type: String
-    Default: 'templates/elasticsearch/postscripts/elkpostscript.zip'
   RandomString:
     Description: Unique suffix
     Type: String
@@ -114,10 +113,8 @@ Resources:
         LambdaSecurityGroup: !Join
           - ','
           - - !GetAtt ElkSecurityGroup.GroupId
-#        QSS3BucketName: !Ref 'QSS3BucketName'
         QSS3BucketName: !Ref LambdaZipQSS3BucketName
-        QSS3KeyPrefix: !Ref 'QSS3KeyPrefix'
-        ELKS3KeyPrefixLambdaZip: !Sub ${QSS3KeyPrefix}templates/elasticsearch/postscripts/elkpostscript.zip
+        ELKS3KeyPrefixLambdaZip: !Ref 'ELKS3KeyPrefixLambdaZip'
         LambdaSubnetID: !Join
            - ','
            - - !Ref PrivateSubnet1ID

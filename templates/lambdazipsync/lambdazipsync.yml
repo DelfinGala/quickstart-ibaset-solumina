@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: "2010-09-09"
-Description: Deploys an EKS cluster in a new VPC (qs-1p7nknoht)
+Description: Copies Lambda ZipFile artifacts to S3 to support Provisioning
 Metadata:
   AWS::CloudFormation::Interface:
     ParameterGroups:
@@ -20,14 +20,12 @@ Parameters:
     ConstraintDescription: Quick Start bucket name can include numbers, lowercase
       letters, uppercase letters, and hyphens (-). It cannot start or end with a hyphen
       (-).
-    #Default: aws-quickstart
     Default: aws-quickstart-ibaset
     Type: String
   QSS3KeyPrefix:
     AllowedPattern: ^[0-9a-zA-Z-/.]*$
     ConstraintDescription: Quick Start key prefix can include numbers, lowercase letters,
       uppercase letters, hyphens (-), dots(.) and forward slash (/).
-    #Default: quickstart-amazon-eks/
     Default: quickstart-ibaset-solumina/
     Type: String
 

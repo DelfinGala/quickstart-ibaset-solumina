@@ -69,7 +69,7 @@ sleep 5
 
 # run efs script to make directories and copy driver files in to EFS
 sudo chmod +x /exec-ui/efs/efs-script.sh
-sh /exec-ui/efs/efs-script.sh
+sh -xx /exec-ui/efs/efs-script.sh
 
 
 
@@ -184,13 +184,13 @@ do
 done
 ##
 
-sleep 5
+sleep 15
 
 #speen Nginx before the stack to get ELB up and running
 kubectl create -f /exec-ui/nginx
 
 #give nginx enough time to get ELB address
-sleep 20
+sleep 30
 
 
 #get nginx ELB address ento ELB variable
@@ -223,3 +223,5 @@ aws ssm delete-parameter --name UIWaitHandle --region $EC2_REGION
 aws ssm delete-parameter --name PostRDSStackName --region $EC2_REGION
 aws ssm delete-parameter --name QSS3BucketName --region $EC2_REGION
 aws ssm delete-parameter --name QSS3KeyPrefix --region $EC2_REGION
+aws ssm delete-parameter --name JDBCDriverBucketName --region $EC2_REGION
+aws ssm delete-parameter --name JDBCDriverKeyPrefix --region $EC2_REGION

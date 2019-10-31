@@ -26,14 +26,17 @@ Metadata:
           - NumberOfNodes
           - NodeGroupName
           - NodeVolumeSize
-#          - AdditionalEKSAdminArns
           - KubernetesVersion
       - Label:
           default: AWS Quick Start configuration
         Parameters:
           - QSS3BucketName
           - QSS3KeyPrefix
-        #  - LambdaZipsBucketName
+      - Label:
+          default: JDBC driver S3 Bucket configuration
+        Parameters:
+          - JDBCDriverBucketName
+          - JDBCDriverKeyPrefix
       - Label:
           default: RDS configuration
         Parameters:
@@ -43,13 +46,10 @@ Metadata:
           - AllocatedStorage
           - SqlServerVersion
           - DBInstanceClass
-#          - RDSPSInstanceType
           - PostRDSWindowsAmiId
-#          - InstanceProfileRoleName
       - Label:
           default: Elasticsearch configuration
         Parameters:
-#          - DomainName
           - ElasticsearchVersion
           - ELKInstanceType
       - Label:
@@ -98,12 +98,8 @@ Metadata:
         default: Node group name
       NodeVolumeSize:
         default: Node volume size
-      # AdditionalEKSAdminArns:
-      #   default: Additional EKS admin ARNs
       KubernetesVersion:
         default: Kubernetes version
-     # LambdaZipsBucketName:
-     #    default: Lambda zips bucket name
       SqlServerInstanceName:
         default: SQL Server Instance Name
       DatabaseUsername:
@@ -116,12 +112,8 @@ Metadata:
         default: SQL Server Version
       DBInstanceClass:
         default: DB Instance Class
-      # RDSPSInstanceType:
-      #   default: RDS Instance Type
       PostRDSWindowsAmiId:
         default: AmiID for EC2 to Run Postscripts
-#      InstanceProfileRoleName:
-#        default: Instance Profile Role Name
       ClusterReplicaSetCount:
         default: Cluster Replica Set Count
       MongoDBVersion:
@@ -146,6 +138,10 @@ Metadata:
         default: ELK Stack Version
       ELKInstanceType:
         default: ELK Instance Type
+      JDBCDriverBucketName:
+        default: JDBC Driver Bucket Name
+      JDBCDriverKeyPrefix:
+        default: JDBC Driver Bucket Key Prefix
 Parameters:
   AvailabilityZones:
     Description: The list of Availability Zones to use for the subnets in the VPC. Three
@@ -200,8 +196,7 @@ Parameters:
     ConstraintDescription: Quick Start bucket name can include numbers, lowercase
       letters, uppercase letters, and hyphens (-). It cannot start or end with a hyphen
       (-).
-    #Default: aws-quickstart
-    Default: aws-quickstart-ibaset
+    Default: aws-quickstart
     Description: S3 bucket name for the Quick Start assets. This string can include
       numbers, lowercase letters, uppercase letters, and hyphens (-). It cannot start
       or end with a hyphen (-).
@@ -210,7 +205,6 @@ Parameters:
     AllowedPattern: ^[0-9a-zA-Z-/.]*$
     ConstraintDescription: Quick Start key prefix can include numbers, lowercase letters,
       uppercase letters, hyphens (-), dots(.) and forward slash (/).
-    #Default: quickstart-amazon-eks/
     Default: quickstart-ibaset-solumina/
     Description: S3 key prefix for the Quick Start assets. Quick Start key prefix
       can include numbers, lowercase letters, uppercase letters, hyphens (-), dots(.) and
@@ -229,10 +223,6 @@ Parameters:
     Default: 192.168.10.0/24
     Description: The CIDR block for the VPC
     Type: String
-  # AdditionalEKSAdminArns:
-  #   Default: ""
-  #   Description: "[OPTIONAL] Comma separated list of IAM user/role Amazon Resource Names (ARNs) to be granted admin access to the EKS cluster"
-  #   Type: CommaDelimitedList
   NodeInstanceType:
     Default: t3.xlarge
     AllowedValues:
@@ -327,10 +317,6 @@ Parameters:
     AllowedValues: [ "1.12", "1.11", "1.10" ]
     Default: "1.12"
     Description: The Kubernetes control plane version.
-    #LambdaZipsBucketName:
-    #Description: '[OPTIONAL] The name of the S3 bucket where the Lambda zip files should be placed. If you leave this parameter blank, an S3 bucket will be created.'
-    #Type: String
-    #Default: ''
   ### Parameter Added for RDS Provisioning Stack##
   SqlServerInstanceName:
     Description: RDS SQL Server Instance Name
@@ -369,7 +355,6 @@ Parameters:
     Type: String
     AllowedValues:
       - "SQLServer2016"
-    #  - "SQLServer2012"
   DBInstanceClass:
     AllowedValues:
       - db.r4.large
@@ -400,26 +385,11 @@ Parameters:
     Default: db.m4.large
     Description: "The name of the compute and memory capacity class of the database instance."
     Type: String
-##
 ## Parameters Added for RDS Postscripts Stack##
-  # RDSPSInstanceType:
-  #   Description: Amazon EC2 Instance Type
-  #   Type: String
-  #   Default: t3.xlarge
-  #   AllowedValues: [
-  #     t2.micro,
-  #     t2.medium,
-  #     t3.xlarge
-  #   ]
   PostRDSWindowsAmiId:
     Description: Ami Id for Windows - default- Windows_Server-2019-English-Full-SQL_2017_Standard-2019.06.12
     Type: String
-    #Default: ami-0a454d3892fb3ddc6 # Oregon
-    Default: ami-0ef5efc96eebbe25a # North Virginia
-    #Default: ami-013bee73e7b64ee0b # Ohio
-#  InstanceProfileRoleName:
-#     Description: EC2 Instance profile role name to attach
-#     Type: String
+    Default: ''
 ### Parameters Added for ES Domain ###
   ElasticsearchVersion:
     Default: 6.7
@@ -554,6 +524,12 @@ Parameters:
       - i2.2xlarge
       - i2.4xlarge
       - i2.8xlarge
+  JDBCDriverBucketName:
+    Type: String
+    Description: 'JDBC Driver Storage Bucket Name'
+  JDBCDriverKeyPrefix:
+    Type: String
+    Description: 'JDBC Driver Storage Bucket Key Prefix'
   RandomString:
     Type: String
     Description: 'Random String for uniqueness'
@@ -600,8 +576,8 @@ Resources:
     Properties:
       TemplateURL: !Sub 'https://${QSS3BucketName}.s3.amazonaws.com/${QSS3KeyPrefix}templates/lambdazipsync/lambdazipsync.yml'
       Parameters:
-        QSS3BucketName: !Ref 'QSS3BucketName'
-        QSS3KeyPrefix: !Ref 'QSS3KeyPrefix'
+        QSS3BucketName: 'aws-artifacts-ibaset'
+        QSS3KeyPrefix: 'v1/'
 ## RDS Provisioning ###
   RDSStack:
     Type: AWS::CloudFormation::Stack
@@ -614,7 +590,6 @@ Resources:
         VpcId: !GetAtt VPCStack.Outputs.VPCID
         AllocatedStorage: !Ref 'AllocatedStorage'
         SqlServerVersion: !Ref 'SqlServerVersion'
-        #PrivateSubnets: !GetAtt VPCStack.Outputs.PrivateSubnet1AID
         PrivateSubnet1: !GetAtt VPCStack.Outputs.PrivateSubnet1AID
         PrivateSubnet2: !GetAtt VPCStack.Outputs.PrivateSubnet2AID
         PrivateSubnet3: !GetAtt VPCStack.Outputs.PrivateSubnet3AID
@@ -663,7 +638,7 @@ Resources:
         QSS3BucketName: !Ref 'QSS3BucketName'
         LambdaZipQSS3BucketName: !GetAtt LambdaZipSyncStack.Outputs.S3SyncNewBucket
         QSS3KeyPrefix: !Ref 'QSS3KeyPrefix'
-        ELKS3KeyPrefixLambdaZip: 'templates/elasticsearch/postscripts/elkpostscript.zip'
+        ELKS3KeyPrefixLambdaZip: 'v1/templates/elasticsearch/postscripts/elkpostscript.zip'
         RandomString: !Ref 'RandomString'
     DependsOn:
       - VPCStack
@@ -713,7 +688,6 @@ Resources:
         NodeVolumeSize: !Ref NodeVolumeSize
         NodeInstanceType: !Ref NodeInstanceType
         RemoteAccessCIDR: !Ref RemoteAccessCIDR
-#        AdditionalEKSAdminArns: !Join [ ",", !Ref AdditionalEKSAdminArns ]
         VPCID: !GetAtt VPCStack.Outputs.VPCID
         KubernetesVersion: !Ref KubernetesVersion
         ProvisionClusterAutoScaler: Disabled
@@ -744,11 +718,9 @@ Resources:
              - !GetAtt VPCStack.Outputs.PrivateSubnet2AID
              - !GetAtt VPCStack.Outputs.PrivateSubnet3AID
         LambdaSecurityGroup: !GetAtt EKSStack.Outputs.BastionSecurityGroup
-        BastionS3KeyPrefixLambdaZip: !Sub '${QSS3KeyPrefix}templates/bastion/lambda/bastionpostscriptlambda.zip'
+        BastionS3KeyPrefixLambdaZip: 'v1/templates/bastion/lambda/bastionpostscriptlambda.zip'
         RandomString: !Ref 'RandomString'
-#        QSS3BucketName: !Ref 'QSS3BucketName'
         QSS3BucketName: !GetAtt LambdaZipSyncStack.Outputs.S3SyncNewBucket
-        QSS3KeyPrefix: !Ref 'QSS3KeyPrefix'
         CustomBastionPolicyARN: !GetAtt PostBastionPolicystack.Outputs.BastionPolicyARN
         EKSSourceSecGroupId:
           Fn::GetAtt: [ EKSStack , Outputs.NodeGroupSecurityGroup]
@@ -884,9 +856,29 @@ Resources:
       Name: "QSS3KeyPrefix"
       Type: "String"
       Value: !Ref 'QSS3KeyPrefix'
-      Description: "Key prefix for QSS3Bucket"
+      Description: "QSS3KeyPrefix Key prefix for QSS3Bucket"
       Tags:
         "Name": "SSMQSS3KeyPrefix"
+
+  SSMDriverBucketName:
+    Type: "AWS::SSM::Parameter"
+    Properties:
+      Name: "JDBCDriverBucketName"
+      Type: "String"
+      Value: !Ref 'JDBCDriverBucketName'
+      Description: "JDBCDriverBucketName - S3 storage for quickstart"
+      Tags:
+        "Name": "JDBCDriverBucketName"
+
+  SSMDriverKeyPrefix:
+    Type: "AWS::SSM::Parameter"
+    Properties:
+      Name: "JDBCDriverKeyPrefix"
+      Type: "String"
+      Value: !Ref 'JDBCDriverKeyPrefix'
+      Description: "JDBCDriverKeyPrefix Key prefix for QSS3Bucket"
+      Tags:
+        "Name": "JDBCDriverKeyPrefix"
 
 ## UI Provisioning ###
   UIStack:
