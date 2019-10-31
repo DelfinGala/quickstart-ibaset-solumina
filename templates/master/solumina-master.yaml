@@ -526,10 +526,10 @@ Parameters:
       - i2.8xlarge
   JDBCDriverBucketName:
     Type: String
-    Description: 'JDBC Driver Bucket Name'
+    Description: 'JDBC Driver Storage Bucket Name'
   JDBCDriverKeyPrefix:
     Type: String
-    Description: 'JDBC Driver Bucket Key Prefix'
+    Description: 'JDBC Driver Storage Bucket Key Prefix'
   RandomString:
     Type: String
     Description: 'Random String for uniqueness'

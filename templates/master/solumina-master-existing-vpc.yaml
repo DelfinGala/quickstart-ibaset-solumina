@@ -124,9 +124,9 @@ Metadata:
       ELKInstanceType:
         default: ELK Instance Type
       JDBCDriverBucketName:
-        default: JDBC Driver Bucket Name
+        default: JDBC Driver Storage Bucket Name
       JDBCDriverKeyPrefix:
-        default: JDBC Driver Bucket Key Prefix
+        default: JDBC Driver Storage Bucket Key Prefix
 
 Parameters:
   AvailabilityZones:
@@ -473,10 +473,8 @@ Parameters:
       - i2.8xlarge
   JDBCDriverBucketName:
     Type: String
-    Description: 'JDBC Driver Bucket Name'
   JDBCDriverKeyPrefix:
     Type: String
-    Description: 'JDBC Driver Bucket Key Prefix'
   RandomString:
     Type: String
     Description: 'Random String for uniqueness'
