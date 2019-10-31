@@ -18,7 +18,7 @@
     },
     {
         "ParameterKey": "PostRDSWindowsAmiId",
-        "ParameterValue": ""
+        "ParameterValue": "Windows_Server-2019-English-Full-SQL_2017_Standard-2019.06.12"
     },
     {
         "ParameterKey": "MongoDBAdminPassword",
@@ -28,12 +28,10 @@
         "ParameterKey": "RandomString",
         "ParameterValue": "iba"
     },
-
     {
         "ParameterKey": "JDBCDriverKeyPrefix",
         "ParameterValue": "v1/"
     },
-
     {
         "ParameterKey": "JDBCDriverBucketName",
         "ParameterValue": "aws-artifacts-ibaset"
