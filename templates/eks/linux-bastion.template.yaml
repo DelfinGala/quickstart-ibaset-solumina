@@ -1,7 +1,7 @@
 AWSTemplateFormatVersion: 2010-09-09
-Description: LinuxBastion+VPC July,18,2019QS (0037) (Please do not remove) 
+Description: LinuxBastion+VPC July,18,2019QS (0037) (Please do not remove)
 Metadata:
-  LICENSE: Apache License, Version 2.0 
+  LICENSE: Apache License, Version 2.0
   'AWS::CloudFormation::Interface':
     ParameterGroups:
       - Label:
@@ -320,32 +320,32 @@ Mappings:
     SUSE-SLES-15-HVM:
       Code: SLES15HVM
 Conditions:
-  2BastionCondition: !Or 
-    - !Equals 
+  2BastionCondition: !Or
+    - !Equals
       - !Ref NumBastionHosts
       - '2'
     - !Condition 3BastionCondition
     - !Condition 4BastionCondition
-  3BastionCondition: !Or 
-    - !Equals 
+  3BastionCondition: !Or
+    - !Equals
       - !Ref NumBastionHosts
       - '3'
     - !Condition 4BastionCondition
-  4BastionCondition: !Equals 
+  4BastionCondition: !Equals
     - !Ref NumBastionHosts
     - '4'
-  GovCloudCondition: !Equals 
+  GovCloudCondition: !Equals
     - !Ref 'AWS::Region'
     - us-gov-west-1
-  UseAlternativeInitialization: !Not 
-    - !Equals 
+  UseAlternativeInitialization: !Not
+    - !Equals
       - !Ref AlternativeInitializationScript
       - ''
-  CreateIAMRole: !Equals 
+  CreateIAMRole: !Equals
     - !Ref AlternativeIAMRole
     - ''
-  UseOSImageOverride: !Not 
-    - !Equals 
+  UseOSImageOverride: !Not
+    - !Equals
       - !Ref OSImageOverride
       - ''
 Resources:
@@ -359,7 +359,7 @@ Resources:
       MetricTransformations:
         - MetricName: SSHCommandCount
           MetricValue: '1'
-          MetricNamespace: !Join 
+          MetricNamespace: !Join
             - /
             - - AWSQuickStart
               - !Ref 'AWS::StackName'
@@ -388,9 +388,9 @@ Resources:
         Statement:
           - Action:
               - 's3:GetObject'
-            Resource: !Sub 
+            Resource: !Sub
               - 'arn:${Partition}:s3:::${QSS3BucketName}/${QSS3KeyPrefix}*'
-              - Partition: !If 
+              - Partition: !If
                   - GovCloudCondition
                   - aws-us-gov
                   - aws
@@ -412,13 +412,6 @@ Resources:
               - 'ssm:PutParameters'
               - 'ssm:PutParameter'
               - 's3:*'
-              #- 's3:GetObject'
-            #Resource: !Sub 
-            #  - arn:${Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:${BastionMainLogGroup}:*
-            #  - Partition: !If 
-            #      - GovCloudCondition
-            #      - aws-us-gov
-            #      - aws
             Resource: '*'
             Effect: Allow
           - Action:
@@ -427,7 +420,7 @@ Resources:
             Resource: '*'
             Effect: Allow
       Roles:
-        - !If 
+        - !If
           - CreateIAMRole
           - !Ref BastionHostRole
           - !Ref AlternativeIAMRole
@@ -436,7 +429,7 @@ Resources:
     Type: 'AWS::IAM::InstanceProfile'
     Properties:
       Roles:
-        - !If 
+        - !If
           - CreateIAMRole
           - !Ref BastionHostRole
           - !Ref AlternativeIAMRole
@@ -485,7 +478,7 @@ Resources:
       'AWS::CloudFormation::Authentication':
         S3AccessCreds:
           type: S3
-          roleName: !If 
+          roleName: !If
             - CreateIAMRole
             - !Ref BastionHostRole
             - !Ref AlternativeIAMRole
@@ -495,12 +488,12 @@ Resources:
         config:
           files:
             /tmp/bastion_bootstrap.sh:
-              source: !If 
+              source: !If
                 - UseAlternativeInitialization
                 - !Ref AlternativeInitializationScript
-                - !Sub 
+                - !Sub
                   - https://${QSS3BucketName}.${QSS3Region}.amazonaws.com/${QSS3KeyPrefix}scripts/bastion_bootstrap.sh
-                  - QSS3Region: !If 
+                  - QSS3Region: !If
                       - GovCloudCondition
                       - s3-us-gov-west-1
                       - s3
@@ -510,7 +503,7 @@ Resources:
               authentication: S3AccessCreds
           commands:
             b-bootstrap:
-              command: !Join 
+              command: !Join
                 - ''
                 - - ./tmp/bastion_bootstrap.sh
                   - ' --banner '
@@ -526,13 +519,13 @@ Resources:
       PlacementTenancy: !Ref BastionTenancy
       KeyName: !Ref KeyPairName
       IamInstanceProfile: !Ref BastionHostProfile
-      ImageId: !If 
+      ImageId: !If
         - UseOSImageOverride
         - !Ref OSImageOverride
-        - !FindInMap 
+        - !FindInMap
           - AWSAMIRegionMap
           - !Ref 'AWS::Region'
-          - !FindInMap 
+          - !FindInMap
             - LinuxAMINameMap
             - !Ref BastionAMIOS
             - Code
@@ -545,7 +538,7 @@ Resources:
             VolumeSize: !Ref RootVolumeSize
             VolumeType: gp2
             DeleteOnTermination: true
-      UserData: !Base64 
+      UserData: !Base64
         'Fn::Join':
           - ''
           - - |
@@ -555,11 +548,11 @@ Resources:
             - for e in $(echo "
             - !Ref EnvironmentVariables
             - |
-              " | tr ',' ' '); do 
+              " | tr ',' ' '); do
             - |2
-                export $e 
+                export $e
             - |
-              done 
+              done
             - |
               export PATH=$PATH:/usr/local/bin
             - |
@@ -583,7 +576,7 @@ Resources:
               IN_ID=`curl http://169.254.169.254/latest/meta-data/instance-id`
               EC2_AVAIL_ZONE=`curl -s http://169.254.169.254/latest/meta-data/placement/availability-zone`
               EC2_REGION="`echo \"$EC2_AVAIL_ZONE\" | sed 's/[a-z]$//'`"
-              aws ssm put-parameter     --name "bastionID"     --value "$IN_ID"  --region "$EC2_REGION"   --type "String" --overwrite 
+              aws ssm put-parameter     --name "bastionID"     --value "$IN_ID"  --region "$EC2_REGION"   --type "String" --overwrite
               aws ssm get-parameter --region $EC2_REGION --name "EFSId"
               efs_id=$(aws ssm get-parameters --name "EFSId" --region $EC2_REGION --query "Parameters[0].Value")
               efs_id=${efs_id//\"/}
@@ -593,17 +586,17 @@ Resources:
             - EIP_LIST="
             - !Ref EIP1
             - ','
-            - !If 
+            - !If
               - 2BastionCondition
               - !Ref EIP2
               - 'Null'
             - ','
-            - !If 
+            - !If
               - 3BastionCondition
               - !Ref EIP3
               - 'Null'
             - ','
-            - !If 
+            - !If
               - 4BastionCondition
               - !Ref EIP4
               - 'Null'
@@ -680,7 +673,7 @@ Outputs:
       Name: !Sub '${AWS::StackName}-BastionSecurityGroupID'
   BastionHostRole:
     Description: Bastion IAM Role name
-    Value: !If 
+    Value: !If
       - CreateIAMRole
       - !Ref BastionHostRole
       - !Ref AlternativeIAMRole
