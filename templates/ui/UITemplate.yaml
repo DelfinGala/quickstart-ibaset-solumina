@@ -55,7 +55,7 @@ Resources:
             QSS3KeyPrefix=${QSS3KeyPrefix//\"/}
             QSS3BucketName=${QSS3BucketName//\"/}
             S3SyncURL=${QSS3BucketName}/${QSS3KeyPrefix}
-            sudo aws s3 cp s3://${S3SyncURL}templates/ui/UIDeploymentScript.sh /
+            sudo aws s3 cp s3://${S3SyncURL}assets/scripts/UIDeploymentScript.sh /
             sudo chmod +x UIDeploymentScript.sh
             sudo chown ec2-user:ec2-user /UIDeploymentScript.sh
             sudo mkdir -p /exec-ui

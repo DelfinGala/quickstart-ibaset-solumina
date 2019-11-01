@@ -26,7 +26,7 @@ QSS3BucketName=$(aws ssm get-parameters --name "QSS3BucketName" --region $EC2_RE
 QSS3KeyPrefix=$(aws ssm get-parameters --name "QSS3KeyPrefix" --region $EC2_REGION --query "Parameters[0].Value")
 QSS3KeyPrefix=${QSS3KeyPrefix//\"/}
 QSS3BucketName=${QSS3BucketName//\"/}
-S3SyncURL=s3://${QSS3BucketName}/${QSS3KeyPrefix}deployments
+S3SyncURL=s3://${QSS3BucketName}/${QSS3KeyPrefix}assets/deployments
 cd /exec-ui
 aws s3 sync ${S3SyncURL} .
 

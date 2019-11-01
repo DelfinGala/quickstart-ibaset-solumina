@@ -55,8 +55,6 @@ Metadata:
         Parameters:
           - ClusterReplicaSetCount
           - MongoDBVersion
-          - MongoDBAdminUsername
-          - MongoDBAdminPassword
           - ReplicaShardIndex
           - VolumeSize
           - VolumeType
@@ -112,10 +110,6 @@ Metadata:
         default: Cluster Replica Set Count
       MongoDBVersion:
         default: MongoDB Version
-      MongoDBAdminUsername:
-        default: MongoDB Admin Username
-      MongoDBAdminPassword:
-        default: MongoDB Admin Password
       ReplicaShardIndex:
         default: Replica Shard Index
       VolumeSize:
@@ -536,8 +530,8 @@ Resources:
     Properties:
       TemplateURL: !Sub 'https://${QSS3BucketName}.s3.amazonaws.com/${QSS3KeyPrefix}templates/lambdazipsync/lambdazipsync.yml'
       Parameters:
-        QSS3BucketName: 'aws-artifacts-ibaset'
-        QSS3KeyPrefix: 'v1/'
+        QSS3BucketName: !Ref 'QSS3BucketName'
+        QSS3KeyPrefix: !Ref 'QSS3KeyPrefix'
 ## RDS Provisioning ###
   RDSStack:
     Type: AWS::CloudFormation::Stack
@@ -598,7 +592,7 @@ Resources:
         QSS3BucketName: !Ref 'QSS3BucketName'
         LambdaZipQSS3BucketName: !GetAtt LambdaZipSyncStack.Outputs.S3SyncNewBucket
         QSS3KeyPrefix: !Ref 'QSS3KeyPrefix'
-        ELKS3KeyPrefixLambdaZip: 'v1/templates/elasticsearch/postscripts/elkpostscript.zip'
+        ELKS3KeyPrefixLambdaZip: !Sub '${QSS3KeyPrefix}lambda/package/elasticsearch/elkpostscript.zip'
         RandomString: !Ref 'RandomString'
     DependsOn:
       - VPCStack
@@ -678,7 +672,7 @@ Resources:
              - !GetAtt VPCStack.Outputs.PrivateSubnet2AID
              - !GetAtt VPCStack.Outputs.PrivateSubnet3AID
         LambdaSecurityGroup: !GetAtt EKSStack.Outputs.BastionSecurityGroup
-        BastionS3KeyPrefixLambdaZip: 'v1/templates/bastion/lambda/bastionpostscriptlambda.zip'
+        BastionS3KeyPrefixLambdaZip: !Sub '${QSS3KeyPrefix}lambda/package/bastion/bastionpostscriptlambda.zip'
         RandomString: !Ref 'RandomString'
         QSS3BucketName: !GetAtt LambdaZipSyncStack.Outputs.S3SyncNewBucket
         CustomBastionPolicyARN: !GetAtt PostBastionPolicystack.Outputs.BastionPolicyARN

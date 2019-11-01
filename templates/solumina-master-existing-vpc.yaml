@@ -50,8 +50,6 @@ Metadata:
         Parameters:
           - ClusterReplicaSetCount
           - MongoDBVersion
-          - MongoDBAdminUsername
-          - MongoDBAdminPassword
           - ReplicaShardIndex
           - VolumeSize
           - VolumeType
@@ -97,10 +95,6 @@ Metadata:
         default: Cluster Replica Set Count
       MongoDBVersion:
         default: MongoDB Version
-      MongoDBAdminUsername:
-        default: MongoDB Admin Username
-      MongoDBAdminPassword:
-        default: MongoDB Admin Password
       ReplicaShardIndex:
         default: Replica Shard Index
       VolumeSize:
@@ -351,24 +345,6 @@ Parameters:
       - '3.6'
       - '3.4'
       - '3.2'
-  MongoDBAdminUsername:
-    Default: admin
-    NoEcho: 'true'
-    Description: MongoDB admin account username
-    Type: String
-    MinLength: '1'
-    MaxLength: '16'
-    AllowedPattern: '[a-zA-Z][a-zA-Z0-9]*'
-    ConstraintDescription: must begin with a letter and contain only alphanumeric characters.
-  MongoDBAdminPassword:
-    AllowedPattern: '([A-Za-z0-9_@-]{8,32})'
-    ConstraintDescription: >-
-      Input your MongoDB database password, Min 8, Maximum of 32 characters. .
-      Allowed characters are: [A-Za-z0-9_@-]
-    Description: 'Enter your MongoDB Database Password, Min 8, maximum of 32 characters.'
-    NoEcho: 'true'
-    Type: String
-    Default: Solumina123
   ReplicaShardIndex:
     Description: Shard Index of this replica set
     Type: String
@@ -499,8 +475,8 @@ Resources:
     Properties:
       TemplateURL: !Sub 'https://${QSS3BucketName}.s3.amazonaws.com/${QSS3KeyPrefix}templates/lambdazipsync/lambdazipsync.yml'
       Parameters:
-        QSS3BucketName: 'aws-artifacts-ibaset'
-        QSS3KeyPrefix: 'v1/'
+        QSS3BucketName: !Ref 'QSS3BucketName'
+        QSS3KeyPrefix: !Ref 'QSS3KeyPrefix'
 ## RDS Provisioning ###
   RDSStack:
     Type: AWS::CloudFormation::Stack
@@ -560,7 +536,7 @@ Resources:
         QSS3BucketName: !Ref 'QSS3BucketName'
         LambdaZipQSS3BucketName: !GetAtt LambdaZipSyncStack.Outputs.S3SyncNewBucket
         QSS3KeyPrefix: !Ref 'QSS3KeyPrefix'
-        ELKS3KeyPrefixLambdaZip: 'v1/templates/elasticsearch/postscripts/elkpostscript.zip'
+        ELKS3KeyPrefixLambdaZip: !Sub '${QSS3KeyPrefix}lambda/package/elasticsearch/elkpostscript.zip'
         RandomString: !Ref 'RandomString'
     DependsOn:
       - LambdaZipSyncStack
@@ -637,7 +613,7 @@ Resources:
              - !Ref PrivateSubnet2ID
              - !Ref PrivateSubnet3ID
         LambdaSecurityGroup: !GetAtt EKSStack.Outputs.BastionSecurityGroup
-        BastionS3KeyPrefixLambdaZip: 'v1/templates/bastion/lambda/bastionpostscriptlambda.zip'
+        BastionS3KeyPrefixLambdaZip: !Sub '${QSS3KeyPrefix}lambda/package/bastion/bastionpostscriptlambda.zip'
         RandomString: !Ref 'RandomString'
         QSS3BucketName: !GetAtt LambdaZipSyncStack.Outputs.S3SyncNewBucket
         CustomBastionPolicyARN: !GetAtt PostBastionPolicystack.Outputs.BastionPolicyARN
