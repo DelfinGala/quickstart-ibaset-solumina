@@ -59,8 +59,8 @@ Resources:
       SourceBucket: !Ref 'QSS3BucketName'
       Prefix: !Ref 'QSS3KeyPrefix'
       Objects:
-        - templates/elasticsearch/postscripts/elkpostscript.zip
-        - templates/bastion/lambda/bastionpostscriptlambda.zip
+        - lambda/package/elasticsearch/elkpostscript.zip
+        - lambda/package/bastion/bastionpostscriptlambda.zip
   CopyZipsRole:
     Type: AWS::IAM::Role
     Properties:

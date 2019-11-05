@@ -9,20 +9,8 @@
         "ParameterValue": ""
     },
     {
-        "ParameterKey": "DatabaseUsername",
-        "ParameterValue": "admin"
-    },
-    {
-        "ParameterKey": "DatabasePassword",
-        "ParameterValue": "Solumina123"
-    },
-    {
         "ParameterKey": "PostRDSWindowsAmiId",
         "ParameterValue": "Windows_Server-2019-English-Full-SQL_2017_Standard-2019.06.12"
-    },
-    {
-        "ParameterKey": "MongoDBAdminPassword",
-        "ParameterValue": "Solumina123"
     },
     {
         "ParameterKey": "RandomString",
