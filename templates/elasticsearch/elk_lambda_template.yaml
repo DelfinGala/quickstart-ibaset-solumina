@@ -38,11 +38,9 @@ Resources:
         - - 'LambdaRes'
           - !Ref RandomString
   LambdaFunctionLogGroup:
-    DeletionPolicy : Retain
     Type: "AWS::Logs::LogGroup"
     DependsOn: "LambdaFunction"
     Properties:
-      RetentionInDays: 14
       LogGroupName: !Join
         - ''
         - - '/aws/lambda/elk/'
