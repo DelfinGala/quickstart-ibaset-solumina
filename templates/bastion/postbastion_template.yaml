@@ -35,11 +35,9 @@ Resources:
         - - 'LambdaRes'
           - !Ref RandomString
   LambdaFunctionLogGroupBastion:
-    DeletionPolicy : Retain
     Type: "AWS::Logs::LogGroup"
     DependsOn: "LambdaFunctionBastion"
     Properties:
-      RetentionInDays: 14
       LogGroupName: !Join
         - ''
         - - '/aws/lambda/bastionibaset/'

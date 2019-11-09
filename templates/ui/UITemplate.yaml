@@ -35,11 +35,6 @@ Resources:
       Description: "SSM Parameter for wait condition handle"
       Tags:
         "Name": "UIWaitHandle"
-  SampleLogGroup:
-    Type: 'AWS::Logs::LogGroup'
-    Properties:
-      LogGroupName: !Ref bastionIDValue
-      RetentionInDays: 7
   association:
     Type: 'AWS::SSM::Association'
     Properties:
