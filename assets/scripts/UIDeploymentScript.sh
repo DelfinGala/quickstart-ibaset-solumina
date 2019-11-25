@@ -94,22 +94,31 @@ mongosecondaryip1=${mongosecondaryip1//\"/}
 
 sleep 1
 
+# Get the password for the mongo #
+MongoDBAdminPassword=$(aws ssm get-parameters --name "MongoDBAdminPassword" --region $EC2_REGION --query "Parameters[0].Value" --with-decryption)
+
+MongoDBAdminPassword=${MongoDBAdminPassword//\"/}
+
+# Get the password for sqlserver #
+
 #change the appconfig for notification using Mongo
 sed -i  "s|--mongoprimaryip--|$mongoprimaryip|"  /exec-ui/notification/notification-cm.yaml
 sed -i  "s|--mongosecondaryip0--|$mongosecondaryip0|"  /exec-ui/notification/notification-cm.yaml
 sed -i  "s|--mongosecondaryip1--|$mongosecondaryip1|"  /exec-ui/notification/notification-cm.yaml
+sed -i  "s|--MongoDBAdminPassword--|$MongoDBAdminPassword|"  /exec-ui/notification/notification-cm.yaml
 
 
 #change the appconfig for configurator-api using Mongo
 sed -i  "s|--mongoprimaryip--|$mongoprimaryip|"  /exec-ui/configurator-api/configurator-api-cm.yaml
 sed -i  "s|--mongosecondaryip0--|$mongosecondaryip0|"  /exec-ui/configurator-api/configurator-api-cm.yaml
 sed -i  "s|--mongosecondaryip1--|$mongosecondaryip1|"  /exec-ui/configurator-api/configurator-api-cm.yaml
+sed -i  "s|--MongoDBAdminPassword--|$MongoDBAdminPassword|" /exec-ui/configurator-api/configurator-api-cm.yaml
 
 #change the appconfig for userinfo using Mongo
 sed -i  "s|--mongoprimaryip--|$mongoprimaryip|"  /exec-ui/userinfo/userinfo-cm-mongodb.yaml
 sed -i  "s|--mongosecondaryip0--|$mongosecondaryip0|"  /exec-ui/userinfo/userinfo-cm-mongodb.yaml
 sed -i  "s|--mongosecondaryip1--|$mongosecondaryip1|"  /exec-ui/userinfo/userinfo-cm-mongodb.yaml
-
+sed -i  "s|--MongoDBAdminPassword--|$MongoDBAdminPassword|" /exec-ui/userinfo/userinfo-cm-mongodb.yaml
 
 # get RDS endpoint ip
 sqlip=$(aws ssm get-parameters --name "SQLDatabaseJdbcURL" --region $EC2_REGION --query "Parameters[0].Value")

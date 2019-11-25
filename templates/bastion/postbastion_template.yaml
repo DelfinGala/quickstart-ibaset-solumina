@@ -23,10 +23,19 @@ Parameters:
     Type: String
   EKSSourceSecGroupId:
     Type: AWS::EC2::SecurityGroup::Id
+  RDSPassword:
+    Type: String
+  MongoDBPassword:
+    Type: String
+  KMSKeyID:
+    Type: String
 Resources:
   LambdaCustomResourceBastion:
     Type: 'Custom::LambdaCustomResource'
     Properties:
+      RDSPassword: !Ref 'RDSPassword'
+      MongoDBPassword: !Ref 'MongoDBPassword'
+      KMSKeyID: !Ref 'KMSKeyID'
       ServiceToken: !GetAtt
         - LambdaFunctionBastion
         - Arn

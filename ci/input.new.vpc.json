@@ -25,6 +25,14 @@
     {
         "ParameterKey": "JDBCDriverBucketName",
         "ParameterValue": "aws-artifacts-ibaset"
+    },
+    {
+        "ParameterKey": "DatabasePassword",
+        "ParameterValue": ""
+    },
+    {
+        "ParameterKey": "MongoDBAdminPassword",
+        "ParameterValue": ""
     }
 
 ]

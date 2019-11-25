@@ -178,7 +178,8 @@ Resources:
                   expand-archive G8R2SP4.1_UPD_SQLServer_RC.zip
                   cd .\G8_SQL_fi_vG8R2.2SS_20190529\G8_SQL_fi_vG8R2.2SS_20190529\
                   $RDSENDPOINT = (Get-SSMParameter -Name /SQLDatabaseEndpoint).Value
-                  sqlcmd -S $RDSENDPOINT -U admin -P Solumina123 -I -i create_solumina_database.sql
+                  $SSDBAdminPassword = (Get-SSMParameter -Name /SSDBAdminPassword -WithDecryption $True).Value
+                  sqlcmd -S $RDSENDPOINT -U admin -P $SSDBAdminPassword -I -i create_solumina_database.sql
                   ECHO Y | .\SoluminaDatabaseInstall.exe $RDSENDPOINT Solumina SFMFG SFMFG
                   cd ..\..
                   cd .\G8R2SP4.1_UPD_SQLServer_RC\G8R2SP4.1_UPD_SQLServer_RC
