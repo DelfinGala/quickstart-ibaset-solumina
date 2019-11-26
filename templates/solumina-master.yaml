@@ -41,6 +41,7 @@ Metadata:
           default: RDS configuration
         Parameters:
           - SqlServerInstanceName
+          - DatabasePassword
           - AllocatedStorage
           - SqlServerVersion
           - DBInstanceClass
@@ -55,6 +56,7 @@ Metadata:
         Parameters:
           - ClusterReplicaSetCount
           - MongoDBVersion
+          - MongoDBAdminPassword
           - ReplicaShardIndex
           - VolumeSize
           - VolumeType
@@ -98,6 +100,8 @@ Metadata:
         default: Kubernetes version
       SqlServerInstanceName:
         default: SQL Server Instance Name
+      DatabasePassword:
+        default: SQL Server DB password
       AllocatedStorage:
         default: Allocated Storage to DB
       SqlServerVersion:
@@ -110,6 +114,8 @@ Metadata:
         default: Cluster Replica Set Count
       MongoDBVersion:
         default: MongoDB Version
+      MongoDBAdminPassword:
+        default: Mongodb password
       ReplicaShardIndex:
         default: Replica Shard Index
       VolumeSize:
@@ -313,6 +319,14 @@ Parameters:
     MinLength: '1'
     MaxLength: '63'
     AllowedPattern: "[a-zA-Z][a-zA-Z0-9]*"
+  DatabasePassword:
+    AllowedPattern: "^(?=.*[0-9])(?=.*[a-zA-Z])([a-zA-Z0-9]+)"
+    ConstraintDescription: Must contain only alphanumeric characters with at least one capital letter and one number.
+    Description: The database admin account password.
+    MaxLength: '41'
+    MinLength: '8'
+    NoEcho: 'true'
+    Type: String
   AllocatedStorage:
     ConstraintDescription: "Must be a valid Number from 100 GiB to 5120 GiB"
     Default: "100"
@@ -398,7 +412,14 @@ Parameters:
       - '3.6'
       - '3.4'
       - '3.2'
-
+  MongoDBAdminPassword:
+    AllowedPattern: '([A-Za-z0-9_@-]{8,32})'
+    ConstraintDescription: >-
+      Input your MongoDB database password, Min 8, Maximum of 32 characters. .
+      Allowed characters are: [A-Za-z0-9_@-]
+    Description: 'Enter your MongoDB Database Password, Min 8, maximum of 32 characters.'
+    NoEcho: 'true'
+    Type: String
   ReplicaShardIndex:
     Description: Shard Index of this replica set
     Type: String
@@ -532,6 +553,10 @@ Resources:
       Parameters:
         QSS3BucketName: !Ref 'QSS3BucketName'
         QSS3KeyPrefix: !Ref 'QSS3KeyPrefix'
+  KMSKeyStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub 'https://${QSS3BucketName}.s3.amazonaws.com/${QSS3KeyPrefix}templates/kms/kmskeyid.yml'
 ## RDS Provisioning ###
   RDSStack:
     Type: AWS::CloudFormation::Stack
@@ -540,7 +565,7 @@ Resources:
       Parameters:
         SqlServerInstanceName: !Ref 'SqlServerInstanceName'
         DatabaseUsername: 'admin'
-        DatabasePassword: 'Solumina123'
+        DatabasePassword: !Ref 'DatabasePassword'
         VpcId: !GetAtt VPCStack.Outputs.VPCID
         AllocatedStorage: !Ref 'AllocatedStorage'
         SqlServerVersion: !Ref 'SqlServerVersion'
@@ -608,7 +633,7 @@ Resources:
         ClusterReplicaSetCount: !Ref 'ClusterReplicaSetCount'
         MongoDBVersion: !Ref 'MongoDBVersion'
         MongoDBAdminUsername: 'admin'
-        MongoDBAdminPassword: 'Solumina123'
+        MongoDBAdminPassword: !Ref 'MongoDBAdminPassword'
         ReplicaShardIndex: !Ref 'ReplicaShardIndex'
         VolumeSize: !Ref 'VolumeSize'
         VolumeType: !Ref 'VolumeType'
@@ -655,6 +680,24 @@ Resources:
       Description: "SSM Parameter for getting URL as a parameter"
       Tags:
         "Name": "BastionIDSSMParameter"
+  RDSPWDSSMParameter:
+    Type: "AWS::SSM::Parameter"
+    Properties:
+      Name: "DatabasePassword"
+      Type: "String"
+      Value: "updating"
+      Description: "SSM Parameter for storing the RDS database password parameter"
+      Tags:
+        "Name": "RDSPWDSSMParameter"
+  MongoPWDSSMParameter:
+    Type: "AWS::SSM::Parameter"
+    Properties:
+      Name: "MongoDBAdminPassword"
+      Type: "String"
+      Value: "updating"
+      Description: "SSM Parameter for storing the Mongo database password parameter"
+      Tags:
+        "Name": "MongoPWDSSMParameter"
   PostBastionPolicystack:
     Type: AWS::CloudFormation::Stack
     Properties:
@@ -665,7 +708,10 @@ Resources:
     Properties:
       TemplateURL: !Sub 'https://${QSS3BucketName}.s3.amazonaws.com/${QSS3KeyPrefix}templates/bastion/postbastion_template.yaml'
       Parameters:
-        VpcId: !GetAtt VPCStack.Outputs.VPCID
+        VpcId: !GetAtt 'VPCStack.Outputs.VPCID'
+        KMSKeyID: !GetAtt 'KMSKeyStack.Outputs.KMSKeyID'
+        RDSPassword: !Ref 'DatabasePassword'
+        MongoDBPassword: !Ref 'MongoDBAdminPassword'
         LambdaSubnetID: !Join
            - ','
            - - !GetAtt VPCStack.Outputs.PrivateSubnet1AID

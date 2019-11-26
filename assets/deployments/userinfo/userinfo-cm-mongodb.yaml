@@ -16,7 +16,7 @@ data:
     spring:
       data:
         mongodb:
-          uri: mongodb://admin:Solumina123@--mongoprimaryip--:27017,--mongosecondaryip0--:27017,--mongosecondaryip1--:27017/admin?replicaSet=s0
+          uri: mongodb://admin:--MongoDBAdminPassword--@--mongoprimaryip--:27017,--mongosecondaryip0--:27017,--mongosecondaryip1--:27017/admin?replicaSet=s0
 kind: ConfigMap
 metadata:
   creationTimestamp: 2019-06-11T17:12:05Z

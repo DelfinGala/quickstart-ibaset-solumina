@@ -97,7 +97,48 @@ def setup_bastion(event, context, stack_name):
             Overwrite=True,
             Tier='Standard'
         )
+
+        # You need to have user type on the password as the parameter in CFN and then pass the password to Lambda using ResourceProperties
+        # More help @ https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/template-custom-resources.html
+        # You can pass value as event data from cfn and then get it from event object e.g. event['ResourceProperties']['Password']
+        rds_password = event['ResourceProperties']['RDSPassword']
         
+        # Note that you must create a KMS Key that will be used to secure the ssm parameter. You can use CFN to create KMS Key and then pass in as event ResourceProperties
+        # More help @ https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/template-custom-resources.html
+        # You can pass this KeyID as event data from cfn and then get it from event object e.g. event['ResourceProperties']['KMSKeyID']
+        kmskeyid = event['ResourceProperties']['KMSKeyID']
+        print("Creating ssm parameter RDS Password")
+        ssm_client = boto3.client('ssm')
+        # create a ssm parameter
+        response = ssm_client.put_parameter(
+            Name='SSDBAdminPassword',
+            Description='Password of the RDS DB Server Admin',
+            Value=rds_password,
+            KeyId=kmskeyid,
+            Type='SecureString',
+            Overwrite=True,
+            Tier='Standard'
+        )
+
+        # You need to have user type on the password as the parameter in CFN and then pass the password to Lambda using ResourceProperties
+        # More help @ https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/template-custom-resources.html
+        # You can pass value as event data from cfn and then get it from event object e.g. event['ResourceProperties']['Password']
+        mongo_password = event['ResourceProperties']['MongoDBPassword']        
+        print("Creating ssm parameter Mongo Password")
+        ssm_client = boto3.client('ssm')
+        # create a ssm parameter
+        response = ssm_client.put_parameter(
+            Name='MongoDBAdminPassword',
+            Description='Password of the Mongo DB Server Admin',
+            Value=mongo_password,
+            KeyId=kmskeyid,
+            Type='SecureString',
+            Overwrite=True,
+            Tier='Standard'
+        )
+        
+        print("Finished creating ssm parameters for Mongo and RDS Password")
+
         ec2 = boto3.resource('ec2')
         instance = ec2.Instance(BastionInstanceID)
         iam_instance_profile = instance.iam_instance_profile
