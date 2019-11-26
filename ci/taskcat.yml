@@ -18,13 +18,13 @@ global:
     - us-west-2
   reporting: true
 tests:
-#  new-vpc:
-#    parameter_input: input.new.vpc.json
-#    template_file: solumina-master.yaml
-#    regions:
-#      - us-east-2
-  existing-vpc:
-    parameter_input: input.existing.vpc.json
-    template_file: solumina-master-existing-vpc.yaml
+  new-vpc:
+    parameter_input: input.new.vpc.json
+    template_file: solumina-master.yaml
     regions:
       - us-east-2
+#  existing-vpc:
+#    parameter_input: input.existing.vpc.json
+#    template_file: solumina-master-existing-vpc.yaml
+#    regions:
+#      - us-east-2
