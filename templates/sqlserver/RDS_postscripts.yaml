@@ -64,59 +64,6 @@ Resources:
         CidrIp: 0.0.0.0/0
       VpcId: !Ref VpcId
 
-  InstanceProfileRole:
-    Description: Create a InstanceProfileRole that assigns permissions specified in the IAM policy 
-    Properties:
-      AssumeRolePolicyDocument:
-        Statement:
-        - Action:
-          - sts:AssumeRole
-          Effect: Allow
-          Principal:
-            Service: [ec2.amazonaws.com]
-        Version: '2012-10-17'
-      ManagedPolicyArns:
-        - arn:aws:iam::aws:policy/service-role/AmazonEC2RoleforSSM
-        - arn:aws:iam::aws:policy/AmazonS3FullAccess
-        - arn:aws:iam::aws:policy/AmazonEC2FullAccess
-      Path: "/"
-      Policies:
-        -
-          PolicyName: "DeleteRDSPostScriptStack"
-          PolicyDocument:
-            Version: "2012-10-17"
-            Statement:
-              -
-                Effect: "Allow"
-                Action:
-                  - "cloudformation:DeleteStackInstances"
-                  - "cloudformation:DeleteStack"
-                  - "cloudformation:DeleteStackSet"
-                  - "cloudformation:DeleteChangeSet"
-                  - "ssm:DeleteDocument"
-                  - "ssm:DeleteAssociation"
-                  - "iam:DeleteRolePolicy"
-                  - "iam:RemoveRoleFromInstanceProfile"
-                  - "iam:DetachRolePolicy"
-                  - "iam:DeleteInstanceProfile"
-                  - "iam:DeleteRole"
-                  - "ssm:DescribeParameters"
-                  - "ssm:GetParameter"
-                  - "ssm:GetParameters"
-                  - "ssm:DeleteParameter"
-                  - "ssm:DeleteParameters"
-                Resource: "*"
-      RoleName: !Ref InstanceProfileRoleName
-    Type: AWS::IAM::Role
-  
-  InstanceProfile:
-    Type: AWS::IAM::InstanceProfile
-    Properties: 
-      Roles:
-        - !Ref InstanceProfileRole
-      InstanceProfileName: !Ref InstanceProfileRoleName
-    DependsOn: InstanceProfileRole
-  
   Instance1:
     Description: Example of an instance that has user data and can run shell or powershell script  
     Type: AWS::EC2::Instance
@@ -137,7 +84,7 @@ Resources:
         Value: Production
       - Key: Patch Group
         Value: Windows
-    DependsOn: InstanceProfile
+#    DependsOn: InstanceProfile
 
   RDSPostscripts: 
     Type: "AWS::SSM::Document"

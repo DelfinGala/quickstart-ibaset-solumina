@@ -27,7 +27,7 @@ Parameters:
     Type: String
   MongoDBPassword:
     Type: String
-  KMSKeyID:
+  InstanceProfileRoleName:
     Type: String
 Resources:
   LambdaCustomResourceBastion:
@@ -35,7 +35,8 @@ Resources:
     Properties:
       RDSPassword: !Ref 'RDSPassword'
       MongoDBPassword: !Ref 'MongoDBPassword'
-      KMSKeyID: !Ref 'KMSKeyID'
+      # KMSKeyID: !Ref 'KMSKeyID'
+      InstanceProfileRoleName: !Ref 'InstanceProfileRoleName'
       ServiceToken: !GetAtt
         - LambdaFunctionBastion
         - Arn

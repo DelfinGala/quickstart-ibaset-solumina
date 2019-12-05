@@ -18,23 +18,6 @@ Parameters:
     Type: String
     Description: Logs KeyPrefix
 Resources:
-  UIWaitHandle:
-     Type: AWS::CloudFormation::WaitConditionHandle
-  UIWaitCondition:
-    Type: AWS::CloudFormation::WaitCondition
-    Properties:
-      Handle: !Ref UIWaitHandle
-      Timeout: '7200'
-      Count: 1
-  SSMUIwaitHandle:
-    Type: "AWS::SSM::Parameter"
-    Properties:
-      Name: "UIWaitHandle"
-      Type: "String"
-      Value: !Ref UIWaitHandle
-      Description: "SSM Parameter for wait condition handle"
-      Tags:
-        "Name": "UIWaitHandle"
   association:
     Type: 'AWS::SSM::Association'
     Properties:
@@ -64,7 +47,6 @@ Resources:
         S3Location:
           OutputS3BucketName: !Ref 'LogsBucketName'
           OutputS3KeyPrefix: !Ref 'LogsKeyPrefix'
-    DependsOn: UIWaitCondition
 Outputs:
   bastionIDValue:
     Value: !Ref bastionIDValue
