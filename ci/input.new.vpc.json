@@ -6,15 +6,15 @@
     },
     {
         "ParameterKey": "KeyPairName",
-        "ParameterValue": ""
+        "ParameterValue": "cikey"
     },
     {
         "ParameterKey": "PostRDSWindowsAmiId",
-        "ParameterValue": "Windows_Server-2019-English-Full-SQL_2017_Standard-2019.06.12"
+        "ParameterValue": "ami-01825c52bfec98163"
     },
     {
         "ParameterKey": "RandomString",
-        "ParameterValue": "iba"
+        "ParameterValue": "ibc"
     },
     {
         "ParameterKey": "JDBCDriverKeyPrefix",
@@ -26,11 +26,15 @@
     },
     {
         "ParameterKey": "DatabasePassword",
-        "ParameterValue": ""
+        "ParameterValue": "$[taskcat_genpass8A]"
     },
     {
         "ParameterKey": "MongoDBAdminPassword",
-        "ParameterValue": ""
+        "ParameterValue": "$[taskcat_genpass8A]"
+    },
+    {
+        "ParameterKey": "QSS3BucketName",
+        "ParameterValue": "aws-quickstart"
     }
 
 ]
