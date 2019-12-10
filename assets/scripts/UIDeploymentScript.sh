@@ -234,3 +234,5 @@ aws ssm delete-parameter --name QSS3BucketName --region $EC2_REGION
 aws ssm delete-parameter --name QSS3KeyPrefix --region $EC2_REGION
 aws ssm delete-parameter --name JDBCDriverBucketName --region $EC2_REGION
 aws ssm delete-parameter --name JDBCDriverKeyPrefix --region $EC2_REGION
+aws ssm delete-parameter --name MongoDBAdminPassword --region $EC2_REGION
+aws ssm delete-parameter --name SSDBAdminPassword --region $EC2_REGION

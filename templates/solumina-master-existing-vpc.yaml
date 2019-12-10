@@ -499,11 +499,6 @@ Resources:
       Parameters:
         QSS3BucketName: !Ref 'QSS3BucketName'
         QSS3KeyPrefix: !Ref 'QSS3KeyPrefix'
-## KMS Key ID Provisioning ##
-  KMSKeyStack:
-    Type: AWS::CloudFormation::Stack
-    Properties:
-      TemplateURL: !Sub 'https://${QSS3BucketName}.s3.amazonaws.com/${QSS3KeyPrefix}templates/kms/kmskeyid.yml'
 ## RDS Provisioning ###
   RDSStack:
     Type: AWS::CloudFormation::Stack
@@ -520,6 +515,11 @@ Resources:
         PrivateSubnet2: !Ref 'PrivateSubnet2ID'
         PrivateSubnet3: !Ref 'PrivateSubnet3ID'
         DBInstanceClass: !Ref 'DBInstanceClass'
+        InstanceProfileRoleName: !Join
+          - ''
+          - - 'rdspostrcriptrole'
+            - !Ref RandomString
+        VpcId: !Ref 'VPCID'
 ## RDS Postscripts ##
   RDSPostScriptsStack:
     Type: AWS::CloudFormation::Stack
@@ -539,7 +539,9 @@ Resources:
         KeyPairName: !Ref KeyPairName
         SQLDatabaseEndpointURL:
           Fn::GetAtt: [ RDSStack , Outputs.SQLDatabaseEndpointURL ]
-    DependsOn: RDSStack
+    DependsOn:
+      - PostBastionLambdastack
+      - RDSStack
 # ES Stack ##
   ELKstack:
     Type: AWS::CloudFormation::Stack
@@ -626,7 +628,7 @@ Resources:
   RDSPWDSSMParameter:
     Type: "AWS::SSM::Parameter"
     Properties:
-      Name: "DatabasePassword"
+      Name: "SSDBAdminPassword"
       Type: "String"
       Value: "updating"
       Description: "SSM Parameter for storing the RDS database password parameter"
@@ -652,7 +654,10 @@ Resources:
       TemplateURL: !Sub 'https://${QSS3BucketName}.s3.amazonaws.com/${QSS3KeyPrefix}templates/bastion/postbastion_template.yaml'
       Parameters:
         VpcId: !Ref 'VPCID'
-        KMSKeyID: !GetAtt 'KMSKeyStack.Outputs.KMSKeyID'
+        InstanceProfileRoleName: !Join
+          - ''
+          - - 'rdspostrcriptrole'
+            - !Ref RandomString
         RDSPassword: !Ref 'DatabasePassword'
         MongoDBPassword: !Ref 'MongoDBAdminPassword'
         LambdaSubnetID: !Join
@@ -670,6 +675,7 @@ Resources:
     DependsOn:
       - PostBastionPolicystack
       - LambdaZipSyncStack
+      - RDSStack
 
   EFSFileSystem:
     Type: AWS::EFS::FileSystem
@@ -822,6 +828,24 @@ Resources:
       Tags:
         "Name": "JDBCDriverKeyPrefix"
 
+  UIWaitHandle:
+     Type: AWS::CloudFormation::WaitConditionHandle
+  UIWaitCondition:
+    Type: AWS::CloudFormation::WaitCondition
+    Properties:
+      Handle: !Ref UIWaitHandle
+      Timeout: '7200'
+      Count: 1
+  SSMUIwaitHandle:
+    Type: "AWS::SSM::Parameter"
+    Properties:
+      Name: "UIWaitHandle"
+      Type: "String"
+      Value: !Ref UIWaitHandle
+      Description: "SSM Parameter for wait condition handle"
+      Tags:
+        "Name": "UIWaitHandle"
+
 ## UI Provisioning ###
   UIStack:
     Type: AWS::CloudFormation::Stack
@@ -841,6 +865,7 @@ Resources:
        - SSMParameterEFSID
        - EFSFileSystem
        - PostBastionPolicystack
+       - UIWaitCondition
 
 Outputs:
   KubeConfigPath:
