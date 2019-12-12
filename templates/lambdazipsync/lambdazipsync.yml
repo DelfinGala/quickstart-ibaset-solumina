@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: "2010-09-09"
-Description: Copies Lambda ZipFile artifacts to S3 to support Provisioning
+Description: Copies Lambda ZipFile artifacts to S3 bucket to support Provisioning
 Metadata:
   AWS::CloudFormation::Interface:
     ParameterGroups:

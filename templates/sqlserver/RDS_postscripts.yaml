@@ -1,5 +1,4 @@
 AWSTemplateFormatVersion: '2010-09-09'
-
 Description: Deploys Windows instances with the same configuration, from the specified AMI ; Create a InstanceProfileRole that assigns permissions specified in the IAM policy 
 Parameters:
   LogsBucketName:

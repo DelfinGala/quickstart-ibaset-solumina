@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: "2010-09-09"
-Description: Deploys an EKS cluster in a existing VPC (qs-1p7nknoht)
+Description: Deploys Solumnia in an existing VPC. (qs-1q8u06qhh)
 Metadata:
   AWS::CloudFormation::Interface:
     ParameterGroups:
@@ -7,9 +7,15 @@ Metadata:
           default: VPC network configuration
         Parameters:
           - AvailabilityZones
-          - RemoteAccessCIDR
-          - VPCCIDR
           - VPCID
+          - VPCCIDR
+          - PrivateSubnet1ID
+          - PrivateSubnet2ID
+          - PrivateSubnet3ID
+          - PublicSubnet1ID
+          - PublicSubnet2ID
+          - PublicSubnet3ID
+          - RemoteAccessCIDR
       - Label:
           default: Amazon EC2 configuration
         Parameters:

@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: 2010-09-09
-Description: create a single LogGroup
+Description: Creates UI stack.
 Parameters:
   VPC:
     Type: 'AWS::EC2::VPC::Id'

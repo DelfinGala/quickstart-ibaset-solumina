@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: "2010-09-09"
-Description: Deploys an EKS cluster in a new VPC (qs-1p7nknoht)
+Description: Deploys Solumina in a new VPC, on AWS. (qs-1q8u06qec)
 Metadata:
   AWS::CloudFormation::Interface:
     ParameterGroups:
@@ -311,7 +311,7 @@ Parameters:
     AllowedValues: [ "1.12", "1.11", "1.10" ]
     Default: "1.12"
     Description: The Kubernetes control plane version.
-  ### Parameter Added for RDS Provisioning Stack##
+  ### Parameter for RDS Provisioning Stack##
   SqlServerInstanceName:
     Description: RDS SQL Server Instance Name
     Type: String
@@ -340,6 +340,7 @@ Parameters:
     Type: String
     AllowedValues:
       - "SQLServer2016"
+      - "SQLServer2012"
   DBInstanceClass:
     AllowedValues:
       - db.r4.large
@@ -370,12 +371,12 @@ Parameters:
     Default: db.m4.large
     Description: "The name of the compute and memory capacity class of the database instance."
     Type: String
-## Parameters Added for RDS Postscripts Stack##
+## Parameters for RDS Postscripts Stack##
   PostRDSWindowsAmiId:
-    Description: Ami Id for Windows - default- Windows_Server-2019-English-Full-SQL_2017_Standard-2019.06.12
+    Description: Ami Id for Windows Server - default- Windows_Server-2019-English-Full-SQL_2017_Standard-2019.06.12
     Type: String
     Default: ''
-### Parameters Added for ES Domain ###
+### Parameters for ES Domain ###
   ElasticsearchVersion:
     Default: 6.7
     AllowedValues:
@@ -395,7 +396,7 @@ Parameters:
       - r3.2xlarge.elasticsearch
     Default: r5.large.elasticsearch
     Type: String
-## Parameters Added for MongoDB Provisioning Stack ##
+## Parameters for MongoDB Provisioning Stack ##
   ClusterReplicaSetCount:
     Description: Number of Replica Set Members. Choose 1 or 3
     Type: String
@@ -417,7 +418,7 @@ Parameters:
     ConstraintDescription: >-
       Input your MongoDB database password, Min 8, Maximum of 32 characters. .
       Allowed characters are: [A-Za-z0-9_@-]
-    Description: 'Enter your MongoDB Database Password, Min 8, maximum of 32 characters.'
+    Description: 'MongoDB Database Password with minimum 8 and maximum of 32 characters.'
     NoEcho: 'true'
     Type: String
   ReplicaShardIndex:
@@ -507,7 +508,7 @@ Parameters:
     Description: 'JDBC Driver Storage Bucket Key Prefix'
   RandomString:
     Type: String
-    Description: 'Random String for uniqueness'
+    Description: 'String to create unique resources for uniqueness. This will be suffixed to the resource name.'
 
 Rules:
   EKSSupport:
