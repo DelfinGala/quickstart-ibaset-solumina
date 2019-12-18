@@ -116,7 +116,7 @@ Metadata:
       Iops:
         default: Iops
       MongoNodeInstanceType:
-        default: MongoNode Instance Type
+        default: MongoDB Node Instance Type
       RandomString:
         default: Unique Random String
       ElasticsearchVersion:
@@ -127,6 +127,18 @@ Metadata:
         default: JDBC Driver Storage Bucket Name
       JDBCDriverKeyPrefix:
         default: JDBC Driver Storage Bucket Key Prefix
+      PrivateSubnet1ID:
+        default: Private Subnet 1 ID
+      PrivateSubnet2ID:
+        default: Private Subnet 2 ID
+      PrivateSubnet3ID:
+        default: Private Subnet 3 ID
+      PublicSubnet1ID:
+        default: Public Subnet 1 ID
+      PublicSubnet2ID:
+        default: Public Subnet 2 ID
+      PublicSubnet3ID:
+        default: Public Subnet 3 ID
 
 Parameters:
   AvailabilityZones:
@@ -325,9 +337,8 @@ Parameters:
     Type: String
 ## Parameters Added for RDS Postscripts Stack##
   PostRDSWindowsAmiId:
-    Description: Ami Id for Windows - default- Windows_Server-2019-English-Full-SQL_2017_Standard-2019.06.12
+    Description: Ami Id for Windows Server (Windows_Server-2019-English-Full-SQL_2017_Standard-2019.06.12)
     Type: String
-    Default: ''
 ### Parameters Added for ES Domain ###
   ElasticsearchVersion:
     Default: 6.7
@@ -336,6 +347,7 @@ Parameters:
     Description: User defined Elasticsearch Version
     Type: String
   ELKInstanceType:
+    Description: Instance type for ELK stack.
     AllowedValues:
       - r5.large.elasticsearch
       - r5.xlarge.elasticsearch
@@ -461,22 +473,22 @@ Parameters:
     Description: 'Random String for uniqueness'
 ## Exising VPC ###
   PrivateSubnet1ID:
-    Description: Private subnet ID
+    Description: CIDR block for the existing private subnet located in Availability Zone 1.
     Type: AWS::EC2::Subnet::Id
   PrivateSubnet2ID:
-    Description: Private subnet ID
+    Description: CIDR block for the existing private subnet located in Availability Zone 2.
     Type: AWS::EC2::Subnet::Id
   PrivateSubnet3ID:
-    Description: Private subnet ID
+    Description: CIDR block for the existing private subnet located in Availability Zone 3.
     Type: AWS::EC2::Subnet::Id
   PublicSubnet1ID:
-    Description: Public subnet ID
+    Description: CIDR block for the existing public subnet located in Availability Zone 1.
     Type: AWS::EC2::Subnet::Id
   PublicSubnet2ID:
-    Description: Public subnet ID
+    Description: CIDR block for the existing public subnet located in Availability Zone 2.
     Type: AWS::EC2::Subnet::Id
   PublicSubnet3ID:
-    Description: Public subnet ID
+    Description: CIDR block for the existing public subnet located in Availability Zone 3.
     Type: AWS::EC2::Subnet::Id
 Rules:
   EKSSupport:

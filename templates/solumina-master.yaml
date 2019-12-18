@@ -125,7 +125,7 @@ Metadata:
       Iops:
         default: Iops
       MongoNodeInstanceType:
-        default: MongoNode Instance Type
+        default: MongoDB Node Instance Type
       RandomString:
         default: Unique Random String
       ElasticsearchVersion:
@@ -373,9 +373,8 @@ Parameters:
     Type: String
 ## Parameters for RDS Postscripts Stack##
   PostRDSWindowsAmiId:
-    Description: Ami Id for Windows Server - default- Windows_Server-2019-English-Full-SQL_2017_Standard-2019.06.12
+    Description: Ami Id for Windows Server (Windows_Server-2019-English-Full-SQL_2017_Standard-2019.06.12)
     Type: String
-    Default: ''
 ### Parameters for ES Domain ###
   ElasticsearchVersion:
     Default: 6.7
@@ -384,6 +383,7 @@ Parameters:
     Description: User defined Elasticsearch Version
     Type: String
   ELKInstanceType:
+    Description: Instance type for ELK stack.
     AllowedValues:
       - r5.large.elasticsearch
       - r5.xlarge.elasticsearch
