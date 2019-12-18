@@ -47,7 +47,6 @@ Metadata:
           - AllocatedStorage
           - SqlServerVersion
           - DBInstanceClass
-          - PostRDSWindowsAmiId
       - Label:
           default: Elasticsearch configuration
         Parameters:
@@ -100,8 +99,6 @@ Metadata:
         default: SQL Server Version
       DBInstanceClass:
         default: DB Instance Class
-      PostRDSWindowsAmiId:
-        default: AmiID for EC2 to Run Postscripts
       ClusterReplicaSetCount:
         default: Cluster Replica Set Count
       MongoDBVersion:
@@ -336,10 +333,6 @@ Parameters:
     Default: db.m4.large
     Description: "The name of the compute and memory capacity class of the database instance."
     Type: String
-## Parameters Added for RDS Postscripts Stack##
-  PostRDSWindowsAmiId:
-    Description: Ami Id for Windows Server (Windows_Server-2019-English-Full-SQL_2017_Standard-2019.06.12)
-    Type: String
 ### Parameters Added for ES Domain ###
   ElasticsearchVersion:
     Default: 6.7
@@ -491,6 +484,28 @@ Parameters:
   PublicSubnet3ID:
     Description: CIDR block for the existing public subnet located in Availability Zone 3.
     Type: AWS::EC2::Subnet::Id
+
+Mappings: 
+  AMIRegionMap: 
+    us-east-1: 
+      "WS2019FULLSQL2017STND": "ami-00da65e71856d58bb"
+    us-east-2: 
+      "WS2019FULLSQL2017STND": "ami-01825c52bfec98163"
+    us-west-2: 
+      "WS2019FULLSQL2017STND": "ami-0c20a2febfbfe85b2"
+    eu-west-1: 
+      "WS2019FULLSQL2017STND": "ami-08a60203431f22e65"
+    eu-west-2: 
+      "WS2019FULLSQL2017STND": "ami-0b5154b1e16181417"
+    eu-west-3: 
+      "WS2019FULLSQL2017STND": "ami-0bbcab42eaf19f875"
+    eu-north-1: 
+      "WS2019FULLSQL2017STND": "ami-032b68cb0a033c490"
+    ap-southeast-1: 
+      "WS2019FULLSQL2017STND": "ami-01bf231a6b7f97152"
+    ap-northeast-1: 
+      "WS2019FULLSQL2017STND": "ami-0a3ee72139f12fa19"
+
 Rules:
   EKSSupport:
     Assertions:
@@ -548,7 +563,7 @@ Resources:
         LogsBucketName: !GetAtt LambdaZipSyncStack.Outputs.S3SyncNewBucket
         LogsKeyPrefix: 'logs/Database_Install'
         RDSPSInstanceType: 't3.xlarge'
-        PostRDSWindowsAmiId: !Ref 'PostRDSWindowsAmiId'
+        PostRDSWindowsAmiId: !FindInMap [AMIRegionMap, !Ref "AWS::Region", WS2019FULLSQL2017STND]
         InstanceProfileRoleName: !Join
           - ''
           - - 'rdspostrcriptrole'
