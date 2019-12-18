@@ -27,6 +27,7 @@ Metadata:
           - NodeGroupName
           - NodeVolumeSize
           - KubernetesVersion
+          - RandomString
       - Label:
           default: AWS Quick Start configuration
         Parameters:
