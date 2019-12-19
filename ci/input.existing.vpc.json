@@ -40,10 +40,6 @@
         "ParameterValue": ""
     },
     {
-        "ParameterKey": "PostRDSWindowsAmiId",
-        "ParameterValue": ""
-    },
-    {
         "ParameterKey": "RandomString",
         "ParameterValue": "iba"
     },

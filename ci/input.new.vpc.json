@@ -9,10 +9,6 @@
         "ParameterValue": "cikey"
     },
     {
-        "ParameterKey": "PostRDSWindowsAmiId",
-        "ParameterValue": "ami-01825c52bfec98163"
-    },
-    {
         "ParameterKey": "RandomString",
         "ParameterValue": "ibc"
     },
