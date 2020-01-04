@@ -5,7 +5,7 @@
 
 This Quick Start reference deployment guide provides step-by-step instructions for deploying iBASEt’s Solumina MES on the AWS Cloud. 
 
-![Quick Start Architecture for Solumina MES](https://d0.awsstatic.com/partner-network/QuickStart/ibaset-solumina-architecture.png)
+![Quick Start Architecture for iBASEt Solumina MES](https://d0.awsstatic.com/partner-network/QuickStart/ibaset-solumina-architecture.png)
 
 This Quick Start sets up the following:
 - A highly available architecture that spans three Availability Zones.*
