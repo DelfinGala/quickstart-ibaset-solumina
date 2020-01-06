@@ -3,7 +3,7 @@
 
 **Solumina** is a Manufacturing Execution System (MES) software suite that manages work and quality processes for the manufacturing maintenance, repair, and overhaul of engineered products.
 
-This Quick Start reference deployment guide provides step-by-step instructions for deploying iBASEt’s Solumina MES on the AWS Cloud. 
+This Quick Start reference deployment guide provides step-by-step instructions for deploying iBASEt Solumina MES on the AWS Cloud. 
 
 ![Quick Start Architecture for iBASEt Solumina MES](https://d0.awsstatic.com/partner-network/QuickStart/ibaset-solumina-architecture.png)
 
