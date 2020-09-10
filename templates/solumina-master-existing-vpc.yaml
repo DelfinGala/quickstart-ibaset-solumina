@@ -1,6 +1,8 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Description: Deploys Solumnia in an existing VPC. (qs-1q8u06qhh)
 Metadata:
+  QuickStartDocumentation:
+    EntrypointName: "Parameters for an existing VPC"
   AWS::CloudFormation::Interface:
     ParameterGroups:
       - Label:

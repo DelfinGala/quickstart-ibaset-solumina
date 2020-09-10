@@ -1,6 +1,8 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Description: Deploys Solumina in a new VPC, on AWS. (qs-1q8u06qec)
 Metadata:
+  QuickStartDocumentation:
+    EntrypointName: "Parameters for a new VPC"
   AWS::CloudFormation::Interface:
     ParameterGroups:
       - Label:
