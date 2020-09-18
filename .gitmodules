@@ -1,15 +1,15 @@
-[submodule "submodules/quickstart-aws-vpc"]
-	path = submodules/quickstart-aws-vpc
-	url = https://github.com/aws-quickstart/quickstart-aws-vpc.git
-	branch = master
-[submodule "submodules/quickstart-mongodb"]
-	path = submodules/quickstart-mongodb
-	url = https://github.com/aws-quickstart/quickstart-mongodb.git
-	branch = master
-[submodule "submodules/quickstart-aws-eks"]
-	path = submodules/quickstart-aws-eks
-	url = https://github.com/aws-quickstart/quickstart-amazon-eks.git
-	branch = master
 [submodule "docs/boilerplate"]
 	path = docs/boilerplate
 	url = https://github.com/aws-quickstart/quickstart-documentation-base-common.git
+[submodule "submodules/quickstart-aws-vpc"]
+	path = submodules/quickstart-aws-vpc
+	url = git@github.com:aws-quickstart/quickstart-aws-vpc.git
+	branch = main
+[submodule "submodules/quickstart-amazon-eks"]
+	path = submodules/quickstart-amazon-eks
+	url = git@github.com:aws-quickstart/quickstart-amazon-eks.git
+	branch = main
+[submodule "submodules/quickstart-mongodb"]
+	path = submodules/quickstart-mongodb
+	url = git@github.com:aws-quickstart/quickstart-mongodb.git
+	branch = main
