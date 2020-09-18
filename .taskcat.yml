@@ -32,7 +32,7 @@ tests:
       R53LBRecordSetName: #mydns.mycompany.com
       QSS3BucketRegion: $[taskcat_current_region]
 
-  existing-vpc-ohio:
+  existing-vpc:
     template: templates/solumina-master-existing-vpc.template.yaml
     regions:
       - us-east-2
