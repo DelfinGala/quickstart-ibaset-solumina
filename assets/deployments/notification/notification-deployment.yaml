@@ -15,25 +15,44 @@ spec:
         app: notification
     spec:
       containers:
-      - name: notification
-        image: "279559645400.dkr.ecr.us-west-1.amazonaws.com/solui/notification-server:G8R2SP4"
-        ports:
-        - containerPort: 8040
-        resources:
-           requests:
-            cpu: "200m"
-            memory: "80Mi"
-        volumeMounts:
-
-        - name: notification-mount
-          mountPath: /opt/notification/dist/envvars.production
-          subPath: envvars.production
+        - image: 279559645400.dkr.ecr.us-west-1.amazonaws.com/solui/notification-server:G8R2i020
+          name: notification
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8040
+          livenessProbe:
+            httpGet:
+              path: /notification/health
+              port: 8040
+            initialDelaySeconds: 35
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+            successThreshold: 1
+          readinessProbe:
+            httpGet:
+              path: /notification/health
+              port: 8040
+            initialDelaySeconds: 30
+            failureThreshold: 5
+            periodSeconds: 10
+          resources:
+            requests:
+              cpu: 200m
+              memory: 100Mi
+            limits:
+              cpu: 200m
+              memory: 400Mi
+          volumeMounts:
+            - mountPath: /opt/notification/dist/envvars.production
+              subPath: envvars.production
+              name: notification-mount
 
       volumes:
-       - name: notification-mount
-         configMap:
+        - name: notification-mount
+          configMap:
             defaultMode: 420
             items:
-            - key: notificationConfig
-              path: envvars.production
+              - key: notificationConfig
+                path: envvars.production
             name: notification-cm

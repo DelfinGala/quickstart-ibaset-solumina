@@ -1,0 +1,14 @@
+apiVersion: v1
+data:
+  file-storageConfig: |
+    APP_HOST_NAME = "https://--DNS_NAME--"
+    SERVER_PORT = 8000
+    SECRET = "solumina+$ibaset"
+    FILE_REMOVAL_TIMEOUT_MS=1800000
+    STORAGE_TYPE=gridfs
+    THUMBNAIL_SIZE=400
+    DB_URI=mongodb://file-storage-service:file-storage-service@--mongoprimaryip--:27017,--mongosecondaryip0--:27017,--mongosecondaryip1--:27017/file-storage-service?replicaSet=s0
+    replicaSet=s0
+kind: ConfigMap
+metadata:
+  name: file-storage-cm

@@ -15,27 +15,108 @@ spec:
         app: search
     spec:
       containers:
-      - name: search
-        image: "279559645400.dkr.ecr.us-west-1.amazonaws.com/solui/solumina-search:G8R2SP4"
-        ports:
-        - containerPort: 9090
-        volumeMounts:
+        - image: 279559645400.dkr.ecr.us-west-1.amazonaws.com/solui/solumina-search:G8R2i020.1 #@Dhruvit:G8R2i020.1 image was built to support htttps, search controller was updated 
+          imagePullPolicy: Always
+          env:
+            - name: JAVA_HOME
+              value: /usr/local/openjdk-11
+          name: search
+          ports:
+            - containerPort: 9090
+          livenessProbe:
+            httpGet:
+              path: /solumina-search/health
+              port: http
+            initialDelaySeconds: 300
+            failureThreshold: 3
+            periodSeconds: 30
+          resources:
+            requests:
+              cpu: 200m
+              memory: 300Mi
 
-        - name: search-mount
-          mountPath: /opt/solumina-search/config/
+          volumeMounts:
+            - mountPath: /opt/solumina-search/config/application.yml
+              name: config-app
+              subPath: application.yml
 
+            - mountPath: /opt/solumina-search/config/application-oracle.yml
+              name: config-app-oracle
+              subPath: application-oracle.yml
+
+            - mountPath: /opt/solumina-search/config/application-sqlserver.yml
+              name: config-app-sql
+              subPath: application-sqlserver.yml
+
+            - mountPath: /opt/solumina-search/config/loader.properties
+              name: config-loader
+              subPath: loader.properties
+
+            - mountPath: /opt/solumina-search/config/logback.xml
+              name: config-logback
+              subPath: logback.xml
+
+            - mountPath: /opt/solumina-search/config/redis.properties
+              name: config-redis
+              subPath: redis.properties
+
+            - mountPath: /opt/solumina-search/lib
+              name: driver
+              readOnly: true
+
+            - mountPath: /opt/solumina-search/logs
+              name: logs
+              readOnly: false
+
+            - mountPath: /opt/config/containerJRE
+              name: customjre
+              readOnly: true
 
       volumes:
+        - configMap:
+            defaultMode: 420
+            name: search-app-cm
+          name: config-app
 
-       - name: search-mount
-         projected:
-          sources:
-          -  configMap:
-               name: search-cm
+        - configMap:
+            defaultMode: 420
+            name: search-app-oracle-cm
+          name: config-app-oracle
 
-          -  configMap:
-               name: search-cm-logback
+        - configMap:
+            defaultMode: 420
+            name: search-app-sql-cm
+          name: config-app-sql
 
+        - configMap:
+            defaultMode: 420
+            name: search-loader-cm
+          name: config-loader
+
+        - configMap:
+            defaultMode: 420
+            name: search-logback-cm
+          name: config-logback
+
+        - configMap:
+            defaultMode: 420
+            name: search-redis-cm
+          name: config-redis
+
+        - name: logs
+          nfs:
+            server: --fs--.efs.--region--.amazonaws.com
+            path: /logs/search
+
+        - name: driver
+          nfs:
+            server: --fs--.efs.--region--.amazonaws.com
+            path: /driver
+
+        - name: customjre
+          nfs:
+            server: --fs--.efs.--region--.amazonaws.com
+            path: /customJRE11-driver
 
       restartPolicy: Always
-
+status: {}

@@ -1,0 +1,37 @@
+apiVersion: apps/v1 # for versions before 1.9.0 use apps/v1beta2
+kind: Deployment
+metadata:
+  name: redis-slave-2
+  labels:
+    app: redis-slave-2
+spec:
+  selector:
+    matchLabels:
+      app: redis-slave-2
+
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: redis-slave-2
+
+    spec:
+      containers:
+        - env:
+            - name: MASTER_PORT
+              value: "6379"
+            - name: MASTER_SERVICE_NAME
+              value: redis-master.default.svc.cluster.local
+          name: redis-slave-2
+          imagePullPolicy: Always
+          image: 279559645400.dkr.ecr.us-west-1.amazonaws.com/redis/server:v1.0.1
+          resources:
+            requests:
+              cpu: 100m
+              memory: 100Mi
+
+          ports:
+            - containerPort: 6379
+      volumes:
+        - name: data
+          emptyDir: {}

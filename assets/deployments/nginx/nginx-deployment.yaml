@@ -15,29 +15,28 @@ spec:
         app: nginx
     spec:
       containers:
-      - name: nginx
-        image: "nginx:latest"
-        ports:
-        - containerPort: 80
-        volumeMounts:
+        - name: nginx
+          image: "nginx:latest"
+          ports:
+            - containerPort: 80
+          volumeMounts:
+            - name: nginx-conf-mount
+              mountPath: /etc/nginx/conf.d/
 
-        - name: nginx-conf-mount
-          mountPath: /etc/nginx/conf.d/
-
-        - name: logs
-          mountPath: /var/log/nginx
-          readOnly: false
+            - name: logs
+              mountPath: /var/log/nginx
+              readOnly: false
 
       volumes:
-       - name: nginx-conf-mount
-         configMap:
+        - name: nginx-conf-mount
+          configMap:
             defaultMode: 420
             items:
-            - key: rev_proxy.conf
-              path: default.conf
+              - key: rev_proxy.conf
+                path: default.conf
             name: nginx-cm
 
-       - name: logs
-         nfs:
-          server: --fs--.efs.--region--.amazonaws.com 
-          path: /nginx/logs
+        - name: logs
+          nfs:
+            server: --fs--.efs.--region--.amazonaws.com
+            path: /nginx/logs

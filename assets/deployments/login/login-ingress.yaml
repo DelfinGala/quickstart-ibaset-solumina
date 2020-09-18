@@ -1,0 +1,26 @@
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: login
+  annotations:
+    kubernetes.io/ingress.class: traefik
+#    traefik.frontend.rule.type: /
+spec:
+  rules:
+  - host: --DNS_NAME--
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: login
+          servicePort: 5000
+
+      - path: /api/login/
+        backend:
+          serviceName: login
+          servicePort: 5000
+
+      - path: /login/appVersion
+        backend:
+          serviceName: login
+          servicePort: 5000

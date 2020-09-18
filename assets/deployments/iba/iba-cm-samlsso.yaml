@@ -1,0 +1,29 @@
+apiVersion: v1
+data:
+  samlsso.properties: |
+    #We can overwrite samlsso.properties in production and can changes values as per our requirements.
+    #One of the below metadata values is mandatory to select IDP. If both are configured then it will take file based metadata
+    soluminaidp.metadata.filelocation=/idpmetadata.xml
+
+    #No Need to change as we are giving IDP metadata through File as server might not have access of external URL.
+    soluminaidp.metadata.httpurl=https://idpmetadataurl.com
+
+    #Default IDP entity ID. Check MetaData xml file for entity ID attribute.
+    soluminaidp.defaultidp=--IDP ENTITY--ID
+
+    #If auto select IDP is true, it will not show you IDP selection page. In case of multiple IDP it should be false. For single IDP configuration we don't require selection.
+    soluminaidp.autoselectidp=true
+    #IDP side attribute which will send username as attribute. Username must match with Solumina Username.
+    soluminaidp.userattributename=uid
+    #We can configure any URL as logout URL including external URL.
+    solumina.sso.logouturl=/logout.jsp
+    #Authentication Object Cache timeout in seconds
+    solumina.sso.authentication.timeout=1000
+    #Winclient Default Params. Optional Parameter (We can keep value as blank, key should be there). Default only ID parameter would be passed. CmdLineParam will be used to pass additional win-client parameters like ssl certificate, debug flag etc..
+    solumina.sso.winclient.stcurl=stc:url\=https://<DOMAIN-NAME>/solumina-G8/gateway?id\=DEFAULT&amp;args\=ExtInvoke(Dispatch(@Group=Operations,@List=Work Order Operations - In Queue and Active,%22@Filter=(PART_NO='TM-7654313')%22))&CmdLineParam\=\/cl \\\\\\\\users\\\\\\home\\\\\\common\\\\\\SSL\\\\\\sslcertificate.p7b \/xl \/d*
+    #Launcher Page Waiting Time in milliseconds to Close. Optional Parameter. Default would be 30000 (30 sec).
+    solumina.sso.launcherpage.waitingtime=50000
+kind: ConfigMap
+metadata:
+  creationTimestamp: null
+  name: iba-samlsso-cm

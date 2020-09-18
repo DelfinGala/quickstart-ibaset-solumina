@@ -2,7 +2,7 @@ apiVersion: v1
 data:
   .env: |
     PORT=8050
-    DB_URI=mongodb://admin:--MongoDBAdminPassword--@--mongoprimaryip--:27017,--mongosecondaryip0--:27017,--mongosecondaryip1--:27017/admin?replicaSet=s0
+    DB_URI=mongodb://solumina_config:solumina_config@--mongoprimaryip--:27017,--mongosecondaryip0--:27017,--mongosecondaryip1--:27017/solumina_config?replicaSet=s0
     replicaSet=s0
     DB_POOLSIZE=20
     DB_RECONNECT_INTERVAL=500
@@ -13,11 +13,8 @@ data:
     DB_KEEP_ALIVE=10000
     DB_BUFFER_MAX_ENTRIES=10
     DB_AUTO_INDEX=false
+    TOKEN_SECRET=solumina+$ibaset
 kind: ConfigMap
 metadata:
-  creationTimestamp: 2019-06-06T22:15:35Z
   name: configurator-api-cm
   namespace: default
-  resourceVersion: "801882"
-  selfLink: /api/v1/namespaces/default/configmaps/configurator-api-configmap
-  uid: 9b432adf-88a8-11e9-9ba1-0af663ddcdfa

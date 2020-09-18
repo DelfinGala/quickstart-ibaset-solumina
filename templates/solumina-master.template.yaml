@@ -1,0 +1,1074 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Deploys solumina on an EKS cluster in a new VPC (qs-1p7nknoht)
+Metadata:
+  QuickStartDocumentation:
+    EntrypointName: "Parameters for deploying in a new VPC"
+  AWS::CloudFormation::Interface:
+    ParameterGroups:
+      - Label:
+          default: VPC network configuration
+        Parameters:
+          - AvailabilityZones
+          - VPCCIDR
+          - PrivateSubnet1CIDR
+          - PrivateSubnet2CIDR
+          - PrivateSubnet3CIDR
+          - PublicSubnet1CIDR
+          - PublicSubnet2CIDR
+          - PublicSubnet3CIDR
+          - RemoteAccessCIDR
+      - Label:
+          default: Amazon EC2 configuration
+        Parameters:
+          - KeyPairName
+      - Label:
+          default: Amazon EKS configuration
+        Parameters:
+          - NodeInstanceType
+          - NumberOfNodes
+          - NodeGroupName
+          - NodeVolumeSize
+          - KubernetesVersion
+      - Label:
+          default: AWS Quick Start configuration
+        Parameters:
+          - QSS3BucketName
+          - QSS3KeyPrefix
+      - Label:
+          default: JDBC driver S3 Bucket configuration
+        Parameters:
+          - JDBCDriverBucketName
+          - JDBCDriverKeyPrefix
+      - Label:
+          default: RDS configuration
+        Parameters:
+          - SqlServerInstanceName
+          - DatabasePassword
+          - AllocatedStorage
+          - SqlServerVersion
+          - DBInstanceClass
+          - PostRDSWindowsAmiId
+      - Label:
+          default: Elasticsearch configuration
+        Parameters:
+          - ElasticsearchVersion
+          - ELKInstanceType
+      - Label:
+          default: MongoDB configuration
+        Parameters:
+          - ClusterReplicaSetCount
+          - MongoDBVersion
+          - MongoDBAdminPassword
+          - ReplicaShardIndex
+          - VolumeSize
+          - VolumeType
+          - Iops
+          - MongoNodeInstanceType
+      - Label:
+          default: Route53 configuration
+        Parameters:
+        - R53HostedZoneName
+        - R53LBRecordSetName
+
+    ParameterLabels:
+      AvailabilityZones:
+        default: Availability Zones
+      KeyPairName:
+        default: SSH key name
+      PrivateSubnet1CIDR:
+        default: Private subnet 1 CIDR
+      PrivateSubnet2CIDR:
+        default: Private subnet 2 CIDR
+      PrivateSubnet3CIDR:
+        default: Private subnet 3 CIDR
+      PublicSubnet1CIDR:
+        default: Public subnet 1 CIDR
+      PublicSubnet2CIDR:
+        default: Public subnet 2 CIDR
+      PublicSubnet3CIDR:
+        default: Public subnet 3 CIDR
+      QSS3BucketName:
+        default: Quick Start S3 bucket name
+      QSS3KeyPrefix:
+        default: Quick Start S3 key prefix
+      RemoteAccessCIDR:
+        default: Allowed external access CIDR
+      VPCCIDR:
+        default: VPC CIDR
+      NodeInstanceType:
+        default: Nodes instance type
+      NumberOfNodes:
+        default: Number of nodes
+      NodeGroupName:
+        default: Node group name
+      NodeVolumeSize:
+        default: Node volume size
+      KubernetesVersion:
+        default: Kubernetes version
+      SqlServerInstanceName:
+        default: SQL Server Instance Name
+      DatabasePassword:
+        default: SQL Server DB password
+      AllocatedStorage:
+        default: Allocated Storage to DB
+      SqlServerVersion:
+        default: SQL Server Version
+      DBInstanceClass:
+        default: DB Instance Class
+      PostRDSWindowsAmiId:
+        default: AmiID for EC2 to Run Postscripts
+      ClusterReplicaSetCount:
+        default: Cluster Replica Set Count
+      MongoDBVersion:
+        default: MongoDB Version
+      MongoDBAdminPassword:
+        default: Mongodb password
+      ReplicaShardIndex:
+        default: Replica Shard Index
+      VolumeSize:
+        default: Volume Size
+      VolumeType:
+        default: Volume Type
+      Iops:
+        default: Iops
+      MongoNodeInstanceType:
+        default: MongoNode Instance Type
+      RandomString:
+        default: Unique Random String
+      ElasticsearchVersion:
+        default: ELK Stack Version
+      ELKInstanceType:
+        default: ELK Instance Type
+      JDBCDriverBucketName:
+        default: JDBC Driver Bucket Name
+      JDBCDriverKeyPrefix:
+        default: JDBC Driver Bucket Key Prefix
+      R53HostedZoneName:
+        default: Route53 Hosted Zone Name
+      R53LBRecordSetName:
+        default: Route53 RecordSet name for Hosted Zone
+Parameters:
+  QSS3BucketRegion:
+    Default: 'us-east-1'
+    Description: The AWS Region where the Quick Start S3 bucket (QSS3BucketName) is hosted. When using your own bucket, you must specify this value.
+    Type: String
+  AvailabilityZones:
+    Description: The list of Availability Zones to use for the subnets in the VPC. Three
+      Availability Zones are used for this deployment, and the logical order of your
+      selections is preserved.
+    Type: List<AWS::EC2::AvailabilityZone::Name>
+  KeyPairName:
+    Description: The name of an existing public/private key pair, which allows you
+      to securely connect to your instance after it launches
+    Type: AWS::EC2::KeyPair::KeyName
+  PrivateSubnet1CIDR:
+    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(1[6-9]|2[0-8]))$
+    ConstraintDescription: CIDR block parametr must be in the form x.x.x.x/16-28
+    Default: 192.168.10.0/26
+    Description: The CIDR block for private subnet 1 located in Availability Zone 1
+    Type: String
+  PrivateSubnet2CIDR:
+    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(1[6-9]|2[0-8]))$
+    ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/16-28
+    Default: 192.168.10.64/26
+    Description: The CIDR block for private subnet 2 located in Availability Zone 2
+    Type: String
+  PrivateSubnet3CIDR:
+    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(1[6-9]|2[0-8]))$
+    ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/16-28
+    Default: 192.168.10.128/26
+    Description: The CIDR block for private subnet 3 located in Availability Zone 3
+    Type: String
+  PublicSubnet1CIDR:
+    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(1[6-9]|2[0-8]))$
+    ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/16-28
+    Default: 192.168.10.192/27
+    Description: CIDR block for the public (DMZ) subnet 1 located in Availability
+      Zone 1
+    Type: String
+  PublicSubnet2CIDR:
+    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(1[6-9]|2[0-8]))$
+    ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/16-28
+    Default: 192.168.10.224/27
+    Description: The CIDR block for the public (DMZ) subnet 2 located in Availability
+      Zone 2
+    Type: String
+  PublicSubnet3CIDR:
+    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(1[6-9]|2[0-8]))$
+    ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/16-28
+    Default: 192.168.11.0/27
+    Description: The CIDR block for the public (DMZ) subnet 3 located in Availability
+      Zone 3
+    Type: String
+  QSS3BucketName:
+    AllowedPattern: ^[0-9a-zA-Z]+([0-9a-zA-Z-]*[0-9a-zA-Z])*$
+    ConstraintDescription: Quick Start bucket name can include numbers, lowercase
+      letters, uppercase letters, and hyphens (-). It cannot start or end with a hyphen
+      (-).
+    Default: aws-quickstart
+    Description: S3 bucket name for the Quick Start assets. This string can include
+      numbers, lowercase letters, uppercase letters, and hyphens (-). It cannot start
+      or end with a hyphen (-).
+    Type: String
+  QSS3KeyPrefix:
+    AllowedPattern: ^[0-9a-zA-Z-/.]*$
+    ConstraintDescription: Quick Start key prefix can include numbers, lowercase letters,
+      uppercase letters, hyphens (-), dots(.) and forward slash (/).
+    Default: quickstart-ibaset-solumina/
+    Description: S3 key prefix for the Quick Start assets. Quick Start key prefix
+      can include numbers, lowercase letters, uppercase letters, hyphens (-), dots(.) and
+      forward slash (/).
+    Type: String
+  RemoteAccessCIDR:
+    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$
+    ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/x
+    Default: 192.30.183.0/24
+    Description: The CIDR IP range that is permitted to access the instances We recommend
+      that you set this value to a trusted IP range.
+    Type: String
+  VPCCIDR:
+    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(1[6-9]|2[0-8]))$
+    ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/16-28
+    Default: 192.168.10.0/23
+    Description: The CIDR block for the VPC
+    Type: String
+  NodeInstanceType:
+    Default: t3.xlarge
+    AllowedValues:
+      - t3.large
+      - t3.xlarge
+      - t3.2xlarge
+      - m3.medium
+      - m3.large
+      - m3.xlarge
+      - m3.2xlarge
+      - m4.large
+      - m4.xlarge
+      - m4.2xlarge
+      - m4.4xlarge
+      - m4.10xlarge
+      - m5.large
+      - m5.xlarge
+      - m5.2xlarge
+      - m5.4xlarge
+      - m5.12xlarge
+      - m5.24xlarge
+      - c4.large
+      - c4.xlarge
+      - c4.2xlarge
+      - c4.4xlarge
+      - c4.8xlarge
+      - c5.large
+      - c5.xlarge
+      - c5.2xlarge
+      - c5.4xlarge
+      - c5.9xlarge
+      - c5.18xlarge
+      - i3.large
+      - i3.xlarge
+      - i3.2xlarge
+      - i3.4xlarge
+      - i3.8xlarge
+      - i3.16xlarge
+      - r3.xlarge
+      - r3.2xlarge
+      - r3.4xlarge
+      - r3.8xlarge
+      - r4.large
+      - r4.xlarge
+      - r4.2xlarge
+      - r4.4xlarge
+      - r4.8xlarge
+      - r4.16xlarge
+      - x1.16xlarge
+      - x1.32xlarge
+      - p2.xlarge
+      - p2.8xlarge
+      - p2.16xlarge
+      - p3.2xlarge
+      - p3.8xlarge
+      - p3.16xlarge
+      - r5.large
+      - r5.xlarge
+      - r5.2xlarge
+      - r5.4xlarge
+      - r5.12xlarge
+      - r5.24xlarge
+      - r5d.large
+      - r5d.xlarge
+      - r5d.2xlarge
+      - r5d.4xlarge
+      - r5d.12xlarge
+      - r5d.24xlarge
+      - z1d.large
+      - z1d.xlarge
+      - z1d.2xlarge
+      - z1d.3xlarge
+      - z1d.6xlarge
+      - z1d.12xlarge
+    ConstraintDescription: Must be a valid EC2 instance type
+    Description: The type of EC2 instance for the node instances.
+    Type: String
+  NumberOfNodes:
+    Default: 3
+    Description: The number of Amazon EKS node instances. The default is one for each of the three Availability Zones.
+    Type: Number
+  NodeGroupName:
+    Default: 'ec2group'
+    Description: The name for EKS node group.
+    Type: String
+  NodeVolumeSize:
+    Default: 20
+    Description: "The size for the node's root EBS volumes."
+    Type: String
+  KubernetesVersion:
+    Type: String
+    # AllowedValues: [ "1.15", "1.16"]
+    Default: "1.16"
+    Description: The Kubernetes control plane version.
+  ### Parameter Added for RDS Provisioning Stack##
+  SqlServerInstanceName:
+    Description: RDS SQL Server Instance Name
+    Type: String
+    Default: SqlRdsDB
+    MinLength: '1'
+    MaxLength: '63'
+    AllowedPattern: "[a-zA-Z][a-zA-Z0-9]*"
+  DatabasePassword:
+    AllowedPattern: "^(?=.*[0-9])(?=.*[a-zA-Z])([a-zA-Z0-9]+)"
+    ConstraintDescription: Must contain only alphanumeric characters with at least one capital letter and one number.
+    Description: The database admin account password.
+    MaxLength: '41'
+    MinLength: '8'
+    NoEcho: 'true'
+    Type: String
+  AllocatedStorage:
+    ConstraintDescription: "Must be a valid Number from 100 GiB to 5120 GiB"
+    Default: "100"
+    Description: "Enter the number of Gigabytes for RDS, between 100 GiB and 5120 GiB (5 TiB)."
+    Type: Number
+    MinValue: '100'
+    MaxValue: '5120'
+  SqlServerVersion:
+    Default: "SQLServer2016"
+    Description: "Enter the SQL Server version. SQLServer2012 and 2016 are supported."
+    Type: String
+    AllowedValues:
+      - "SQLServer2016"
+  DBInstanceClass:
+    AllowedValues:
+      - db.r4.large
+      - db.r4.xlarge
+      - db.r4.2xlarge
+      - db.r4.4xlarge
+      - db.r4.8xlarge
+      - db.r4.16xlarge
+      - db.r5.large
+      - db.r5.xlarge
+      - db.r5.2xlarge
+      - db.r5.4xlarge
+      - db.r5.12xlarge
+      - db.r5.24xlarge
+      - db.m4.large
+      - db.m4.xlarge
+      - db.m4.2xlarge
+      - db.m4.4xlarge
+      - db.m4.10xlarge
+      - db.m4.16xlarge
+      - db.m5.large
+      - db.m5.xlarge
+      - db.m5.2xlarge
+      - db.m5.4xlarge
+      - db.m5.12xlarge
+      - db.m5.24xlarge
+    ConstraintDescription: "Must select a valid database instance type."
+    Default: db.m4.large
+    Description: "The name of the compute and memory capacity class of the database instance."
+    Type: String
+## Parameters Added for RDS Postscripts Stack##
+  PostRDSWindowsAmiId:
+    Description: Ami Id for Windows - default- Windows_Server-2019-English-Full-SQL_2017_Standard-2019.06.12
+    Type: String
+    Default: ''
+### Parameters Added for ES Domain ###
+  ElasticsearchVersion:
+    Default: 6.7
+    AllowedValues:
+      - 6.7
+    Description: User defined Elasticsearch Version
+    Type: String
+  ELKInstanceType:
+    AllowedValues:
+      - r5.large.elasticsearch
+      - r5.xlarge.elasticsearch
+      - r5.2xlarge.elasticsearch
+      - r4.large.elasticsearch
+      - r4.xlarge.elasticsearch
+      - r4.2xlarge.elasticsearch
+      - r4.4xlarge.elasticsearch
+      - r3.xlarge.elasticsearch
+      - r3.2xlarge.elasticsearch
+    Default: r5.large.elasticsearch
+    Type: String
+## Parameters Added for MongoDB Provisioning Stack ##
+  ClusterReplicaSetCount:
+    Description: Number of Replica Set Members. Choose 1 or 3
+    Type: String
+    Default: '3'
+    AllowedValues:
+      - '1'
+      - '3'
+  MongoDBVersion:
+    Description: MongoDB version
+    Type: String
+    Default: '4.0'
+    AllowedValues:
+      - '4.0'
+      - '3.6'
+      - '3.4'
+      - '3.2'
+  MongoDBAdminPassword:
+    AllowedPattern: '([A-Za-z0-9_@-]{8,32})'
+    ConstraintDescription: >-
+      Input your MongoDB database password, Min 8, Maximum of 32 characters. .
+      Allowed characters are: [A-Za-z0-9_@-]
+    Description: 'Enter your MongoDB Database Password, Min 8, maximum of 32 characters.'
+    NoEcho: 'true'
+    Type: String
+  ReplicaShardIndex:
+    Description: Shard Index of this replica set
+    Type: String
+    Default: '0'
+  VolumeSize:
+    Type: String
+    Description: EBS Volume Size (data) to be attached to node in GBs
+    Default: '400'
+  VolumeType:
+    Type: String
+    Description: 'EBS Volume Type (data) to be attached to node in GBs [io1,gp2]'
+    Default: gp2
+    AllowedValues:
+      - gp2
+      - io1
+  Iops:
+    Type: String
+    Description: Iops of EBS volume when io1 type is chosen. Otherwise ignored
+    Default: '100'
+  MongoNodeInstanceType:
+    Description: Amazon EC2 instance type for the MongoDB nodes.
+    Type: String
+    Default: m4.large
+    AllowedValues:
+      - m5.large
+      - m5.xlarge
+      - m5.2xlarge
+      - m5.4xlarge
+      - m5.12xlarge
+      - m5.24xlarge
+      - c5.large
+      - c5.xlarge
+      - c5.2xlarge
+      - c5.4xlarge
+      - c5.9xlarge
+      - c5.18xlarge
+      - x1.16xlarge
+      - x1.32xlarge
+      - r4.large
+      - r4.xlarge
+      - r4.2xlarge
+      - r4.4xlarge
+      - r4.8xlarge
+      - r4.16xlarge
+      - i3.large
+      - i3.xlarge
+      - i3.2xlarge
+      - i3.4xlarge
+      - i3.8xlarge
+      - i3.16xlarge
+      - x1e.32xlarge
+      - x1e.16xlarge
+      - x1e.8xlarge
+      - x1e.4xlarge
+      - x1e.2xlarge
+      - x1e.xlarge
+      - m3.medium
+      - m3.large
+      - m3.xlarge
+      - m3.2xlarge
+      - m4.large
+      - m4.xlarge
+      - m4.2xlarge
+      - m4.4xlarge
+      - m4.10xlarge
+      - c3.large
+      - c3.xlarge
+      - c3.2xlarge
+      - c3.4xlarge
+      - c3.8xlarge
+      - r3.large
+      - r3.xlarge
+      - r3.2xlarge
+      - r3.4xlarge
+      - r3.8xlarge
+      - i2.xlarge
+      - i2.2xlarge
+      - i2.4xlarge
+      - i2.8xlarge
+  JDBCDriverBucketName:
+    Type: String
+    Description: 'JDBC Driver Storage Bucket Name'
+  JDBCDriverKeyPrefix:
+    Type: String
+    Description: 'JDBC Driver Storage Bucket Key Prefix'
+  RandomString:
+    Type: String
+    Description: 'Random String for uniqueness'
+
+## Parameters for Route53 Stack ##
+  R53HostedZoneName:
+    Type: String
+    Description: 'Route53 Hosted zone name e.g. mycompany.com.'
+  R53LBRecordSetName:
+    Type: String
+    Description: 'RecordSet Name for web URL e.g. solumina.mycompany.com'
+
+Conditions:
+  UsingDefaultBucket: !Equals
+    - !Ref QSS3BucketName
+    - 'aws-quickstart'
+
+Rules:
+  EKSSupport:
+    Assertions:
+      - AssertDescription: Your AWS Region does *NOT* yet support Amazon EKS
+        Assert: !Contains
+          -  - us-west-2
+             - us-east-1
+             - us-east-2
+             - eu-west-1
+             - eu-west-2
+             - eu-west-3
+             - eu-north-1
+             - eu-central-1
+             - ap-southeast-1
+             - ap-southeast-2
+             - ap-northeast-1
+             - ap-northeast-2
+             - ap-south-1
+          - !Ref 'AWS::Region'
+Resources:
+  VPCStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub 
+        - 'https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}submodules/quickstart-aws-vpc/templates/aws-vpc.template'
+        - S3Bucket: !If
+            - UsingDefaultBucket
+            - !Sub 'aws-quickstart-${AWS::Region}'
+            - !Ref 'QSS3BucketName'
+          S3Region: !If
+            - UsingDefaultBucket
+            - !Ref 'AWS::Region'
+            - !Ref 'QSS3BucketRegion'
+      Parameters:
+        AvailabilityZones: !Join [ ',', !Ref 'AvailabilityZones' ]
+        KeyPairName: !Ref 'KeyPairName'
+        NumberOfAZs: '3'
+        PrivateSubnet1ACIDR: !Ref 'PrivateSubnet1CIDR'
+        PrivateSubnet2ACIDR: !Ref 'PrivateSubnet2CIDR'
+        PrivateSubnet3ACIDR: !Ref 'PrivateSubnet3CIDR'
+        PrivateSubnetATag2: "kubernetes.io/role/internal-elb="
+        PublicSubnet1CIDR: !Ref 'PublicSubnet1CIDR'
+        PublicSubnet2CIDR: !Ref 'PublicSubnet2CIDR'
+        PublicSubnet3CIDR: !Ref 'PublicSubnet3CIDR'
+        PublicSubnetTag2: "kubernetes.io/role/elb="
+        VPCCIDR: !Ref 'VPCCIDR'
+  LambdaZipSyncStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub 
+        - 'https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}templates/lambdazipsync.template.yaml'
+        - S3Bucket: !If
+            - UsingDefaultBucket
+            - !Sub 'aws-quickstart-${AWS::Region}'
+            - !Ref 'QSS3BucketName'
+          S3Region: !If
+            - UsingDefaultBucket
+            - !Ref 'AWS::Region'
+            - !Ref 'QSS3BucketRegion'
+      Parameters:
+        QSS3BucketName: !Ref 'QSS3BucketName'
+        QSS3KeyPrefix: !Ref 'QSS3KeyPrefix'
+## RDS Provisioning ###
+  RDSStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub 
+        - https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}templates/ss2016se-rds.template.yaml
+        - S3Bucket: !If
+            - UsingDefaultBucket
+            - !Sub 'aws-quickstart-${AWS::Region}'
+            - !Ref 'QSS3BucketName'
+          S3Region: !If
+            - UsingDefaultBucket
+            - !Ref 'AWS::Region'
+            - !Ref 'QSS3BucketRegion'
+      Parameters:
+        SqlServerInstanceName: !Ref 'SqlServerInstanceName'
+        DatabaseUsername: 'admin'
+        DatabasePassword: !Ref 'DatabasePassword'
+        VpcId: !GetAtt VPCStack.Outputs.VPCID
+        AllocatedStorage: !Ref 'AllocatedStorage'
+        SqlServerVersion: !Ref 'SqlServerVersion'
+        PrivateSubnet1: !GetAtt VPCStack.Outputs.PrivateSubnet1AID
+        PrivateSubnet2: !GetAtt VPCStack.Outputs.PrivateSubnet2AID
+        PrivateSubnet3: !GetAtt VPCStack.Outputs.PrivateSubnet3AID
+        DBInstanceClass: !Ref 'DBInstanceClass'
+        InstanceProfileRoleName: !Join
+          - ''
+          - - 'rdspostrcriptrole'
+            - !Ref RandomString
+    DependsOn: VPCStack
+## RDS Postscripts ##
+  RDSPostScriptsStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub 
+        - https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}templates/RDS_postscripts.template.yaml
+        - S3Bucket: !If
+            - UsingDefaultBucket
+            - !Sub 'aws-quickstart-${AWS::Region}'
+            - !Ref 'QSS3BucketName'
+          S3Region: !If
+            - UsingDefaultBucket
+            - !Ref 'AWS::Region'
+            - !Ref 'QSS3BucketRegion'
+      Parameters:
+        LogsBucketName: !GetAtt LambdaZipSyncStack.Outputs.S3SyncNewBucket
+        LogsKeyPrefix: 'logs/Database_Install'
+        RDSPSInstanceType: 't3.xlarge'
+        PostRDSWindowsAmiId: !Ref 'PostRDSWindowsAmiId'
+        InstanceProfileRoleName: !Join
+          - ''
+          - - 'rdspostrcriptrole'
+            - !Ref RandomString
+        VpcId: !GetAtt VPCStack.Outputs.VPCID
+        PrivateSubnet1: !GetAtt VPCStack.Outputs.PrivateSubnet1AID
+        KeyPairName: !Ref KeyPairName
+        SQLDatabaseEndpointURL:
+          Fn::GetAtt: [ RDSStack , Outputs.SQLDatabaseEndpointURL ]
+    DependsOn: 
+      - PostBastionLambdastack
+      - RDSStack
+# ES Stack ##
+  ELKstack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub 
+        - https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}templates/elk_master.template.yaml
+        - S3Bucket: !If
+            - UsingDefaultBucket
+            - !Sub 'aws-quickstart-${AWS::Region}'
+            - !Ref 'QSS3BucketName'
+          S3Region: !If
+            - UsingDefaultBucket
+            - !Ref 'AWS::Region'
+            - !Ref 'QSS3BucketRegion'
+      Parameters:
+        QSS3BucketRegion: !Ref QSS3BucketRegion
+        ELKSearchDomain: !Join
+           - ''
+           - - 'elkdom'
+             - !Ref RandomString
+        InstanceType: !Ref 'ELKInstanceType'
+        ELKVersion: !Ref 'ElasticsearchVersion'
+        VPCID: !GetAtt VPCStack.Outputs.VPCID
+        PrivateSubnet1ID: !GetAtt VPCStack.Outputs.PrivateSubnet1AID
+        PrivateSubnet2ID: !GetAtt VPCStack.Outputs.PrivateSubnet2AID
+        PrivateSubnet3ID: !GetAtt VPCStack.Outputs.PrivateSubnet3AID
+        SecurityGroupName: !Join
+            - ''
+            - - 'elksec'
+              - !Ref RandomString
+        QSS3BucketName: !Ref 'QSS3BucketName'
+        LambdaZipQSS3BucketName: !GetAtt LambdaZipSyncStack.Outputs.S3SyncNewBucket
+        QSS3KeyPrefix: !Ref 'QSS3KeyPrefix'
+        ELKS3KeyPrefixLambdaZip: !Sub '${QSS3KeyPrefix}lambda/package/elasticsearch/elkpostscript.zip'
+        RandomString: !Ref 'RandomString'
+    DependsOn:
+      - VPCStack
+      - LambdaZipSyncStack
+# Mongo Stack ##
+  MongoStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      # TemplateURL: !Sub 'https://${QSS3BucketName}.s3.amazonaws.com/${QSS3KeyPrefix}submodules/quickstart-mongodb/templates/mongodb.template'
+      TemplateURL: !Sub
+        - https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}submodules/quickstart-mongodb/templates/mongodb.template
+        - S3Bucket: !If
+            - UsingDefaultBucket
+            - !Sub 'aws-quickstart-${AWS::Region}'
+            - !Ref 'QSS3BucketName'
+          S3Region: !If
+            - UsingDefaultBucket
+            - !Ref 'AWS::Region'
+            - !Ref 'QSS3BucketRegion'
+      Parameters:
+        QSS3BucketRegion: !Ref QSS3BucketRegion
+        QSS3BucketName: !Ref 'QSS3BucketName'
+        QSS3KeyPrefix: !Sub ${QSS3KeyPrefix}submodules/quickstart-mongodb/
+        ClusterReplicaSetCount: !Ref 'ClusterReplicaSetCount'
+        MongoDBVersion: !Ref 'MongoDBVersion'
+        MongoDBAdminUsername: 'admin'
+        MongoDBAdminPassword: !Ref 'MongoDBAdminPassword'
+        ReplicaShardIndex: !Ref 'ReplicaShardIndex'
+        VolumeSize: !Ref 'VolumeSize'
+        VolumeType: !Ref 'VolumeType'
+        Iops: !Ref 'Iops'
+        NodeInstanceType: !Ref 'MongoNodeInstanceType'
+        VPC: !GetAtt VPCStack.Outputs.VPCID
+        PrimaryNodeSubnet: !GetAtt VPCStack.Outputs.PrivateSubnet1AID
+        Secondary0NodeSubnet: !GetAtt VPCStack.Outputs.PrivateSubnet2AID
+        Secondary1NodeSubnet: !GetAtt VPCStack.Outputs.PrivateSubnet3AID
+        KeyPairName: !Ref KeyPairName
+        BastionSecurityGroupID:
+          Fn::GetAtt: [ EKSStack , Outputs.BastionSecurityGroup]
+    DependsOn: VPCStack
+  EKSStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub 
+        - https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}submodules/quickstart-amazon-eks/templates/amazon-eks.template.yaml
+        - S3Bucket: !If
+            - UsingDefaultBucket
+            - !Sub 'aws-quickstart-${AWS::Region}'
+            - !Ref 'QSS3BucketName'
+          S3Region: !If
+            - UsingDefaultBucket
+            - !Ref 'AWS::Region'
+            - !Ref 'QSS3BucketRegion'
+      Parameters:
+        QSS3BucketRegion: !Ref QSS3BucketRegion
+        QSS3BucketName: !Ref 'QSS3BucketName'
+        QSS3KeyPrefix: !Sub ${QSS3KeyPrefix}submodules/quickstart-amazon-eks/
+        PublicSubnet1ID: !GetAtt VPCStack.Outputs.PublicSubnet1ID
+        PublicSubnet2ID: !GetAtt VPCStack.Outputs.PublicSubnet2ID
+        PublicSubnet3ID: !GetAtt VPCStack.Outputs.PublicSubnet3ID
+        KeyPairName: !Ref KeyPairName
+        PrivateSubnet1ID: !GetAtt VPCStack.Outputs.PrivateSubnet1AID
+        PrivateSubnet2ID: !GetAtt VPCStack.Outputs.PrivateSubnet2AID
+        PrivateSubnet3ID: !GetAtt VPCStack.Outputs.PrivateSubnet3AID
+        NumberOfNodes: !Ref NumberOfNodes
+        MaxNumberOfNodes: !Ref NumberOfNodes
+        NodeGroupName: !Ref NodeGroupName
+        NodeVolumeSize: !Ref NodeVolumeSize
+        NodeInstanceType: !Ref NodeInstanceType
+        RemoteAccessCIDR: !Ref RemoteAccessCIDR
+        VPCID: !GetAtt VPCStack.Outputs.VPCID
+        KubernetesVersion: !Ref KubernetesVersion
+        ProvisionClusterAutoScaler: Disabled
+    DependsOn: VPCStack
+  BastionIDSSMParameter:
+    Type: "AWS::SSM::Parameter"
+    Properties:
+      Name: "bastionID"
+      Type: "String"
+      Value: "updating"
+      Description: "SSM Parameter for getting URL as a parameter"
+      Tags:
+        "Name": "BastionIDSSMParameter"
+  RDSPWDSSMParameter:
+    Type: "AWS::SSM::Parameter"
+    Properties:
+      Name: "SSDBAdminPassword"
+      Type: "String"
+      Value: "updating"
+      Description: "SSM Parameter for storing the RDS database password parameter"
+      Tags:
+        "Name": "RDSPWDSSMParameter"
+  MongoPWDSSMParameter:
+    Type: "AWS::SSM::Parameter"
+    Properties:
+      Name: "MongoDBAdminPassword"
+      Type: "String"
+      Value: "updating"
+      Description: "SSM Parameter for storing the Mongo database password parameter"
+      Tags:
+        "Name": "MongoPWDSSMParameter"
+  PostBastionPolicystack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub 
+        - https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}templates/custombastionpolicy.template.yaml
+        - S3Bucket: !If
+            - UsingDefaultBucket
+            - !Sub 'aws-quickstart-${AWS::Region}'
+            - !Ref 'QSS3BucketName'
+          S3Region: !If
+            - UsingDefaultBucket
+            - !Ref 'AWS::Region'
+            - !Ref 'QSS3BucketRegion'
+    DependsOn: EKSStack
+  PostBastionLambdastack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub
+        - https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}templates/postbastion.template.yaml
+        - S3Bucket: !If
+            - UsingDefaultBucket
+            - !Sub 'aws-quickstart-${AWS::Region}'
+            - !Ref 'QSS3BucketName'
+          S3Region: !If
+            - UsingDefaultBucket
+            - !Ref 'AWS::Region'
+            - !Ref 'QSS3BucketRegion'
+      Parameters:
+        VpcId: !GetAtt 'VPCStack.Outputs.VPCID'
+        InstanceProfileRoleName: !Join
+          - ''
+          - - 'rdspostrcriptrole'
+            - !Ref RandomString
+        RDSPassword: !Ref 'DatabasePassword'
+        MongoDBPassword: !Ref 'MongoDBAdminPassword'
+        LambdaSubnetID: !Join
+           - ','
+           - - !GetAtt VPCStack.Outputs.PrivateSubnet1AID
+             - !GetAtt VPCStack.Outputs.PrivateSubnet2AID
+             - !GetAtt VPCStack.Outputs.PrivateSubnet3AID
+        LambdaSecurityGroup: !GetAtt EKSStack.Outputs.BastionSecurityGroup
+        BastionS3KeyPrefixLambdaZip: !Sub '${QSS3KeyPrefix}lambda/package/bastion/bastionpostscriptlambda.zip'
+        RandomString: !Ref 'RandomString'
+        QSS3BucketName: !GetAtt LambdaZipSyncStack.Outputs.S3SyncNewBucket
+        CustomBastionPolicyARN: !GetAtt PostBastionPolicystack.Outputs.BastionPolicyARN
+        EKSSourceSecGroupId:
+          Fn::GetAtt: [ EKSStack , Outputs.NodeGroupSecurityGroup]
+        BastionSecurityGroupID:
+          Fn::GetAtt: [ EKSStack , Outputs.BastionSecurityGroup]
+    DependsOn:
+      - PostBastionPolicystack
+      - LambdaZipSyncStack
+      - RDSStack
+
+  EFSFileSystem:
+    Type: AWS::EFS::FileSystem
+    Properties:
+      PerformanceMode: generalPurpose
+
+  EFSMountTarget1:
+    Type: AWS::EFS::MountTarget
+    Properties:
+      FileSystemId:
+        Ref: EFSFileSystem
+      SecurityGroups:
+      - Fn::GetAtt:
+        - EFSSecurityGroup
+        - GroupId
+      SubnetId:
+        !GetAtt VPCStack.Outputs.PrivateSubnet1AID
+  EFSMountTarget2:
+    Type: AWS::EFS::MountTarget
+    Properties:
+      FileSystemId:
+        Ref: EFSFileSystem
+      SecurityGroups:
+      - Fn::GetAtt:
+        - EFSSecurityGroup
+        - GroupId
+      SubnetId:
+        !GetAtt VPCStack.Outputs.PrivateSubnet2AID
+  EFSMountTarget3:
+    Type: AWS::EFS::MountTarget
+    Properties:
+      FileSystemId:
+        Ref: EFSFileSystem
+      SecurityGroups:
+      - Fn::GetAtt:
+        - EFSSecurityGroup
+        - GroupId
+      SubnetId:
+         !GetAtt VPCStack.Outputs.PrivateSubnet3AID
+  EFSSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Enable NFS access from EC2
+      SecurityGroupIngress:
+      - FromPort: '2049'
+        IpProtocol: tcp
+        ToPort: '2049'
+        CidrIp: !Ref VPCCIDR
+      VpcId:
+        !GetAtt VPCStack.Outputs.VPCID
+  SSMParameterEFSID:
+    Type: "AWS::SSM::Parameter"
+    DependsOn: EFSFileSystem
+    Properties:
+      Name: "EFSId"
+      Type: "String"
+      Value: !Ref EFSFileSystem
+      Description: "SSM Parameter for storing the EFS ID"
+
+  SSMMongoPrimaryIP:
+    Type: "AWS::SSM::Parameter"
+    Properties:
+      Name: "MongoPrimaryIP"
+      Type: "String"
+      Value: !GetAtt MongoStack.Outputs.PrimaryReplicaNodeIp
+      Description: "IP Address of MongoDB PrimaryNode"
+
+  SSMMongoSecondary0IP:
+    Type: "AWS::SSM::Parameter"
+    Properties:
+      Name: "MongoSecondary0IP"
+      Type: "String"
+      Value: !GetAtt MongoStack.Outputs.SecondaryReplicaNode0Ip
+      Description: "IP Address of MongoDB Secodary0 Node"
+
+  SSMMongoSecondary1IP:
+    Type: "AWS::SSM::Parameter"
+    Properties:
+      Name: "MongoSecondary1IP"
+      Type: "String"
+      Value: !GetAtt MongoStack.Outputs.SecondaryReplicaNode1Ip
+      Description: "IP Address of MongoDB Secodary1 Node"
+
+  SSMSQLURLParameter:
+    Type: "AWS::SSM::Parameter"
+    Properties:
+      Name: "SQLDatabaseJdbcURL"
+      Type: "String"
+      Value: !GetAtt RDSStack.Outputs.SQLDatabaseEndpoint
+      Description: "SSM Parameter for getting RDS Server JDBC URL"
+      Tags:
+        "Name": "RDSURLParameter"
+
+  SSMELKdomainParameter:
+    Type: "AWS::SSM::Parameter"
+    Properties:
+      Name: "ELKDomain"
+      Type: "String"
+      Value: !GetAtt ELKstack.Outputs.ELKSearchDomain
+      Description: "SSM Parameter for getting Kibana URL"
+      Tags:
+        "Name": "ELKURLParameter"
+
+  SSMQSS3BucketName:
+    Type: "AWS::SSM::Parameter"
+    Properties:
+      Name: "QSS3BucketName"
+      Type: "String"
+      Value: !Ref 'QSS3BucketName'
+      Description: "QSS3BucketName - S3 storage for quickstart"
+      Tags:
+        "Name": "SSMQSS3BucketName"
+
+  SSMQSS3KeyPrefix:
+    Type: "AWS::SSM::Parameter"
+    Properties:
+      Name: "QSS3KeyPrefix"
+      Type: "String"
+      Value: !Ref 'QSS3KeyPrefix'
+      Description: "QSS3KeyPrefix Key prefix for QSS3Bucket"
+      Tags:
+        "Name": "SSMQSS3KeyPrefix"
+
+  SSMDriverBucketName:
+    Type: "AWS::SSM::Parameter"
+    Properties:
+      Name: "JDBCDriverBucketName"
+      Type: "String"
+      Value: !Ref 'JDBCDriverBucketName'
+      Description: "JDBCDriverBucketName - S3 storage for quickstart"
+      Tags:
+        "Name": "JDBCDriverBucketName"
+
+  SSMDriverKeyPrefix:
+    Type: "AWS::SSM::Parameter"
+    Properties:
+      Name: "JDBCDriverKeyPrefix"
+      Type: "String"
+      Value: !Ref 'JDBCDriverKeyPrefix'
+      Description: "JDBCDriverKeyPrefix Key prefix for QSS3Bucket"
+      Tags:
+        "Name": "JDBCDriverKeyPrefix"
+
+  SSMR53LBRecordSet:
+    Type: "AWS::SSM::Parameter"
+    Properties:
+      Name: "SoluminaWebURL"
+      Type: "String"
+      Value: !Ref 'R53LBRecordSetName'
+      Description: "Solumina Web URL End Point"
+      Tags:
+        "Name": "R53LBRecordSetName"
+
+  UIWaitHandle:
+     Type: AWS::CloudFormation::WaitConditionHandle
+  UIWaitCondition:
+    Type: AWS::CloudFormation::WaitCondition
+    Properties:
+      Handle: !Ref UIWaitHandle
+      Timeout: '7200'
+      Count: 1
+  SSMUIwaitHandle:
+    Type: "AWS::SSM::Parameter"
+    Properties:
+      Name: "UIWaitHandle"
+      Type: "String"
+      Value: !Ref UIWaitHandle
+      Description: "SSM Parameter for wait condition handle"
+      Tags:
+        "Name": "UIWaitHandle"
+
+## UI Provisioning ###
+  UIStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub 
+        - https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}templates/ui-deployment.template.yaml
+        - S3Bucket: !If
+            - UsingDefaultBucket
+            - !Sub 'aws-quickstart-${AWS::Region}'
+            - !Ref 'QSS3BucketName'
+          S3Region: !If
+            - UsingDefaultBucket
+            - !Ref 'AWS::Region'
+            - !Ref 'QSS3BucketRegion'
+      Parameters:
+        QSS3BucketName: !Ref 'QSS3BucketName'
+        QSS3KeyPrefix: !Ref 'QSS3KeyPrefix'
+        LogsBucketName: !GetAtt LambdaZipSyncStack.Outputs.S3SyncNewBucket
+        LogsKeyPrefix: 'logs/UI_Install'
+    DependsOn:
+       - EKSStack
+       - SSMSQLURLParameter
+       - SSMMongoSecondary0IP
+       - SSMMongoPrimaryIP
+       - SSMParameterEFSID
+       - EFSFileSystem
+       - PostBastionPolicystack
+       - UIWaitCondition
+
+## Route53 RecordSet Provisioning ##
+  Route53Stack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub
+        - https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}templates/recordset.template.yaml
+        - S3Bucket: !If
+            - UsingDefaultBucket
+            - !Sub 'aws-quickstart-${AWS::Region}'
+            - !Ref 'QSS3BucketName'
+          S3Region: !If
+            - UsingDefaultBucket
+            - !Ref 'AWS::Region'
+            - !Ref 'QSS3BucketRegion'
+      Parameters:
+        R53HostedZoneName: !Ref 'R53HostedZoneName'
+        R53LBRecordSetName: !Ref 'R53LBRecordSetName'
+    DependsOn:
+      - UIStack
+Outputs:
+  SoluminaWebURL:
+    Value: !Ref 'R53LBRecordSetName'
+  BastionIP:
+    Value: !GetAtt EKSStack.Outputs.BastionIP

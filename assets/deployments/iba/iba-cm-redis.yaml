@@ -6,12 +6,8 @@ data:
     redis.cluster.sentinel.master=mymaster
     redis.cluster.pool.maxconnection=128
 
+    ##spring.redis.cluster.nodes[0]=--DNS_NAME--:6379
 kind: ConfigMap
 metadata:
-  creationTimestamp: 2019-06-05T21:40:07Z
-  name: iba-cm-redis
-  namespace: default
-  resourceVersion: "668103"
-  selfLink: /api/v1/namespaces/default/configmaps/redisproperties
-  uid: 7ca7c45b-87da-11e9-b6be-06e36b0b2240
-
+  creationTimestamp: null
+  name: iba-redis-cm

@@ -1,0 +1,81 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: logstash-serial-sql
+  labels:
+    app: logstash-serial-sql
+spec:
+  selector:
+    matchLabels:
+      app: logstash-serial-sql
+  template:
+    metadata:
+      labels:
+        app: logstash-serial-sql
+    spec:
+      nodeSelector:
+        datanode: elasticsearch
+      containers:
+        - image: docker.elastic.co/logstash/logstash:6.7.0
+          name: logstash-serial-sql
+          ports:
+            - name: logstash
+              containerPort: 5044
+              protocol: TCP
+          volumeMounts:
+            - name: config
+              mountPath: /usr/share/logstash/config/logstash.yml
+              subPath: logstash.yml
+              readOnly: true
+
+            - name: pipeline
+              mountPath: /usr/share/logstash/pipeline
+              readOnly: true
+
+            - name: driver
+              mountPath: /opt/logstash/driver
+
+            - name: logs
+              mountPath: /opt/logstash/lastrun
+
+            - name: data
+              mountPath: /usr/share/logstash/data
+          args:
+            - -f
+            - /usr/share/logstash/pipeline/logstash.conf
+          resources:
+            limits:
+              memory: 2Gi
+              cpu: "500m"
+            requests:
+              memory: 2Gi
+              cpu: "200m"
+      volumes:
+        - name: logs
+          nfs:
+            server: --fs--.efs.--region--.amazonaws.com
+            path: /logstash/logs/logstash-serial-sqlserver
+
+        - name: data
+          nfs:
+            server: --fs--.efs.--region--.amazonaws.com
+            path: /logstash/data/logstash-serial-sqlserver
+
+        - name: driver
+          nfs:
+            server: --fs--.efs.--region--.amazonaws.com
+            path: /doc-converter-driver
+
+        - name: pipeline
+          configMap:
+            name: logstash-serial-cm-sql
+            items:
+              - key: logstash.conf
+                path: logstash.conf
+
+        - name: config
+          configMap:
+            name: logstash-serial-cm-sql
+            items:
+              - key: logstash.yml
+                path: logstash.yml

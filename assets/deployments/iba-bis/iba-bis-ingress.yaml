@@ -1,0 +1,21 @@
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: iba-bis
+  annotations:
+    kubernetes.io/ingress.class: traefik
+    ingress.kubernetes.io/custom-response-headers: "Access-Control-Allow-Origin:*"
+spec:
+  rules:
+    - host: --DNS_NAME--
+      http:
+        paths:
+          - path: /solumina-G8/admin
+            backend:
+              serviceName: iba-bis
+              servicePort: 8081
+
+          - path: /solumina-G8/admin
+            backend:
+              serviceName: iba-bis
+              servicePort: 8010

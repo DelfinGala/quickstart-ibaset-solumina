@@ -1,0 +1,42 @@
+apiVersion: v1
+data:
+  application.properties: |-
+    #disbale Spring banner
+    spring.main.banner-mode=off
+
+    server.contextPath=/docconverter
+    server.port=8090
+
+    # DB settings
+    app.datasource.jdbcUrl=CONN_STRING
+    app.datasource.username=MT_CONPOOL_USER
+    app.datasource.password=MT_CONPOOL_USER
+    app.datasource.driver-class-name=--DB_DRIVER--
+
+    app.datasource.default-auto-commit=false
+    app.datasource.max-idle=2
+    app.datasource.min-idle=2
+    app.datasource.max-wait=2
+    app.datasource.validation-query=VALIDATION_QUERY
+    app.datasource.max-active=5
+
+    # HikariCP settings
+    # spring.datasource.hikari.*
+    spring.datasource.hikari.connection-timeout=60000
+    spring.datasource.hikari.maximum-pool-size=5
+
+    spring.jpa.show-sql=true
+
+    swagger.title=Solumina REST API
+    swagger.description=REST API for integrating with Solumina Middle Tier. All API endpoint will return a response object which will contain 3 parameters 'data': it will have actual response data (API Endpoint specific response model shown in API documentation will be available in 'data' parameter of original repsonse object), 'meta': it will have some metadata information, 'error': error information if api response have any error.
+    swagger.version=1.0
+    swagger.termsOfServiceUrl=https://www.ibaset.com
+    swagger.license=Ibaset Proprietary API
+    swagger.licenseUrl=https://www.ibaset.com
+    swagger.contactName=iBASEt
+    swagger.contactUrl=https://www.ibaset.com
+    swagger.contactEmail=support@ibaset.com
+    zipkin.server.url=http://zipkin:9411
+kind: ConfigMap
+metadata:
+  name: converter-application-cm

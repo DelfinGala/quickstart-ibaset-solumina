@@ -15,25 +15,36 @@ spec:
         app: supervisor
     spec:
       containers:
-      - name: supervisor
-        image: "279559645400.dkr.ecr.us-west-1.amazonaws.com/solui/supervisor:G8R2SP4"
-        ports:
-        - containerPort: 5020
-        resources:
-           requests:
-            cpu: 200m
-            memory: 64Mi
-
-        volumeMounts:
-        - name: supervisor-mount
-          mountPath: /opt/ibaset/solumina-web-supervisor/config/
-
+        - image: 279559645400.dkr.ecr.us-west-1.amazonaws.com/solui/supervisor:G8R2i020
+          imagePullPolicy: Always
+          name: supervisor
+          ports:
+            - containerPort: 5020
+          livenessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /supervisor/health
+              port: 5020
+            initialDelaySeconds: 15
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 30
+          resources:
+            requests:
+              cpu: 100m
+              memory: 100Mi
+          volumeMounts:
+            - mountPath: /opt/ibaset/solumina-web-supervisor/config/.env
+              subPath: .env
+              name: supervisor-mount
+              readOnly: True
 
       volumes:
-       - name: supervisor-mount
-         configMap:
-            defaultMode: 420
-            items:
-            - key: supervisorconfig
-              path: .env
+        - name: supervisor-mount
+          configMap:
             name: supervisor-cm
+            items:
+              - key: supervisorConfig
+                path: .env
+
+      restartPolicy: Always

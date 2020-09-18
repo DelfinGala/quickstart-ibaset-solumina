@@ -1,43 +1,16 @@
-# iba and userinfo driver 
+### iba and userinfo Driver
+
 sudo mkdir -p /mnt/efs/driver
+sudo mkdir -p /mnt/efs/customJRE11-driver
+sudo mkdir -p /mnt/efs/doc-converter-driver
 
-#nginx logs
-sudo mkdir -p /mnt/efs/nginx/logs
+# Creating logstash logs and data Directories
 
+sudo mkdir -p /mnt/efs/logstash/logs/{component-{lot,part,serial}-sqlserver,discrepancy-sqlserver,discrepancy-user-sqlserver,disposition-sqlserver,logstash-{lot,order,serial,user}-sqlserver,rejected-{lot,serial}-sqlserver,rejected-component-{lot,part,serial}-sqlserver}
+sudo mkdir -p /mnt/efs/logstash/data/{component-{lot,part,serial}-sqlserver,discrepancy-sqlserver,discrepancy-user-sqlserver,disposition-sqlserver,logstash-{lot,order,serial,user}-sqlserver,rejected-{lot,serial}-sqlserver,rejected-component-{lot,part,serial}-sqlserver}
 
-#logstash data directory
-sudo mkdir -p /mnt/efs/logstash/data/componenct-part
+# Change Permissions
 
-sudo mkdir -p /mnt/efs/logstash/data/component-lot
-
-sudo mkdir -p /mnt/efs/logstash/data/component-serial
-
-sudo mkdir -p /mnt/efs/logstash/data/lot
-
-sudo mkdir -p /mnt/efs/logstash/data/order
-
-sudo mkdir -p /mnt/efs/logstash/data/serial
-
-sudo mkdir -p /mnt/efs/logstash/data/user
-
-
-#logstash logs directory
-sudo mkdir -p /mnt/efs/logstash/logs/componenct-part
-
-sudo mkdir -p /mnt/efs/logstash/logs/component-lot
-
-sudo mkdir -p /mnt/efs/logstash/logs/component-serial
-
-sudo mkdir -p /mnt/efs/logstash/logs/lot
-
-sudo mkdir -p /mnt/efs/logstash/logs/order
-
-sudo mkdir -p /mnt/efs/logstash/logs/serial
-
-sudo mkdir -p /mnt/efs/logstash/logs/user
-
-
-#change folder permision
 sudo chmod -R 777 /mnt/efs
 sudo chown -R ec2-user:ec2-user /mnt/efs
 
@@ -52,6 +25,8 @@ S3SyncURL=s3://${JDBCDriverBucketName}/${JDBCDriverKeyPrefix}
 
 #copy driver to efs
 #aws s3 cp ${S3SyncURL}/driver/ojdbc8.jar  /mnt/efs/driver
-aws s3 cp ${S3SyncURL}driver/sqljdbc4.jar /mnt/efs/driver
-
-
+# aws s3 cp ${S3SyncURL}driver/sqljdbc4.jar /mnt/efs/driver
+aws s3 cp ${S3SyncURL}driver/mssql-jdbc-7.4.1.jre11.jar /mnt/efs/driver
+aws s3 cp ${S3SyncURL}doc-converter-driver/mssql-jdbc-7.4.1.jre8.jar /mnt/efs/doc-converter-driver
+sudo chmod -R 777 /mnt/efs/driver
+sudo chmod -R 777 /mnt/efs/doc-converter-driver

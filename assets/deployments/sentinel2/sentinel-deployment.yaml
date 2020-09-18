@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis-sentinel-2
+  labels:
+    app: redis-sentinel-2
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redis-sentinel-2
+  template:
+    metadata:
+      labels:
+        app: redis-sentinel-2
+    spec:
+      containers:
+      - env:
+        - name: MASTER_PORT
+          value: "6379"
+        - name: MASTER_SERVICE_NAME
+          value: redis-master.default.svc.cluster.local
+        - name: SENTINEL_DOWN_AFTER
+          value: "18000"
+        - name: SENTINEL_FAILOVER
+          value: "5000"
+        - name: SENTINEL_QUORUM
+          value: "2"
+        - name: SERVICE_DELAY
+          value: "10"
+        image: "279559645400.dkr.ecr.us-west-1.amazonaws.com/redis/sentinel:v1.0.0"
+        name: redis-sentinel-2
+        ports:
+        - containerPort: 26379
+        resources: {}
+      restartPolicy: Always
+status: {}
+

@@ -15,20 +15,36 @@ spec:
         app: login
     spec:
       containers:
-      - name: login
-        image: "279559645400.dkr.ecr.us-west-1.amazonaws.com/solui/login-view:G8R2SP4"
-        ports:
-        - containerPort: 5000
-        volumeMounts:
-        - name: login-config
-          mountPath: /opt/ibaset/solumina-web-login/config/
-
-
+        - image: 279559645400.dkr.ecr.us-west-1.amazonaws.com/solui/login-view:G8R2i020
+          imagePullPolicy: Always
+          name: login
+          ports:
+            - containerPort: 5000
+          livenessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /login/health
+              port: 5000
+            initialDelaySeconds: 15
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 30
+          resources:
+            requests:
+              cpu: 200m
+              memory: 400Mi
+            limits:
+              cpu: 400m
+              memory: 800Mi
+          volumeMounts:
+            - mountPath: /opt/ibaset/solumina-web-login/config/.env
+              subPath: .env
+              name: login-mount
       volumes:
-       - name: login-config
-         configMap:
+        - name: login-mount
+          configMap:
             defaultMode: 420
             items:
-            - key: loginconfig
-              path: .env
+              - key: loginconfig
+                path: .env
             name: login-cm

@@ -1,0 +1,19 @@
+apiVersion: v1
+data:
+  microServiceConfig.properties: |+
+    # The properties file to configure whether any feature is being deployed as a microservice or not
+
+    # CRON JOBS - Do not add or remove any job from belo list. Only updating to true/false if expected.
+    E-Mail\u0020Service\u0020Job=true
+    XMPP\u0020Service\u0020Job=true
+    Overdue\u0020CA\u0020Hold\u0020Job=true
+    Overdue\u0020PPV\u0020Hold\u0020Job=true
+    Alert\u0020Service\u0020Job=true
+    Process\u0020Raw\u0020GUI\u0020Event\u0020Data\u0020Job=true
+    Concurrent\u0020User\u0020Sessions\u0020Collect\u0020Job=true
+    Purge\u0020Archive\u0020Batches\u0020Job=true
+
+kind: ConfigMap
+metadata:
+  creationTimestamp: null
+  name: iba-microserviceconfig-cm
