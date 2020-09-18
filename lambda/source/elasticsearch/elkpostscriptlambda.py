@@ -19,18 +19,18 @@ import time
 #  A copy of the License is located at http://aws.amazon.com/agreement/ .
 #  This file is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, express or implied.
 #  See the License for the specific language governing permissions and limitations under the License.
- 
- 
+
+
 SUCCESS = "SUCCESS"
 FAILED = "FAILED"
 outputData = {}
 responseBody = {}
- 
+
 def send(event, context, responseStatus, responseData, physicalResourceId=None, noEcho=False):
     responseUrl = event['ResponseURL']
- 
+
     print('Sending to the responseURL: '+ responseUrl)
- 
+
     responseBody = {}
     responseBody['Status'] = responseStatus
     responseBody['Reason'] = 'See the details in CloudWatch Log Stream: ' + context.log_stream_name
@@ -40,16 +40,16 @@ def send(event, context, responseStatus, responseData, physicalResourceId=None, 
     responseBody['LogicalResourceId'] = event['LogicalResourceId']
     responseBody['NoEcho'] = noEcho
     responseBody['Data'] = responseData
- 
+
     json_responseBody = json.dumps(responseBody)
-   
+
     print("Response body:\n" + json_responseBody)
- 
+
     headers = {
-        'content-type' : '', 
+        'content-type' : '',
         'content-length' : str(len(json_responseBody))
     }
-    
+
     try:
         response = requests.put(responseUrl,
                                 data=json_responseBody,
@@ -90,13 +90,13 @@ def lambda_handler(event, context):
         print('OS environment -- ' + os.environ['DomainEndpoint'])
         # If the Cloudformation Stack is being created, call the desired Elastic APIs for configuration
         if event['RequestType'] == 'Create':
-    
+
             uri = os.environ['DomainEndpoint']
-    
+
             putRequest = json.dumps({
-    
+
                   "index_patterns": [
-                    "solumina*"
+                    "solumina*","di*"
                   ],
                   "settings": {
                     "index.max_ngram_diff": "8",
@@ -107,6 +107,10 @@ def lambda_handler(event, context):
                           "filter": [
                             "lowercase"
                           ]
+                        },
+                        "comma_analyzer": {
+                    "type": "custom",
+                          "tokenizer": "comma_tokenizer"
                         }
                       },
                       "tokenizer": {
@@ -118,6 +122,10 @@ def lambda_handler(event, context):
                         },
                         "white_tokenizer": {
                           "type": "whitespace"
+                        },
+                        "comma_tokenizer": {
+                          "type": "pattern",
+                          "pattern": ","
                         }
                       }
                     },
@@ -193,6 +201,59 @@ def lambda_handler(event, context):
                             }
                           }
                         },
+                        "reject_work_center": {
+                          "type": "text",
+                          "analyzer": "ibaset_analyzer",
+                          "fields": {
+                            "keyword": {
+                              "type": "keyword",
+                              "ignore_above": 256
+                            }
+                          }
+                        },
+                        "resp_work_center": {
+                          "type": "text",
+                          "analyzer": "ibaset_analyzer",
+                          "fields": {
+                            "keyword": {
+                              "type": "keyword",
+                              "ignore_above": 256
+                            }
+                          }
+                        },
+                    "reject_order_no": {
+                          "type": "text",
+                          "analyzer": "ibaset_analyzer",
+                          "fields": {
+                            "keyword": {
+                              "type": "keyword",
+                              "ignore_above": 256
+                            }
+                          }
+                        },
+                    "disposition_order_no": {
+                          "type": "text",
+                          "analyzer": "ibaset_analyzer",
+                          "fields": {
+                            "keyword": {
+                              "type": "keyword",
+                              "ignore_above": 256
+                            }
+                          }
+                        },
+                        "disc_id": {
+                          "type": "text",
+                          "analyzer": "ibaset_analyzer",
+                          "fields": {
+                            "keyword": {
+                              "type": "keyword",
+                              "ignore_above": 256
+                            }
+                          }
+                        },
+                        "disc_line_no": {
+                          "type": "text"
+                        },
                         "updt_userid": {
                           "type": "text",
                           "analyzer": "ibaset_analyzer",
@@ -202,11 +263,24 @@ def lambda_handler(event, context):
                               "ignore_above": 256
                             }
                           }
+                        },
+                        "part_chg": {
+                          "type": "text",
+                          "analyzer": "ibaset_analyzer",
+                          "fields": {
+                            "keyword": {
+                              "type": "keyword",
+                              "ignore_above": 256
+                            }
+                          }
+                        },
+                        "security_group": {
+                          "type": "text",
+                          "analyzer": "comma_analyzer"
                         }
                       }
                     }
                   }
-    
             })
             print('PUT Request: \n' + putRequest)
             response = requests.put(uri, data=putRequest, headers={"Content-Type": "application/json"}, timeout= 30)
@@ -225,8 +299,6 @@ def lambda_handler(event, context):
         print("send(..) failed executing handler (..): " + str(e))
         #send(event, context, FAILED, str(e), 'error')
       #raise Exception(FAILED)
-
-    
 
 if __name__ == '__main__':
     lambda_handler('event', 'handler')
