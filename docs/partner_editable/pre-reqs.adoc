@@ -2,12 +2,14 @@
 
 ==== Prepare your AWS account
 
-_Describe any setup required in the AWS account prior to template launch_
+Amazon Elasticsearch Service uses AWS Identity and Access Management (IAM) service-linked roles. A service-linked role is a unique type of IAM role that is linked directly to Amazon ES. Service-linked roles are predefined by Amazon ES and include all the permissions that the service requires to call other AWS services on your behalf. This role can be created by running cloudformation template located under templates/elk_service_linked_role.yaml. or please refer https://docs.aws.amazon.com/elasticsearch-service/latest/developerguide/slr-es.html[Service-linked role for Amazon ES^].
 
-==== Prepare your {partner-company-name} account
 
-_Describe any setup required in the partner portal/account prior to template launch_
 
-==== Prepare for the deployment
+// ==== Prepare your {partner-company-name} account
 
-_Describe any preparation required to complete the product build, such as obtaining licenses or placing files in S3_
+// _Describe any setup required in the partner portal/account prior to template launch_
+
+// ==== Prepare for the deployment
+
+// _Describe any preparation required to complete the product build, such as obtaining licenses or placing files in S3_
