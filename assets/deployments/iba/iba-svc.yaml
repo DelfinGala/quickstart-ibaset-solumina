@@ -2,16 +2,23 @@ apiVersion: v1
 kind: Service
 metadata:
   name: iba
+  annotations:
+      traefik.ingress.kubernetes.io/affinity: "true"
+      traefik.ingress.kubernetes.io/session-cookie-name: "replica"
 spec:
   selector:
     app: iba
   ports:
-  - name: iba2
+  - name: iba1
     protocol: TCP
     port: 8080
     targetPort: 8080
-  - name: iba1
+  - name: iba2
     protocol: TCP
     port: 8009
     targetPort: 8009
+
+#  externalIPs:
+#  - 10.10.10.70
 #  type: LoadBalancer
+

@@ -1,3 +1,6 @@
 .DS_Store
 taskcat_outputs/
-test
+.taskcat
+*.zip
+.taskcat_overrides.yml
+backup/*

@@ -1,21 +1,13 @@
 apiVersion: v1
 data:
   configuratorConfig: |
-   PORT=5021
-   API_ENDPOINT=/solumina-G8/api/v1.0
-   #ZIPKIN_SERVER_URL=http://ZIPKIN_URL
-   SERVICE_NAME=configurator
-   ENABLE_CUSTOM_THEME=false
-   APP_DOMAIN=/configuration
-   APP_SERVER_URL=http://a068d6678977011e9988c023c9c1f227-642293744.us-west-2.elb.amazonaws.com
-
-
+    PORT=5021
+    ZIPKIN_SERVER_URL=https://--DNS_NAME--/diagnostics
+    SERVICE_NAME=configurator
+    ENABLE_CUSTOM_THEME=false
+    APP_DOMAIN=/configuration
+    APP_HOST_NAME=https://--DNS_NAME--
 kind: ConfigMap
 metadata:
-  creationTimestamp: 2019-06-06T22:09:32Z
   name: configurator-cm
   namespace: default
-  resourceVersion: "801307"
-  selfLink: /api/v1/namespaces/default/configmaps/configurator-configmap
-  uid: c34382ab-88a7-11e9-b6be-06e36b0b2240
-

@@ -1,23 +1,45 @@
 apiVersion: v1
 data:
-  logback.xml: "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<configuration>\n\t<property
-    name=\"CONSOLE_LOG_PATTERN\" value=\"%d{yyyy-MM-dd HH:mm:ss.SSS} %5p ${PID:- }
-    [%t] --- %-40.40logger{39} : %m%n%wex\"/>\n\n\t<conversionRule conversionWord=\"wex\"
-    converterClass=\"org.springframework.boot.logging.logback.WhitespaceThrowableProxyConverter\"
-    />\n\n\t<appender name=\"CONSOLE\" class=\"ch.qos.logback.core.ConsoleAppender\">\n\t\t<encoder>\n\t\t\t<pattern>${CONSOLE_LOG_PATTERN}</pattern>\n\t\t</encoder>\n\t</appender>\n\n\t<appender
-    name=\"FILE\" class=\"ch.qos.logback.core.rolling.RollingFileAppender\">\n\t\t<file>logs/solumina-user-info.log</file>\n\t\t<rollingPolicy
-    class=\"ch.qos.logback.core.rolling.FixedWindowRollingPolicy\">\n\t\t\t<fileNamePattern>logs/solumina-user-info.%i.log.zip</fileNamePattern>\n\t\t\t<minIndex>1</minIndex>\n\t\t\t<maxIndex>10</maxIndex>\n\t\t</rollingPolicy>\n\t\t<triggeringPolicy
-    class=\"ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy\">\n\t\t\t<maxFileSize>5MB</maxFileSize>\n\t\t</triggeringPolicy>\n\t\t<encoder>\n\t\t\t<pattern>${CONSOLE_LOG_PATTERN}</pattern>\n\t\t</encoder>\n\t</appender>\n\n\n\t<root
-    level=\"INFO\">\n\t\t<appender-ref ref=\"CONSOLE\" />\n\t\t<appender-ref ref=\"FILE\"
-    />\n\t</root>\n\t\n\t<logger name=\"org.springframework\" level=\"ERROR\"/>\n\t<logger
-    name=\"com.ibaset.solumina\" level=\"DEBUG\"/>\n\t<logger name=\"org.redisson.eviction\"
-    level=\"INFO\"/>\n\t<logger name=\"org.hibernate.cache.ehcache.AbstractEhcacheRegionFactory\"
-    level=\"ERROR\"/>\n\t\n</configuration>\n"
+  logback.xml: |
+    <?xml version="1.0" encoding="UTF-8"?>
+    <configuration>
+        <property name="CONSOLE_LOG_PATTERN" value="%d{yyyy-MM-dd HH:mm:ss.SSS} %5p ${PID:- } [%t] --- %-40.40logger{39} : %m%n%wex"/>
+
+        <conversionRule conversionWord="wex" converterClass="org.springframework.boot.logging.logback.WhitespaceThrowableProxyConverter" />
+
+        <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+            <encoder>
+                <pattern>${CONSOLE_LOG_PATTERN}</pattern>
+            </encoder>
+        </appender>
+
+        <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+            <file>logs/solumina-user-info.log</file>
+            <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+                <fileNamePattern>logs/solumina-user-info.%i.log.zip</fileNamePattern>
+                <minIndex>1</minIndex>
+                <maxIndex>10</maxIndex>
+            </rollingPolicy>
+            <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+                <maxFileSize>5MB</maxFileSize>
+            </triggeringPolicy>
+            <encoder>
+                <pattern>${CONSOLE_LOG_PATTERN}</pattern>
+            </encoder>
+        </appender>
+
+
+        <root level="INFO">
+            <appender-ref ref="CONSOLE" />
+            <appender-ref ref="FILE" />
+        </root>
+
+        <logger name="org.springframework" level="ERROR"/>
+        <logger name="com.ibaset.solumina" level="ERROR"/>
+        <logger name="org.redisson.eviction" level="INFO"/>
+        <logger name="org.hibernate.cache.ehcache.AbstractEhcacheRegionFactory" level="ERROR"/>
+
+    </configuration>
 kind: ConfigMap
 metadata:
-  creationTimestamp: 2019-06-11T17:00:27Z
-  name: userinfo-cm-logback
-  namespace: default
-  resourceVersion: "1429860"
-  selfLink: /api/v1/namespaces/default/configmaps/userinfo-cm-logback
-  uid: 692c5bdd-8c6a-11e9-9ba1-0af663ddcdfa
+  name: userinfo-logback-cm

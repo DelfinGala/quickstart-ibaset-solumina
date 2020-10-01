@@ -1,0 +1,403 @@
+apiVersion: v1
+data:
+  soluminaCamel.xml: |2
+     <!--
+                    Licensed to the Apache Software Foundation (ASF) under one or more
+        contributor license agreements.  See the NOTICE file distributed with
+        this work for additional information regarding copyright ownership.
+        The ASF licenses this file to You under the Apache License, Version 2.0
+        (the "License"); you may not use this file except in compliance with
+        the License.  You may obtain a copy of the License at
+        http://www.apache.org/licenses/LICENSE-2.0
+        Unless required by applicable law or agreed to in writing, software
+        distributed under the License is distributed on an "AS IS" BASIS,
+        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+        See the License for the specific language governing permissions and
+        limitations under the License.
+    -->
+    <!--
+                  Lets deploy some Enterprise Integration Patterns inside the ActiveMQ Message Broker
+        For more information, see:
+        http://camel.apache.org
+        Include this file in your configuration to enable Camel
+        e.g. <import resource="soluminaCamel.xml"/>
+    -->
+    <beans
+       xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="
+         http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd
+         http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+        <!-- configure the camel activemq component to use the current broker -->
+        <bean id="activemq" class="org.apache.activemq.camel.component.ActiveMQComponent" >
+            <property name="connectionFactory">
+                 <bean class="org.apache.activemq.pool.PooledConnectionFactory" init-method="start" destroy-method="stop">
+                    <property name="maxConnections" value="50" />
+                    <property name="connectionFactory">
+                        <bean class="org.apache.activemq.ActiveMQConnectionFactory">
+                            <property name="brokerURL" value="tcp://localhost:61616"/>
+                            <property name="userName" value="${activemq.username}"/>
+                            <property name="password" value="${activemq.password}"/>
+                                    </bean>
+                                    </property>
+                            </bean>
+            </property>
+        </bean>
+        <bean id="activeMQUuidGenerator" class="org.apache.camel.impl.ActiveMQUuidGenerator" />
+        <bean id="soluminaCamelProperties" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+            <property name="properties">
+              <props>
+                        <prop key="root.test.dir">file:///C:/test-data/</prop>
+                <prop key="date.now">$simple{date:now:yyyyMMdd.HH.mm.ss.SS}</prop>
+              </props>
+            </property>
+        </bean>
+        <camelContext id="camel" xmlns="http://camel.apache.org/schema/spring">
+            <propertyPlaceholder id="properties" location="ref:soluminaCamelProperties"/>
+            <!-- **************** -->
+            <!-- INBOUND SERVICES -->
+            <!-- **************** -->
+            <route>
+                <description>R_BOM_SYNC Request:Receive Bill Of Material Sync</description>
+                <from uri="{{root.test.dir}}com.ibaset.receive.request.bomsync?move=../com.ibaset.receive.request.bomsync.processed"/>
+                <to uri="activemq:com.ibaset.receive.request.bomsync?jmsMessageType=Text"/>
+            </route>
+            <route>
+                <description>R_BOM_SYNC Reply:Receive Bill Of Material Sync</description>
+                <from uri="activemq:com.ibaset.send.reply.bomsync"/>
+                <to uri="{{root.test.dir}}com.ibaset.send.reply.bomsync?fileName=R_BOM_SYNC-{{date.now}}-${bean:activeMQUuidGenerator.generateUuid}.xml"/>
+            </route>
+                    <route>
+                <description>R_CATALOG_NOTIFY Request:Receive Catalog Notify</description>
+                <from uri="{{root.test.dir}}com.ibaset.receive.request.catalognotify?move=../com.ibaset.receive.request.catalognotify.processed"/>
+                <to uri="activemq:com.ibaset.receive.request.catalognotify?jmsMessageType=Text"/>
+            </route>
+            <route>
+                <description>R_CATALOG_NOTIFY Reply:Receive Catalog Notify</description>
+                <from uri="activemq:com.ibaset.send.reply.catalognotify"/>
+                <to uri="{{root.test.dir}}com.ibaset.send.reply.catalognotify?fileName=R_CATALOG_NOTIFY-{{date.now}}-${bean:activeMQUuidGenerator.generateUuid}.xml"/>
+            </route>
+            <route>
+                <description>R_ECN_SYNC Request:Receive Engineering change Notice</description>
+                <from uri="{{root.test.dir}}com.ibaset.receive.request.ecnsync?move=../com.ibaset.receive.request.ecnsync.processed"/>
+                <to uri="activemq:com.ibaset.receive.request.ecnsync?jmsMessageType=Text"/>
+            </route>
+            <route>
+                <description>R_ECN_SYNC Reply:Receive Engineering change Notice</description>
+                <from uri="activemq:com.ibaset.send.reply.ecnsync"/>
+                <to uri="{{root.test.dir}}com.ibaset.send.reply.ecnsync?fileName=R_ECN_SYNC-{{date.now}}-${bean:activeMQUuidGenerator.generateUuid}.xml"/>
+            </route>
+            <route>
+                <description>R_EXTERNAL_DAT_COL Request:Receive data value from external sources</description>
+                <from uri="{{root.test.dir}}com.ibaset.receive.request.datcol?move=../com.ibaset.receive.request.datcol.processed"/>
+                <to uri="activemq:com.ibaset.receive.request.datcol?jmsMessageType=Text"/>
+            </route>
+            <route>
+                <description>R_EXTERNAL_DAT_COL Reply:Receive data value from external sources</description>
+                <from uri="activemq:com.ibaset.send.reply.datcol"/>
+                <to uri="{{root.test.dir}}com.ibaset.send.reply.datcol?fileName=R_EXTERNAL_DAT_COL-{{date.now}}-${bean:activeMQUuidGenerator.generateUuid}.xml"/>
+            </route>
+            <route>
+                <description>R_LOCATION_SYNC Request:Receive Location, Department, WorkCenter Sync</description>
+                <from uri="{{root.test.dir}}com.ibaset.receive.request.location?move=../com.ibaset.receive.request.location.processed"/>
+                <to uri="activemq:com.ibaset.receive.request.location?jmsMessageType=Text"/>
+            </route>
+            <route>
+                <description>R_LOCATION_SYNC Reply:Receive Location, Department, WorkCenter Sync</description>
+                <from uri="activemq:com.ibaset.send.reply.location"/>
+                <to uri="{{root.test.dir}}com.ibaset.send.reply.location?fileName=R_LOCATION_SYNC-{{date.now}}-${bean:activeMQUuidGenerator.generateUuid}.xml"/>
+            </route>
+            <route>
+                <description>R_MACHINE_CYCLE_SYNC Request:Receive cycle count messages from machines</description>
+                <from uri="{{root.test.dir}}com.ibaset.receive.request.machinecycle?move=../com.ibaset.receive.request.machinecycle.processed"/>
+                <to uri="activemq:com.ibaset.receive.request.machinecycle?jmsMessageType=Text"/>
+            </route>
+            <route>
+                <description>R_MACHINE_CYCLE_SYNC Reply:Receive cycle count messages from machines</description>
+                <from uri="activemq:com.ibaset.receive.reply.machinecycle"/>
+                <to uri="{{root.test.dir}}com.ibaset.send.reply.machinecycle?fileName=R_MACHINE_CYCLE_SYNC-{{date.now}}-${bean:activeMQUuidGenerator.generateUuid}.xml"/>
+            </route>
+            <route>
+                <description>R_MATERIAL_ISSUE Request:Receive Material Issue</description>
+                <from uri="{{root.test.dir}}com.ibaset.receive.request.matlissue?move=../com.ibaset.receive.request.matlissue.processed"/>
+                <to uri="activemq:com.ibaset.receive.request.matlissue?jmsMessageType=Text"/>
+            </route>
+            <route>
+                <description>R_MATERIAL_ISSUE Reply:Receive Material Issue</description>
+                <from uri="activemq:com.ibaset.send.reply.matlissue"/>
+                <to uri="{{root.test.dir}}com.ibaset.send.reply.matlissue?fileName=R_MATERIAL_ISSUE-{{date.now}}-${bean:activeMQUuidGenerator.generateUuid}.xml"/>
+            </route>
+            <route>
+                <description>R_OPER_TYPE_SYNC Request:Receive Operation Type Sync</description>
+                <from uri="{{root.test.dir}}com.ibaset.receive.request.opertypesync?move=../com.ibaset.receive.request.opertypesync.processed"/>
+                <to uri="activemq:com.ibaset.receive.request.opertypesync?jmsMessageType=Text"/>
+            </route>
+            <route>
+                <description>R_OPER_TYPE_SYNC Reply:Receive Operation Type Sync</description>
+                <from uri="activemq:com.ibaset.send.reply.opertypesync"/>
+                <to uri="{{root.test.dir}}com.ibaset.send.reply.opertypesync?fileName=R_OPER_TYPE_SYNC-{{date.now}}-${bean:activeMQUuidGenerator.generateUuid}.xml"/>
+            </route>
+            <route>
+                <description>R_PART_SYNC Request:Receive Part Number and Material Sync</description>
+                <from uri="{{root.test.dir}}com.ibaset.receive.request.partsync?move=../com.ibaset.receive.request.partsync.processed"/>
+                <to uri="activemq:com.ibaset.receive.request.partsync?jmsMessageType=Text"/>
+            </route>
+            <route>
+                <description>R_PART_SYNC Reply:Receive Part Number and Material Sync</description>
+                <from uri="activemq:com.ibaset.send.reply.partsync"/>
+                <to uri="{{root.test.dir}}com.ibaset.send.reply.partsync?fileName=R_PART_SYNC-{{date.now}}-${bean:activeMQUuidGenerator.generateUuid}.xml"/>
+            </route>
+            <route>
+                <description>R_PERSONNEL_SYNC Request:Receive Personnel Sync</description>
+                <from uri="{{root.test.dir}}com.ibaset.receive.request.personnel?move=../com.ibaset.receive.request.personnel.processed"/>
+                <to uri="activemq:com.ibaset.receive.request.personnel?jmsMessageType=Text"/>
+            </route>
+            <route>
+                <description>R_PERSONNEL_SYNC Reply:Receive Personnel Sync</description>
+                <from uri="activemq:com.ibaset.send.reply.personnel"/>
+                <to uri="{{root.test.dir}}com.ibaset.send.reply.personnel?fileName=R_PERSONNEL_SYNC-{{date.now}}-${bean:activeMQUuidGenerator.generateUuid}.xml"/>
+            </route>
+            <route>
+                <description>R_POLINE_RECEIPT Request:Process PO Line Receipt</description>
+                <from uri="{{root.test.dir}}com.ibaset.receive.request.polinercpt?move=../com.ibaset.receive.request.polinercpt.processed"/>
+                <to uri="activemq:com.ibaset.receive.request.polinercpt?jmsMessageType=Text"/>
+            </route>
+            <route>
+                <description>R_POLINE_RECEIPT Reply:Process PO Line Receipt</description>
+                <from uri="activemq:com.ibaset.send.reply.polinercpt"/>
+                <to uri="{{root.test.dir}}com.ibaset.send.reply.polinercpt?fileName=R_POLINE_RECEIPT-{{date.now}}-${bean:activeMQUuidGenerator.generateUuid}.xml"/>
+            </route>
+            <route>
+                <description>R_PO_SYNC Request:Receive Purchase Order Sync</description>
+                <from uri="{{root.test.dir}}com.ibaset.receive.request.posync?move=../com.ibaset.receive.request.posync.processed"/>
+                <to uri="activemq:com.ibaset.receive.request.posync?jmsMessageType=Text"/>
+            </route>
+            <route>
+                <description>R_PO_SYNC Reply:Receive Purchase Order Sync</description>
+                <from uri="activemq:com.ibaset.send.reply.posync"/>
+                <to uri="{{root.test.dir}}com.ibaset.send.reply.posync?fileName=R_PO_SYNC-{{date.now}}-${bean:activeMQUuidGenerator.generateUuid}.xml"/>
+            </route>
+            <route>
+                <description>R_PROCESS_ROUTG_SYNC Request:Receive Process Model and Sequence Sync</description>
+                <from uri="{{root.test.dir}}com.ibaset.receive.request.routing?move=../com.ibaset.receive.request.routing.processed"/>
+                <to uri="activemq:com.ibaset.receive.request.routing?jmsMessageType=Text"/>
+            </route>
+            <route>
+                <description>R_PROCESS_ROUTG_SYNC Reply:Receive Process Model and Sequence Sync</description>
+                <from uri="activemq:com.ibaset.send.reply.routing"/>
+                <to uri="{{root.test.dir}}com.ibaset.send.reply.routing?fileName=R_PROCESS_ROUTG_SYNC-{{date.now}}-${bean:activeMQUuidGenerator.generateUuid}.xml"/>
+            </route>
+            <route>
+                <description>R_SUPPLIER_SYNC Request:Receive Supplier Sync</description>
+                <from uri="{{root.test.dir}}com.ibaset.receive.request.supplier?move=../com.ibaset.receive.request.supplier.processed"/>
+                <to uri="activemq:com.ibaset.receive.request.supplier?jmsMessageType=Text"/>
+            </route>
+            <route>
+                <description>R_SUPPLIER_SYNC Reply:Receive Supplier Sync</description>
+                <from uri="activemq:com.ibaset.send.reply.supplier"/>
+                <to uri="{{root.test.dir}}com.ibaset.send.reply.supplier?fileName=R_SUPPLIER_SYNC-{{date.now}}-${bean:activeMQUuidGenerator.generateUuid}.xml"/>
+            </route>
+            <route>
+                <description>R_WO_ISSUE Request:Receive Work Order Issue</description>
+                <from uri="{{root.test.dir}}com.ibaset.receive.request.woissue?move=../com.ibaset.receive.request.woissue.processed"/>
+                <to uri="activemq:com.ibaset.receive.request.woissue?jmsMessageType=Text"/>
+            </route>
+            <route>
+                <description>R_WO_ISSUE Reply:Receive Work Order Issue</description>
+                <from uri="activemq:com.ibaset.send.reply.woissue"/>
+                <to uri="{{root.test.dir}}com.ibaset.send.reply.woissue?fileName=R_WO_ISSUE-{{date.now}}-${bean:activeMQUuidGenerator.generateUuid}.xml"/>
+            </route>
+            <route>
+                <description>R_WO_OPER_SCHED Request:Receive Work Order Operation Schedule Sync</description>
+                <from uri="{{root.test.dir}}com.ibaset.receive.request.woopersched?move=../com.ibaset.receive.request.woopersched.processed"/>
+                <to uri="activemq:com.ibaset.receive.request.woopersched?jmsMessageType=Text"/>
+            </route>
+            <route>
+                <description>R_WO_OPER_SCHED Reply:Receive Work Order Operation Schedule Sync</description>
+                <from uri="activemq:com.ibaset.send.reply.woopersched"/>
+                <to uri="{{root.test.dir}}com.ibaset.send.reply.woopersched?fileName=R_WO_OPER_SCHED-{{date.now}}-${bean:activeMQUuidGenerator.generateUuid}.xml"/>
+            </route>
+            <route>
+                <description>R_WO_STATUS Request:Receive Work Order Status Update</description>
+                <from uri="{{root.test.dir}}com.ibaset.receive.request.wostatus?move=../com.ibaset.receive.request.wostatus.processed"/>
+                <to uri="activemq:com.ibaset.receive.request.wostatus?jmsMessageType=Text"/>
+            </route>
+            <route>
+                <description>R_WO_STATUS Reply:Receive Work Order Status Update</description>
+                <from uri="activemq:com.ibaset.send.reply.wostatus"/>
+                <to uri="{{root.test.dir}}com.ibaset.send.reply.wostatus?fileName=R_WO_STATUS-{{date.now}}-${bean:activeMQUuidGenerator.generateUuid}.xml"/>
+            </route>
+                    <route>
+                <description>R_TEST_SERVICE Request:Test Inbound Service</description>
+                <from uri="{{root.test.dir}}com.ibaset.send.request.testservice?move=../com.ibaset.send.request.testservice.processed"/>
+                <to uri="activemq:com.ibaset.send.request.testservice?jmsMessageType=Text"/>
+            </route>
+            <route>
+                <description>R_TEST_SERVICE Reply:Test Inbound Service</description>
+                <from uri="activemq:com.ibaset.send.reply.testservice"/>
+                <to uri="{{root.test.dir}}com.ibaset.send.reply.testservice?fileName=R_TEST_SERVICE-{{date.now}}-${bean:activeMQUuidGenerator.generateUuid}.xml"/>
+            </route>
+            <!-- ***************** -->
+            <!-- OUTBOUND SERVICES -->
+            <!-- ***************** -->
+            <route>
+                 <description>S_BOM_SYNC Send:Send BOM Sync</description>
+                 <from uri="activemq:com.ibaset.send.request.bomsync"/>
+                 <to uri="{{root.test.dir}}com.ibaset.send.request.bomsync?fileName=S_BOM_SYNC-{{date.now}}-${bean:activeMQUuidGenerator.generateUuid}.xml"/>
+             </route>
+                    <route>
+                 <description>S_BOM_SYNC Receive:Send BOM Sync</description>
+                 <from uri="{{root.test.dir}}com.ibaset.receive.reply.bomsync?move=../com.ibaset.receive.reply.bomsync.processed"/>
+                 <to uri="activemq:com.ibaset.receive.reply.bomsync?jmsMessageType=Text"/>
+            </route>
+            <route>
+                <description>S_ECN_STATUS Send:Send ECN Status</description>
+                <from uri="activemq:com.ibaset.send.request.ecnstatus"/>
+                <to uri="{{root.test.dir}}com.ibaset.send.request.ecnstatus?fileName=S_ECN_STATUS-{{date.now}}-${bean:activeMQUuidGenerator.generateUuid}.xml"/>
+            </route>
+            <route>
+                <description>S_ECN_STATUS Receive:Send ECN Status</description>
+                <from uri="{{root.test.dir}}com.ibaset.receive.reply.ecnstatus?move=../com.ibaset.receive.reply.ecnstatus.processed"/>
+                <to uri="activemq:com.ibaset.receive.reply.ecnstatus?jmsMessageType=Text"/>
+            </route>
+            <route>
+                <description>S_ITEM_DISPOSITION Send:Send Item Disposition Data</description>
+                <from uri="activemq:com.ibaset.send.request.itemdisposition"/>
+                <to uri="{{root.test.dir}}com.ibaset.send.request.itemdisposition?fileName=S_ITEM_DISPOSITION-{{date.now}}-${bean:activeMQUuidGenerator.generateUuid}.xml"/>
+            </route>
+            <route>
+                <description>S_ITEM_DISPOSITION Receive:Send Item Disposition Data</description>
+                <from uri="{{root.test.dir}}com.ibaset.receive.reply.itemdisposition?move=../com.ibaset.receive.reply.itemdisposition.processed"/>
+                <to uri="activemq:com.ibaset.receive.reply.itemdisposition?jmsMessageType=Text"/>
+            </route>
+            <route>
+                 <description>S_PART_SYNC Send:Send Part Sync</description>
+                 <from uri="activemq:com.ibaset.send.request.partsync"/>
+                 <to uri="{{root.test.dir}}com.ibaset.send.request.partsync?fileName=S_PART_SYNC-{{date.now}}-${bean:activeMQUuidGenerator.generateUuid}.xml"/>
+             </route>
+                    <route>
+                 <description>S_PART_SYNC Receive:Send Part Sync</description>
+                 <from uri="{{root.test.dir}}com.ibaset.receive.reply.partsync?move=../com.ibaset.receive.reply.partsync.processed"/>
+                 <to uri="activemq:com.ibaset.receive.reply.partsync?jmsMessageType=Text"/>
+            </route>
+            <route>
+                <description>S_PERSONNEL_CLOCKG_SYNC Send:Send Personnel Clocking Sync</description>
+                <from uri="activemq:com.ibaset.send.request.clockactivity"/>
+                <to uri="{{root.test.dir}}com.ibaset.send.request.clockactivity?fileName=S_PERSONNEL_CLOCKG_SYNC-{{date.now}}-${bean:activeMQUuidGenerator.generateUuid}.xml"/>
+            </route>
+            <route>
+                <description>S_PERSONNEL_CLOCKG_SYNC Receive:Send Personnel Clocking Sync</description>
+                <from uri="{{root.test.dir}}com.ibaset.receive.reply.clockactivity?move=../com.ibaset.receive.reply.clockactivity.processed"/>
+                <to uri="activemq:com.ibaset.receive.reply.clockactivity?jmsMessageType=Text"/>
+            </route>
+            <route>
+                <description>S_PROCESS_ROUTG_SYNC Send:Send Process Routing Sync</description>
+                <from uri="activemq:com.ibaset.send.request.routing"/>
+                <to uri="{{root.test.dir}}com.ibaset.send.request.routing?fileName=S_PROCESS_ROUTG_SYNC-{{date.now}}-${bean:activeMQUuidGenerator.generateUuid}.xml"/>
+            </route>
+            <route>
+                <description>S_PROCESS_ROUTG_SYNC Receive:Send Process Routing Sync</description>
+                <from uri="{{root.test.dir}}com.ibaset.receive.reply.routing?move=../com.ibaset.receive.reply.routing.processed"/>
+                <to uri="activemq:com.ibaset.receive.reply.routing?jmsMessageType=Text"/>
+            </route>
+            <route>
+                <description>S_WO_ISSUE Send:Send Work Order Issue</description>
+                <from uri="activemq:com.ibaset.send.request.woissue"/>
+                <to uri="{{root.test.dir}}com.ibaset.send.request.woissue?fileName=S_WO_ISSUE-{{date.now}}-${bean:activeMQUuidGenerator.generateUuid}.xml"/>
+            </route>
+            <route>
+                <description>S_WO_ISSUE Receive:Send Work Order Issue</description>
+                <from uri="{{root.test.dir}}com.ibaset.receive.reply.woissue?move=../com.ibaset.receive.reply.woissue.processed"/>
+                <to uri="activemq:com.ibaset.receive.reply.woissue?jmsMessageType=Text"/>
+            </route>
+            <route>
+                <description>S_WO_OPER_STATUS Send:Send Work Order Operation Status</description>
+                <from uri="activemq:com.ibaset.send.request.wooperstatus"/>
+                <to uri="{{root.test.dir}}com.ibaset.send.request.wooperstatus?fileName=S_WO_OPER_STATUS-{{date.now}}-${bean:activeMQUuidGenerator.generateUuid}.xml"/>
+            </route>
+            <route>
+                <description>S_WO_OPER_STATUS Receive:Send Work Order Operation Status</description>
+                <from uri="{{root.test.dir}}com.ibaset.receive.reply.wooperstatus?move=../com.ibaset.receive.reply.wooperstatus.processed"/>
+                <to uri="activemq:com.ibaset.receive.reply.wooperstatus?jmsMessageType=Text"/>
+            </route>
+            <route>
+                <description>S_WO_REQUEST Send:Send Work Order Issue Request</description>
+                <from uri="activemq:com.ibaset.send.request.worequest"/>
+                <to uri="{{root.test.dir}}com.ibaset.send.request.worequest?fileName=S_WO_REQUEST-{{date.now}}-${bean:activeMQUuidGenerator.generateUuid}.xml"/>
+            </route>
+            <route>
+                <description>S_WO_REQUEST Receive:Send Work Order Issue Request</description>
+                <from uri="{{root.test.dir}}com.ibaset.receive.reply.worequest?move=../com.ibaset.receive.reply.worequest.processed"/>
+                <to uri="activemq:com.ibaset.receive.reply.worequest?jmsMessageType=Text"/>
+            </route>
+            <route>
+                <description>S_WO_REVISION Send:Send Work Order Revision</description>
+                <from uri="activemq:com.ibaset.send.request.worevision"/>
+                <to uri="{{root.test.dir}}com.ibaset.send.request.worevision?fileName=S_WO_REVISION-{{date.now}}-${bean:activeMQUuidGenerator.generateUuid}.xml"/>
+            </route>
+            <route>
+                <description>S_WO_REVISION Receive:Send Work Order Revision</description>
+                <from uri="{{root.test.dir}}com.ibaset.receive.reply.worevision?move=../com.ibaset.receive.reply.worevision.processed"/>
+                <to uri="activemq:com.ibaset.receive.reply.worevision?jmsMessageType=Text"/>
+            </route>
+            <route>
+                <description>S_WO_REVISION_DELTA Send:Send Work Order Revision Delta</description>
+                <from uri="activemq:com.ibaset.send.request.worevision.delta"/>
+                <to uri="{{root.test.dir}}com.ibaset.send.request.worevision.delta?fileName=S_WO_REVISION_DELTA-{{date.now}}-${bean:activeMQUuidGenerator.generateUuid}.xml"/>
+            </route>
+            <route>
+                <description>S_WO_REVISION_DELTA Receive:Send Work Order Revision Delta</description>
+                <from uri="{{root.test.dir}}com.ibaset.receive.reply.worevision.delta?move=../com.ibaset.receive.reply.worevision.delta.processed"/>
+                <to uri="activemq:com.ibaset.receive.reply.worevision.delta?jmsMessageType=Text"/>
+            </route>
+            <route>
+                <description>S_WO_SPLIT Send:Send Work Order Split</description>
+                <from uri="activemq:com.ibaset.send.request.wosplit"/>
+                <to uri="{{root.test.dir}}com.ibaset.send.request.wosplit?fileName=S_WO_SPLIT-{{date.now}}-${bean:activeMQUuidGenerator.generateUuid}.xml"/>
+            </route>
+            <route>
+                <description>S_WO_SPLIT Receive:Send Work Order Split</description>
+                <from uri="{{root.test.dir}}com.ibaset.receive.reply.wosplit?move=../com.ibaset.receive.reply.wosplit.processed"/>
+                <to uri="activemq:com.ibaset.receive.reply.wosplit?jmsMessageType=Text"/>
+            </route>
+            <route>
+                <description>S_WO_STATUS Send:Send Work Order Status</description>
+                <from uri="activemq:com.ibaset.send.request.wostatus"/>
+                <to uri="{{root.test.dir}}com.ibaset.send.request.wostatus?fileName=S_WO_STATUS-{{date.now}}-${bean:activeMQUuidGenerator.generateUuid}.xml"/>
+            </route>
+            <route>
+                <description>S_WO_STATUS Receive:Send Work Order Status</description>
+                <from uri="{{root.test.dir}}com.ibaset.receive.reply.wostatus?move=../com.ibaset.receive.reply.wostatus.processed"/>
+                <to uri="activemq:com.ibaset.receive.reply.wostatus?jmsMessageType=Text"/>
+            </route>
+            <route>
+                <description>S_WO_UNIT_STATUS Send:Send Work Order Unit Status</description>
+                <from uri="activemq:com.ibaset.send.request.wounitstatus"/>
+                <to uri="{{root.test.dir}}com.ibaset.send.request.wounitstatus?fileName=S_WO_UNIT_STATUS-{{date.now}}-${bean:activeMQUuidGenerator.generateUuid}.xml"/>
+            </route>
+            <route>
+                <description>S_WO_UNIT_STATUS Receive:Send Work Order Unit Status</description>
+                <from uri="{{root.test.dir}}com.ibaset.receive.reply.wounitstatus?move=../com.ibaset.receive.reply.wounitstatus.processed"/>
+                <to uri="activemq:com.ibaset.receive.reply.wounitstatus?jmsMessageType=Text"/>
+            </route>
+                    <route>
+                <description>S_TEST_SERVICE Send:Send Test Service</description>
+                <from uri="activemq:com.ibaset.send.request.testservice"/>
+                <to uri="{{root.test.dir}}com.ibaset.send.request.testservice?fileName=S_TEST_SERVICE-{{date.now}}-${bean:activeMQUuidGenerator.generateUuid}.xml"/>
+            </route>
+                    <route>
+                <description>S_TEST_SERVICE Receive:Send Test Service</description>
+                <from uri="{{root.test.dir}}com.ibaset.receive.reply.testservice?move=../com.ibaset.receive.reply.testservice.processed"/>
+                <to uri="activemq:com.ibaset.receive.reply.testservice?jmsMessageType=Text"/>
+            </route>
+        </camelContext>
+        <!--
+                             Lets configure some Camel endpoints
+           http://camel.apache.org/components.html
+        -->
+    </beans>
+kind: ConfigMap
+metadata:
+  creationTimestamp: null
+  name: iba-soluminacamel-cm

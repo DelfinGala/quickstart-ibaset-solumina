@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis-slave-2
+  labels:
+    app: redis-slave-2
+spec:
+  ports:
+  - name: http
+    protocol: TCP
+    port: 6379
+    targetPort: 6379
+  selector:
+    app: redis-slave-2
+

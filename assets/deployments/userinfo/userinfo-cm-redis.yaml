@@ -1,6 +1,6 @@
 apiVersion: v1
 data:
-  redis.properties: |
+  redis.properties: |-
     ################################################################
     # Redis properties
     # Eventually this should be moved to Spring Cloud Config Server
@@ -21,10 +21,4 @@ data:
     #redis.cluster.pool.maxconnection=128
 kind: ConfigMap
 metadata:
-  creationTimestamp: 2019-06-11T17:13:16Z
-  name: userinfo-cm-redis
-  namespace: default
-  resourceVersion: "1431172"
-  selfLink: /api/v1/namespaces/default/configmaps/userinfo-cm-redis
-  uid: 33de00e2-8c6c-11e9-b6be-06e36b0b2240
-
+  name: userinfo-redis-cm

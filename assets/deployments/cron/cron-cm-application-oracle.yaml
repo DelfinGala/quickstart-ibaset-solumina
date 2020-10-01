@@ -1,0 +1,58 @@
+apiVersion: v1
+data:
+  application-oracle.yml: |
+    # Oracle DB configuration
+    app:
+      db-name: oracle
+
+    datasource:
+      driverClass: oracle.jdbc.driver.OracleDriver
+      jdbcUrl: CONN_STRING
+      username: MT_CONPOOL_USER
+      password: MT_CONPOOL_USER
+      maximumPoolSize: 25
+      minimumIdle: 10
+      connectionTestQuery: select 1 from dual
+      autoCommit: false
+      connectionTimeout: 120000
+      idleTimeout: 30000
+      leakDetectionThreshold: 180000
+      validationTimeout: 10000
+      maxLifetime: 1800000
+      implicitCachingEnabled: true
+      cachePrepStmts: true
+      prepStmtCacheSize: 250
+      prepStmtCacheSqlLimit: 2048
+      useServerPrepStmts: true
+
+    #warehouseDatasource:
+    #  driverClass: oracle.jdbc.driver.OracleDriver
+    #  jdbcUrl: CONN_STRING
+    #  username: MT_CONPOOL_USER
+    #  password: MT_CONPOOL_USER
+    #  maximumPoolSize: 25
+    #  minimumIdle: 10
+    #  connectionTestQuery: select 1 from dual
+    #  autoCommit: false
+    #  connectionTimeout: 120000
+    #  idleTimeout: 30000
+    #  leakDetectionThreshold: 180000
+    #  validationTimeout: 10000
+    #  maxLifetime: 1800000
+    #  implicitCachingEnabled: true
+    #  cachePrepStmts: true
+    #  prepStmtCacheSize: 250
+    #  prepStmtCacheSqlLimit: 2048
+    #  useServerPrepStmts: true
+
+    spring:
+      quartz:
+        properties:
+          org:
+            quartz:
+              jobStore:
+                driverDelegateClass: org.quartz.impl.jdbcjobstore.oracle.OracleDelegate
+kind: ConfigMap
+metadata:
+  creationTimestamp: null
+  name: cron-applicationoracle-cm

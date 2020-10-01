@@ -1,0 +1,60 @@
+project:
+  name: quickstart-ibaset-solumina
+  owner: devops@ibaset.com
+  regions:
+    - us-east-1
+    - us-east-2
+    - us-west-2
+  build_submodules: true
+  package_lambda: true
+  lambda_source_path: functions/source
+  lambda_zip_path: functions/packages
+  s3_regional_buckets: true
+  #s3_bucket: <existing bucket>
+
+tests:
+  new-vpc:
+    template: templates/solumina-master.template.yaml
+    regions:
+      - us-east-1
+    parameters:
+      AvailabilityZones: $[taskcat_getaz_3]
+      KeyPairName:
+      JDBCDriverBucketName: aws-artifacts-ibaset # Do not change #
+      JDBCDriverKeyPrefix: v2/ # Do not change #
+      DatabasePassword: 
+      PostRDSWindowsAmiId:  #N.Vir:ami-0996bb3412a951993, Ohio: ami-029c39a68018071e1, Oregon: ami-056170e9bf495d382
+      MongoDBAdminPassword: Solumina123
+      RandomString: 
+      QSS3BucketName: $[taskcat_autobucket]
+      QSS3KeyPrefix: quickstart-ibaset-solumina/
+      R53HostedZoneName: #mycompany.com.
+      R53LBRecordSetName: #mydns.mycompany.com
+      QSS3BucketRegion: $[taskcat_current_region]
+
+  existing-vpc:
+    template: templates/solumina-master-existing-vpc.template.yaml
+    regions:
+      - us-east-2
+    parameters:
+      AvailabilityZones: $[taskcat_getaz_3]
+      KeyPairName: 
+      JDBCDriverBucketName: aws-artifacts-ibaset # Do not change #
+      JDBCDriverKeyPrefix: v2/ # Do not change #
+      DatabasePassword: 
+      PostRDSWindowsAmiId:
+      MongoDBAdminPassword: 
+      RandomString: 
+      QSS3BucketName: $[taskcat_autobucket]
+      QSS3KeyPrefix: quickstart-ibaset-solumina/
+      R53HostedZoneName: #mycompany.com.
+      R53LBRecordSetName: #mydns.mycompany.com
+      VPCID: 
+      VPCCIDR: 
+      PrivateSubnet1ID: 
+      PrivateSubnet2ID: 
+      PrivateSubnet3ID: 
+      PublicSubnet1ID: 
+      PublicSubnet2ID: 
+      PublicSubnet3ID: 
+      QSS3BucketRegion: $[taskcat_current_region]

@@ -4,127 +4,127 @@ metadata:
   name: logstash-user-cm-sql
 data:
   logstash.conf: |-
-      input {
-          jdbc {
-                type => "solumina_user_bom"
-                jdbc_driver_library => "/opt/logstash/driver/sqljdbc4.jar"
-                jdbc_driver_class => "com.microsoft.sqlserver.jdbc.SQLServerDriver"
-                jdbc_connection_string => "jdbc:sqlserver://--sqlip--;applicationName=SoluminaFND;instanceName=--instance_name--;databaseName=Solumina;schemaName=SFMFG;sendStringParametersAsUnicode=false"
-                jdbc_user => "MT_CONPOOL_USER"
-                jdbc_password => "MT_CONPOOL_USER"
-                jdbc_fetch_size => 1000
-                schedule => "*/5 * * * *"
-                statement => "select distinct concat('user',c.rowid) as rid_obj, a.order_id, a.order_no, b.oper_key, b.oper_no, c.updt_userid, a.security_group from sfwid_order_desc a, sfwid_oper_desc b, sfwid_as_worked_bom c where a.order_id = b.order_id and b.order_id = c.order_id and b.oper_key = c.oper_key and b.step_key = -1 and DATEADD(second, datediff(second, getdate(), getutcdate()), c.time_stamp) >= :sql_last_value"
-                clean_run => false
-                record_last_run => true
-                sql_log_level => debug
-                last_run_metadata_path => "/opt/logstash/lastrun/.logstash_jdbc_last_run_bom"
-                connection_retry_attempts_wait_time => 30
-                connection_retry_attempts => 99999999
-          }
-          jdbc {
-                type => "solumina_user_tool"
-                jdbc_driver_library => "/opt/logstash/driver/sqljdbc4.jar"
-                jdbc_driver_class => "com.microsoft.sqlserver.jdbc.SQLServerDriver"
-                jdbc_connection_string => "jdbc:sqlserver://--sqlip--;applicationName=SoluminaFND;instanceName=--instance_name--;databaseName=Solumina;schemaName=SFMFG;sendStringParametersAsUnicode=false"
-                jdbc_user => "MT_CONPOOL_USER"
-                jdbc_password => "MT_CONPOOL_USER"
-                jdbc_fetch_size => 1000
-                schedule => "*/5 * * * *"
-                statement => "select distinct concat('user',c.rowid) as rid_obj,  a.order_id, a.order_no, b.oper_key, b.oper_no, c.updt_userid, a.security_group from sfwid_order_desc a, sfwid_oper_desc b, sfwid_serial_oper_tool_dat_col c where a.order_id = b.order_id and b.order_id = c.order_id and b.oper_key = c.oper_key and b.step_key = -1 and DATEADD(second, datediff(second, getdate(), getutcdate()), c.time_stamp) >= :sql_last_value"
-                clean_run => false
-                record_last_run => true
-                sql_log_level => debug
-                last_run_metadata_path => "/opt/logstash/lastrun/.logstash_jdbc_last_run_tool"
-                connection_retry_attempts_wait_time => 30
-                connection_retry_attempts => 99999999
-          }
-          jdbc {
-                type => "solumina_user_buyoff"
-                jdbc_driver_library => "/opt/logstash/driver/sqljdbc4.jar"
-                jdbc_driver_class => "com.microsoft.sqlserver.jdbc.SQLServerDriver"
-                jdbc_connection_string => "jdbc:sqlserver://--sqlip--;applicationName=SoluminaFND;instanceName=--instance_name--;databaseName=Solumina;schemaName=SFMFG;sendStringParametersAsUnicode=false"
-                jdbc_user => "MT_CONPOOL_USER"
-                jdbc_password => "MT_CONPOOL_USER"
-                jdbc_fetch_size => 1000
-                schedule => "*/5 * * * *"
-                statement => "select distinct concat('user',c.rowid) as rid_obj, a.order_id, a.order_no, b.oper_key, b.oper_no, c.updt_userid, a.security_group from sfwid_order_desc a, sfwid_oper_desc b, sfwid_serial_oper_buyoff c where a.order_id = b.order_id and b.order_id = c.order_id and b.oper_key = c.oper_key and b.step_key = -1 and DATEADD(second, datediff(second, getdate(), getutcdate()), c.time_stamp) >= :sql_last_value"
-                clean_run => false
-                record_last_run => true
-                sql_log_level => debug
-                last_run_metadata_path => "/opt/logstash/lastrun/.logstash_jdbc_last_run_buyoff"
-                connection_retry_attempts_wait_time => 30
-                connection_retry_attempts => 99999999
-          }
-          jdbc {
-                type => "solumina_user_datcol"
-                jdbc_driver_library => "/opt/logstash/driver/sqljdbc4.jar"
-                jdbc_driver_class => "com.microsoft.sqlserver.jdbc.SQLServerDriver"
-                jdbc_connection_string => "jdbc:sqlserver://--sqlip--;applicationName=SoluminaFND;instanceName=--instance_name--;databaseName=Solumina;schemaName=SFMFG;sendStringParametersAsUnicode=false"
-                jdbc_user => "MT_CONPOOL_USER"
-                jdbc_password => "MT_CONPOOL_USER"
-                jdbc_fetch_size => 1000
-                schedule => "*/5 * * * *"
-                statement => "select distinct concat('user',c.rowid) as rid_obj, a.order_id, a.order_no, b.oper_key, b.oper_no, c.updt_userid, a.security_group from sfwid_order_desc a, sfwid_oper_desc b, sfwid_serial_oper_dat_col c where a.order_id = b.order_id and b.order_id = c.order_id and b.oper_key = c.oper_key and b.step_key = -1 and DATEADD(second, datediff(second, getdate(), getutcdate()), c.time_stamp) >= :sql_last_value"
-                clean_run => false
-                record_last_run => true
-                sql_log_level => debug
-                last_run_metadata_path => "/opt/logstash/lastrun/.logstash_jdbc_last_run_datcol"
-                connection_retry_attempts_wait_time => 30
-                connection_retry_attempts => 99999999
-          }
-          jdbc {
-                type => "solumina_user_oper"
-                jdbc_driver_library => "/opt/logstash/driver/sqljdbc4.jar"
-                jdbc_driver_class => "com.microsoft.sqlserver.jdbc.SQLServerDriver"
-                jdbc_connection_string => "jdbc:sqlserver://--sqlip--;applicationName=SoluminaFND;instanceName=--instance_name--;databaseName=Solumina;schemaName=SFMFG;sendStringParametersAsUnicode=false"
-                jdbc_user => "MT_CONPOOL_USER"
-                jdbc_password => "MT_CONPOOL_USER"
-                jdbc_fetch_size => 1000
-                schedule => "*/5 * * * *"
-                statement => "select distinct concat('user',c.rowid)  as rid_obj, a.order_id, a.order_no, b.oper_key, b.oper_no, c.updt_userid, a.security_group from sfwid_order_desc a, sfwid_oper_desc b, sfwid_serial_oper c where a.order_id = b.order_id and b.order_id = c.order_id and b.oper_key = c.oper_key and b.step_key = -1 and DATEADD(second, datediff(second, getdate(), getutcdate()), c.time_stamp) >= :sql_last_value"
-                clean_run => false
-                record_last_run => true
-                sql_log_level => debug
-                last_run_metadata_path => "/opt/logstash/lastrun/.logstash_jdbc_last_run_oper"
-                connection_retry_attempts_wait_time => 30
-                connection_retry_attempts => 99999999
-               }
+    input {
+        jdbc {
+              type => "solumina_user_bom"
+              jdbc_driver_library => "/opt/logstash/driver/mssql-jdbc-7.4.1.jre8.jar"
+              jdbc_driver_class => "com.microsoft.sqlserver.jdbc.SQLServerDriver"
+              jdbc_connection_string => "CONN_STRING"
+              jdbc_user => "MT_CONPOOL_USER"
+              jdbc_password => "MT_CONPOOL_USER"
+              jdbc_fetch_size => 1000
+              schedule => "*/5 * * * *"
+              statement => "select distinct concat(a.order_id, concat('$', concat(b.oper_key, concat('$', c.updt_userid)))) as rid_obj, concat('', c.rowid) as temp_rid, a.order_id, a.order_no, b.oper_key, b.oper_no, c.updt_userid, a.security_group from sfwid_order_desc a, sfwid_oper_desc b, sfwid_as_worked_bom c where a.order_id = b.order_id and b.order_id = c.order_id and b.oper_key = c.oper_key and b.step_key = -1 and (DATEADD(second, datediff(second, getdate(), getutcdate()), c.time_stamp) >= :sql_last_value OR DATEADD(second, datediff(second, getdate(), getutcdate()), a.time_stamp) >= :sql_last_value)"
+              clean_run => false
+              record_last_run => true
+              sql_log_level => debug
+              last_run_metadata_path => "/opt/logstash/lastrun/.logstash_jdbc_last_run_bom"
+              connection_retry_attempts_wait_time => 30
+              connection_retry_attempts => 99999999
         }
-      filter {
-          if[type] == "solumina_user_oper" {
-            mutate {
-              replace => { "type" => "user_oper" }
-                   }
-          }
-          else if[type] == "solumina_user_tool" {
-           mutate {
-             replace => { "type" => "user_tool" }
-                  }
-          }
-          else if[type] == "solumina_user_buyoff" {
-            mutate {
-             replace => { "type" => "user_buyoff" }
-                  }
-          }
-          else if[type] == "solumina_user_datcol" {
-           mutate {
-             replace => { "type" => "user_datcol" }
-                  }
-          }
-          else if[type] == "solumina_user_bom" {
-            mutate {
-              replace => { "type" => "user_bom" }
-                  }
-         }   
+        jdbc {
+              type => "solumina_user_tool"
+              jdbc_driver_library => "/opt/logstash/driver/mssql-jdbc-7.4.1.jre8.jar"
+              jdbc_driver_class => "com.microsoft.sqlserver.jdbc.SQLServerDriver"
+              jdbc_connection_string => "CONN_STRING"
+              jdbc_user => "MT_CONPOOL_USER"
+              jdbc_password => "MT_CONPOOL_USER"
+              jdbc_fetch_size => 1000
+              schedule => "*/5 * * * *"
+              statement => "select distinct concat(a.order_id, concat('$', concat(b.oper_key, concat('$', c.updt_userid)))) as rid_obj, concat('', c.rowid) as temp_rid, a.order_id, a.order_no, b.oper_key, b.oper_no, c.updt_userid, a.security_group from sfwid_order_desc a, sfwid_oper_desc b, sfwid_serial_oper_tool_dat_col c where a.order_id = b.order_id and b.order_id = c.order_id and b.oper_key = c.oper_key and b.step_key = -1 and (DATEADD(second, datediff(second, getdate(), getutcdate()), c.time_stamp) >= :sql_last_value OR DATEADD(second, datediff(second, getdate(), getutcdate()), a.time_stamp) >= :sql_last_value)"
+              clean_run => false
+              record_last_run => true
+              sql_log_level => debug
+              last_run_metadata_path => "/opt/logstash/lastrun/.logstash_jdbc_last_run_tool"
+              connection_retry_attempts_wait_time => 30
+              connection_retry_attempts => 99999999
         }
-            output {
-                    elasticsearch {
-                        hosts => "https://--es--:443"
-                        index => "<solumina-usersearch-{now/d{YYYY.MM.dd}}>"
-                        document_id => "%{rid_obj}"
-                    }
-            }
+        jdbc {
+              type => "solumina_user_buyoff"
+              jdbc_driver_library => "/opt/logstash/driver/mssql-jdbc-7.4.1.jre8.jar"
+              jdbc_driver_class => "com.microsoft.sqlserver.jdbc.SQLServerDriver"
+              jdbc_connection_string => "CONN_STRING"
+              jdbc_user => "MT_CONPOOL_USER"
+              jdbc_password => "MT_CONPOOL_USER"
+              jdbc_fetch_size => 1000
+              schedule => "*/5 * * * *"
+              statement => "select distinct concat(a.order_id, concat('$', concat(b.oper_key, concat('$', c.updt_userid)))) as rid_obj, concat('', c.rowid) as temp_rid, a.order_id, a.order_no, b.oper_key, b.oper_no, c.updt_userid, a.security_group from sfwid_order_desc a, sfwid_oper_desc b, sfwid_serial_oper_buyoff c where a.order_id = b.order_id and b.order_id = c.order_id and b.oper_key = c.oper_key and b.step_key = -1 and (DATEADD(second, datediff(second, getdate(), getutcdate()), c.time_stamp) >= :sql_last_value OR DATEADD(second, datediff(second, getdate(), getutcdate()), a.time_stamp) >= :sql_last_value)"
+              clean_run => false
+              record_last_run => true
+              sql_log_level => debug
+              last_run_metadata_path => "/opt/logstash/lastrun/.logstash_jdbc_last_run_buyoff"
+              connection_retry_attempts_wait_time => 30
+              connection_retry_attempts => 99999999
+        }
+        jdbc {
+              type => "solumina_user_datcol"
+              jdbc_driver_library => "/opt/logstash/driver/mssql-jdbc-7.4.1.jre8.jar"
+              jdbc_driver_class => "com.microsoft.sqlserver.jdbc.SQLServerDriver"
+              jdbc_connection_string => "CONN_STRING"
+              jdbc_user => "MT_CONPOOL_USER"
+              jdbc_password => "MT_CONPOOL_USER"
+              jdbc_fetch_size => 1000
+              schedule => "*/5 * * * *"
+              statement => "select distinct concat(a.order_id, concat('$', concat(b.oper_key, concat('$', c.updt_userid)))) as rid_obj, concat('', c.rowid) as temp_rid, a.order_id, a.order_no, b.oper_key, b.oper_no, c.updt_userid, a.security_group from sfwid_order_desc a, sfwid_oper_desc b, sfwid_serial_oper_dat_col c where a.order_id = b.order_id and b.order_id = c.order_id and b.oper_key = c.oper_key and b.step_key = -1 and (DATEADD(second, datediff(second, getdate(), getutcdate()), c.time_stamp) >= :sql_last_value OR DATEADD(second, datediff(second, getdate(), getutcdate()), a.time_stamp) >= :sql_last_value)"
+              clean_run => false
+              record_last_run => true
+              sql_log_level => debug
+              last_run_metadata_path => "/opt/logstash/lastrun/.logstash_jdbc_last_run_datcol"
+              connection_retry_attempts_wait_time => 30
+              connection_retry_attempts => 99999999
+        }
+        jdbc {
+              type => "solumina_user_oper"
+              jdbc_driver_library => "/opt/logstash/driver/mssql-jdbc-7.4.1.jre8.jar"
+              jdbc_driver_class => "com.microsoft.sqlserver.jdbc.SQLServerDriver"
+              jdbc_connection_string => "CONN_STRING"
+              jdbc_user => "MT_CONPOOL_USER"
+              jdbc_password => "MT_CONPOOL_USER"
+              jdbc_fetch_size => 1000
+              schedule => "*/5 * * * *"
+              statement => "select distinct concat(a.order_id, concat('$', concat(b.oper_key, concat('$', c.updt_userid)))) as rid_obj, concat('', c.rowid) as temp_rid, a.order_id, a.order_no, b.oper_key, b.oper_no, c.updt_userid, a.security_group from sfwid_order_desc a, sfwid_oper_desc b, sfwid_serial_oper c where a.order_id = b.order_id and b.order_id = c.order_id and b.oper_key = c.oper_key and b.step_key = -1 and (DATEADD(second, datediff(second, getdate(), getutcdate()), c.time_stamp) >= :sql_last_value OR DATEADD(second, datediff(second, getdate(), getutcdate()), a.time_stamp) >= :sql_last_value)"
+              clean_run => false
+              record_last_run => true
+              sql_log_level => debug
+              last_run_metadata_path => "/opt/logstash/lastrun/.logstash_jdbc_last_run_oper"
+              connection_retry_attempts_wait_time => 30
+              connection_retry_attempts => 99999999
+             }
+      }
+    filter {
+        if[type] == "solumina_user_oper" {
+          mutate {
+            replace => { "type" => "user_oper" }
+                 }
+        }
+        else if[type] == "solumina_user_tool" {
+         mutate {
+           replace => { "type" => "user_tool" }
+                }
+        }
+        else if[type] == "solumina_user_buyoff" {
+          mutate {
+           replace => { "type" => "user_buyoff" }
+                }
+        }
+        else if[type] == "solumina_user_datcol" {
+         mutate {
+           replace => { "type" => "user_datcol" }
+                }
+        }
+        else if[type] == "solumina_user_bom" {
+          mutate {
+            replace => { "type" => "user_bom" }
+                }
+       }   
+      }
+          output {
+                  elasticsearch {
+                      hosts => "https://--es--:443"
+                      index => "<solumina-usersearch>"
+                      document_id => "%{rid_obj}"
+                  }
+          }
   logstash.yml: |-
     http.host: "0.0.0.0"
     path.config: /usr/share/logstash/pipeline

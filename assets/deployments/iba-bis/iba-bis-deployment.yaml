@@ -1,0 +1,129 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: iba-bis
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: iba-bis
+  template:
+    metadata:
+      labels:
+        app: iba-bis
+    spec:
+      nodeSelector:
+        app: app
+      containers:
+        - image: 279559645400.dkr.ecr.us-west-1.amazonaws.com/solui/iba:G8R2i020
+          name: iba-bis
+          imagePullPolicy: Always
+          env:
+            - name: JAVA_OPTS
+              value: -Duser.timezone=--DB_TIMEZONE--
+            - name: JAVA_HOME
+              value: /usr/local/openjdk-11
+          ports:
+            - name: http
+              containerPort: 8080
+            - name: ajp
+              containerPort: 8009
+
+          resources:
+            requests:
+              cpu: 800m
+              memory: 900Mi
+
+          volumeMounts:
+            - mountPath: /opt/config/driver
+              name: driver
+              readOnly: True
+
+            - mountPath: /opt/apache-tomcat-9.0.11/conf/Catalina/localhost/solumina-G8.xml
+              name: solumina-g8
+              subPath: solumina-G8.xml
+
+            - mountPath: /opt/config/props/redis.properties
+              name: redis-properties
+              subPath: redis.properties
+
+            - mountPath: /opt/config/props/oauth-config.properties
+              name: oauth-config-properties
+              subPath: oauth-config.properties
+
+            - mountPath: /opt/config/props/soluminaConfig.properties
+              name: soluminaconfig-properties
+              subPath: soluminaConfig.properties
+
+            - mountPath: /opt/config/props/log4j.properties
+              name: log4j-properties
+              subPath: log4j.properties
+
+            - mountPath: /opt/config/props/jgroupconfig.xml
+              name: jgroups
+              subPath: jgroupconfig.xml
+
+            - mountPath: /opt/config/props/soluminaExtensionContext.xml
+              name: extensioncontext
+              subPath: soluminaExtensionContext.xml
+
+            - mountPath: /opt/config/props/integrationExtensionContext.xml
+              name: bisintegrationextensioncontext
+              subPath: integrationExtensionContext.xml
+
+            - mountPath: /opt/config/props/microServiceConfig.properties
+              name: microserviceconfigprop
+              subPath: microServiceConfig.properties
+
+            - mountPath: /opt/config/containerJRE
+              name: customjre
+              readOnly: true
+
+      volumes:
+        - name: driver
+          nfs:
+            server: --fs--.efs.--region--.amazonaws.com
+            path: /driver
+
+        - configMap:
+            name: iba-solumina-g8-cm
+          name: solumina-g8
+
+        - configMap:
+            name: iba-redis-cm
+          name: redis-properties
+
+        - configMap:
+            name: iba-oauth-config-cm
+          name: oauth-config-properties
+
+        - configMap:
+            name: iba-soluminaconfig-cm
+          name: soluminaconfig-properties
+
+        - configMap:
+            name: iba-log4j-cm
+          name: log4j-properties
+
+        - configMap:
+            name: iba-jgroupconfig-cm
+          name: jgroups
+
+        - configMap:
+            name: iba-soluminaextensioncontext-cm
+          name: extensioncontext
+
+        - configMap:
+            name: bisintegration-extensioncontext-cm
+          name: bisintegrationextensioncontext
+
+        - configMap:
+            name: iba-microserviceconfig-cm
+          name: microserviceconfigprop
+
+        - name: customjre
+          nfs:
+            server: --fs--.efs.--region--.amazonaws.com
+            path: /customJRE11-driver
+
+status: {}

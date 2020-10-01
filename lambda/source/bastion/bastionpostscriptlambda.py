@@ -66,7 +66,7 @@ print('Loading function')
 def setup_bastion(event, context, stack_name):
 
     try:
-        print("Fethcing instance_id by searching for tag Name:LinuxBastion")
+        print("Fethcing instance_id by searching for tag Name:EKSBastion")
 
         BastionInstanceID = ''
         ec2 = boto3.resource('ec2')
@@ -81,7 +81,7 @@ def setup_bastion(event, context, stack_name):
             for tag in instance.tags:
                 if 'Name' in tag['Key']:
                     name = tag['Value']
-                if 'LinuxBastion' in tag['Value']:    
+                if 'EKSBastion' in tag['Value']:    
                     BastionInstanceID = instance.instance_id
         
         print("BastionInstanceID :" + BastionInstanceID)
@@ -260,8 +260,11 @@ def setup_bastion(event, context, stack_name):
                         security_group_id = security_group['GroupId']
         
 
-        source_security_group_id =  os.environ['EKSSourceSecGroupId']
-        print("\n Source Security Group from enviroment variable: " +  source_security_group_id)
+        eks_source_security_group_id =  os.environ['EKSSourceSecGroupId']
+        bastion_source_security_group_id = os.environ['BastionSecurityGroupID']
+        
+        print("\n EKS Source Security Group from enviroment variable: " +  eks_source_security_group_id)
+        print("\n Bastion Source Security Group from environment variable: " + bastion_source_security_group_id)
         print("\n MongoDB Security Group that contains the ingress rule: " + security_group_id)
 
         response = ec2_client.authorize_security_group_ingress(
@@ -272,7 +275,7 @@ def setup_bastion(event, context, stack_name):
                     'IpProtocol': 'TCP',
                     'UserIdGroupPairs': [
                         {
-                            'GroupId': source_security_group_id,
+                            'GroupId': eks_source_security_group_id,
                         },
                     ],
                     'ToPort': 27030,
@@ -280,6 +283,22 @@ def setup_bastion(event, context, stack_name):
             ],
         )
 
+        response = ec2_client.authorize_security_group_ingress(
+            GroupId=security_group_id,
+            IpPermissions=[
+                {
+                    'FromPort': 27017,
+                    'IpProtocol': 'TCP',
+                    'UserIdGroupPairs': [
+                        {
+                            'GroupId': bastion_source_security_group_id,
+                        },
+                    ],
+                    'ToPort': 27030,
+                },
+            ],
+        )
+        print("Mongodb Security group" + security_group_id + "has been updated by adding ingress from security groups" + eks_source_security_group_id + " and " + bastion_source_security_group_id)
         print("Completed setting up the bastion.")
 
         ###
@@ -326,8 +345,8 @@ def lambda_handler(event, context):
             time.sleep(60)
 
             print('About to delete lambda stack # ' + stack_name)
-            ## Uncomment this for stack deletion ##
-            return delete_cfn(event, context, stack_name)
+            ## comment this to avoid stack deletion ##
+            #return delete_cfn(event, context, stack_name)
         else:
             send(event, context, SUCCESS, outputData)
     except Exception as e:

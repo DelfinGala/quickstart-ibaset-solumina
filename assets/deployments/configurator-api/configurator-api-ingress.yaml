@@ -1,0 +1,20 @@
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: configurator-api
+  annotations:
+    kubernetes.io/ingress.class: traefik
+    traefik.ingress.kubernetes.io/request-modifier: "ReplacePathRegex:/api-documentation/configurator-api/ /api-docs/"
+spec:
+  rules:
+    - host: --DNS_NAME--
+      http:
+        paths:
+          - path: /ui-schema
+            backend:
+              serviceName: configurator-api
+              servicePort: 8050
+          - path: /api-documentation/configurator-api/
+            backend:
+              serviceName: configurator-api
+              servicePort: 8050

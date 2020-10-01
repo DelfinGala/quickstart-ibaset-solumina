@@ -1,0 +1,36 @@
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: converter
+  annotations:
+    kubernetes.io/ingress.class: traefik
+    traefik.ingress.kubernetes.io/request-modifier: "ReplacePathRegex:/api-documentation/docconverter/ /docconverter/"
+spec:
+  rules:
+    - host: --DNS_NAME--
+      http:
+        paths:
+          - path: /converter
+            backend:
+              serviceName: converter
+              servicePort: 8090
+
+          - path: /api-documentation/docconverter/
+            backend:
+              serviceName: converter
+              servicePort: 8090
+
+          - path: /docconverter/health
+            backend:
+              serviceName: converter
+              servicePort: 8090
+
+          - path: /docconverter/swagger-ui.html
+            backend:
+              serviceName: converter
+              servicePort: 8090
+
+          - path: /docconverter/
+            backend:
+              serviceName: converter
+              servicePort: 8090

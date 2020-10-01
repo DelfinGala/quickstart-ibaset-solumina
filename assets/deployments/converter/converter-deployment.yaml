@@ -15,35 +15,54 @@ spec:
         app: converter
     spec:
       containers:
-      - name: converter
-        image: "279559645400.dkr.ecr.us-west-1.amazonaws.com/solui/doc-converter:v1.0.0"
-        ports:
-        - containerPort: 8090
-        volumeMounts:
+        - image: 279559645400.dkr.ecr.us-west-1.amazonaws.com/solui/doc-converter:G8R2i020
+          name: converter
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8090
+          volumeMounts:
+            - mountPath: /opt/ibaset/doc-converter/lib/extras
+              name: driver
+              readOnly: true
 
-        - name: converter-config
-          mountPath: /opt/ibaset/doc-converter/config/
+            - mountPath: /opt/ibaset/doc-converter/config/application.properties
+              name: application
+              subPath: application.properties
 
-        - name: logs 
-          mountPath: /opt/ibaset/doc-converter/logs
-          readOnly: false
+            - mountPath: /opt/ibaset/doc-converter/config/loader.properties
+              name: loader
+              subPath: loader.properties
 
-        - name: driver
-          mountPath: /opt/ibaset/doc-converter/lib/extras
-          readOnly: true
+            - mountPath: /opt/ibaset/doc-converter/config/logback.xml
+              name: logback
+              subPath: logback.xml
+
+            - mountPath: /opt/ibaset/doc-converter/logs
+              name: logs
+              readOnly: false
 
       volumes:
+        - configMap:
+            defaultMode: 420
+            name: converter-application-cm
+          name: application
 
-       - name: converter-config
-         configMap:
-            name: converter-cm-sql
+        - configMap:
+            defaultMode: 420
+            name: converter-loader-cm
+          name: loader
 
-       - name: logs
-         nfs:
-          server: --fs--.efs.--region--.amazonaws.com 
-          path: /converter/logs
+        - configMap:
+            defaultMode: 420
+            name: converter-logback-cm
+          name: logback
 
-       - name: driver
-         nfs:
-          server: --fs--.efs.--region--.amazonaws.com 
-          path: /driver
+        - name: logs
+          nfs:
+            server: --fs--.efs.--region--.amazonaws.com
+            path: /logs/converter
+
+        - name: driver
+          nfs:
+            server: --fs--.efs.--region--.amazonaws.com
+            path: /driver

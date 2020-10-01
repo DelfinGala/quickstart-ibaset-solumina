@@ -1,0 +1,54 @@
+apiVersion: v1
+data:
+  traefik.toml: |
+    logLevel = "ERROR"
+
+    defaultEntryPoints = ["http","https"]
+    insecureSkipVerify = true
+    checkNewVersion = false
+    [entryPoints]
+      [entryPoints.http]
+      address = ":80"
+         #Uncomment Following Two lines for HTTPS ONLY
+         #[entryPoints.http.redirect]
+         #entryPoint = "https"
+      [entryPoints.https]
+      address = ":443"
+        [entryPoints.https.tls]
+          minVersion = "VersionTLS12"
+          #cipherSuites = [""]
+          #cipherSuites = ["TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256","TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256","TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384","TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384","TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256","TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256"]
+          #cipherSuites = ["TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA","TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256"]
+          #cipherSuites = ["TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256","TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256","TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384","TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384","TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256","TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256"]
+          [[entryPoints.https.tls.certificates]]
+             certFile="/certs/ibaset.crt"
+             keyFile="/certs/ibaset.key"
+          #[entryPoints.https.tls.defaultCertificate]
+             #certFile="/certs/ibaset.crt"
+             #keyFile="/certs/ibaset.key"
+
+    [docker]
+    #endpoint="unix:///var/run/docker.sock"
+    watch=true
+    swarmmode=false
+    exposedbydefault=true
+    insecureSkipVerify=true
+    dashboard=true
+    debug=true
+
+    [traefikLog]
+      filePath = "/var/log/traefik.log"
+      format   = "json"
+
+    [accessLog]
+      filePath = "/var/log/access.log"
+      format = "json"
+
+    [file]
+      directory = "./extensions/"
+      watch = true
+kind: ConfigMap
+metadata:
+  creationTimestamp: null
+  namespace: kube-system
+  name: traefik-toml-cm

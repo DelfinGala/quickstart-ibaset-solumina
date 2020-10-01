@@ -1,0 +1,31 @@
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: userinfo
+  annotations:
+    kubernetes.io/ingress.class: traefik
+    traefik.ingress.kubernetes.io/request-modifier: "ReplacePathRegex:/api-documentation/userinfo/ /solumina-user-info/api/"
+spec:
+  rules:
+    - host: --DNS_NAME--
+      http:
+        paths:
+          - path: /solumina-user-info/api/v1.0/
+            backend:
+              serviceName: userinfo
+              servicePort: 8091
+
+          - path: /api-documentation/userinfo/
+            backend:
+              serviceName: userinfo
+              servicePort: 8091
+
+          - path: /solumina-user-info/api/
+            backend:
+              serviceName: userinfo
+              servicePort: 8091
+
+          - path: /solumina-user-info/api/health
+            backend:
+              serviceName: userinfo
+              servicePort: 8091

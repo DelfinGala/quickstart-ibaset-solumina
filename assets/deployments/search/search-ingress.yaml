@@ -1,0 +1,31 @@
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: search
+  annotations:
+    kubernetes.io/ingress.class: traefik
+    traefik.ingress.kubernetes.io/request-modifier: "ReplacePathRegex: /api-documentation/search/ /solumina-search/api/"
+spec:
+  rules:
+    - host: --DNS_NAME--
+      http:
+        paths:
+          - path: /solumina-search/api/v1.0/globalsearch
+            backend:
+              serviceName: search
+              servicePort: 9090
+
+          - path: /api-documentation/search/
+            backend:
+              serviceName: search
+              servicePort: 9090
+
+          - path: /solumina-search/api/
+            backend:
+              serviceName: search
+              servicePort: 9090
+
+          - path: /solumina-search/api/health
+            backend:
+              serviceName: search
+              servicePort: 9090

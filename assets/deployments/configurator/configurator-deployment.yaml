@@ -15,20 +15,37 @@ spec:
         app: configurator
     spec:
       containers:
-      - name: configurator
-        image: "279559645400.dkr.ecr.us-west-1.amazonaws.com/solui/configurator:G8R2SP4"
-        ports:
-        - containerPort: 5021
-        volumeMounts:
-        - name: configurator-mount
-          mountPath: /opt/ibaset/solumina-web-configurator/config
-
+        - name: configurator
+          image: "279559645400.dkr.ecr.us-west-1.amazonaws.com/solui/configurator:G8R2i020"
+          ports:
+            - containerPort: 5021
+          livenessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /configurator/health
+              port: 5021
+            initialDelaySeconds: 15
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 30
+          resources:
+            requests:
+              cpu: 100m
+              memory: 400Mi
+            limits:
+              cpu: 200m
+              memory: 800Mi
+          volumeMounts:
+            - mountPath: /opt/ibaset/solumina-web-configurator/config/.env
+              subPath: .env
+              name: configurator-mount
 
       volumes:
-       - name: configurator-mount
-         configMap:
+        - name: configurator-mount
+          configMap:
+            name: configurator-cm
             defaultMode: 420
             items:
-            - key: configuratorConfig
-              path: .env
-            name: configurator-cm
+              - key: configuratorConfig
+                path: .env
+      restartPolicy: Always

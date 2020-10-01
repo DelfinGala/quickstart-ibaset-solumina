@@ -1,0 +1,42 @@
+apiVersion: v1
+data:
+  bisIntegrationExtensionContext.xml: |-
+    <?xml version="1.0" encoding="UTF-8"?>
+    <!--
+
+        Proprietary and Confidential
+        Copyright 1995-2015 iBASEt, Inc.
+        Unpublished-rights reserved under the Copyright Laws of the United States
+        US Government Procurements:
+        Commercial Software licensed with Restricted Rights.
+        Use, reproduction, or disclosure is subject to restrictions set forth in
+        license agreement and purchase contract.
+        iBASEt, Inc. 27442 Portola Parkway, Suite 300, Foothill Ranch, CA 92610
+
+        Solumina software may be subject to United States Dept of Commerce Export Controls.
+        Contact iBASEt for specific Expert Control Classification information.
+
+    -->
+    <beans xmlns="http://www.springframework.org/schema/beans"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+            xmlns:jms="http://www.springframework.org/schema/jms"
+            xmlns:aop="http://www.springframework.org/schema/aop"
+            xmlns:tx="http://www.springframework.org/schema/tx"
+            xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
+        http://www.springframework.org/schema/jms http://www.springframework.org/schema/jms/spring-jms-2.1.xsd
+        http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.0.xsd
+        http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.3.xsd"
+            default-lazy-init="false"
+            default-autowire="no">
+
+            <!-- ALL BEAN DEFINITIONS THAT DEPENDS ON BEANS IN integrationContext.xml SHOULD GO IN integrationExtensionContext.xml -->
+
+    </beans>
+kind: ConfigMap
+metadata:
+  creationTimestamp: "2020-08-12T21:45:25Z"
+  name: bisintegration-extensioncontext-cm
+  namespace: default
+  resourceVersion: "336788"
+  selfLink: /api/v1/namespaces/default/configmaps/bisintegrationextensioncontext
+  uid: a69ebbb1-af1b-48ff-9238-542ad186b944

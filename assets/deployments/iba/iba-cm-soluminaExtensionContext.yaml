@@ -1,0 +1,68 @@
+apiVersion: v1
+data:
+  soluminaExtensionContext.xml: |
+    <?xml version="1.0" encoding="UTF-8"?>
+    <!--
+                  Proprietary and Confidential
+        Copyright 1995-2015 iBASEt, Inc.
+        Unpublished-rights reserved under the Copyright Laws of the United States
+        US Government Procurements:
+        Commercial Software licensed with Restricted Rights.
+        Use, reproduction, or disclosure is subject to restrictions set forth in
+        license agreement and purchase contract.
+        iBASEt, Inc. 27442 Portola Parkway, Suite 300, Foothill Ranch, CA 92610
+
+        Solumina software may be subject to United States Dept of Commerce Export Controls.
+        Contact iBASEt for specific Expert Control Classification information.
+    -->
+    <beans xmlns="http://www.springframework.org/schema/beans"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+            xmlns:jms="http://www.springframework.org/schema/jms"
+            xmlns:aop="http://www.springframework.org/schema/aop"
+            xmlns:tx="http://www.springframework.org/schema/tx"
+            xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+        http://www.springframework.org/schema/jms http://www.springframework.org/schema/jms/spring-jms-2.1.xsd
+        http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.0.xsd
+        http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.0.xsd"
+            default-lazy-init="false"
+            default-autowire="no">
+          <bean id="soluminaClusterConfig" class="java.lang.String">
+                      <constructor-arg type="java.lang.String">
+                      <value type="java.lang.String">jgroupconfig.xml</value>
+                      </constructor-arg>
+          </bean>
+             <!--  SSO CONFIGURATION FOR IBA RUNNING BEHIND PROXY. PLEASE CHANGE URL ACCORDINGLY YOUR REQUIRE SERVICE PROVIDER (SOLUMINA) METADATA - UNCOMMENT TO ENABLE SSO IN IBA - START -->
+             <!--
+                                   <bean id="metadataGeneratorFilter" class="org.springframework.security.saml.metadata.MetadataGeneratorFilter">
+                             <constructor-arg>
+                                             <bean class="org.springframework.security.saml.metadata.MetadataGenerator">
+                                                      <property name="extendedMetadata">
+                                                                             <bean class="org.springframework.security.saml.metadata.ExtendedMetadata">
+                                                                                     <property name="requireLogoutRequestSigned" value="false"/>
+                                                                              </bean>
+                                                     </property>
+                                                    <property name="entityBaseURL"  value="https://domain.com/solumina-G8"/>
+                                             </bean>
+                              </constructor-arg>
+         </bean>
+             <bean id="contextProvider" class="org.springframework.security.saml.context.SAMLContextProviderLB">
+                            <property name="scheme" value="https"/>
+                            <property name="serverName" value="domain.com"/>
+                            <property name="serverPort" value="443"/>
+                            <property name="includeServerPortInRequestURL" value="false"/>
+                            <property name="contextPath" value="/solumina-G8"/>
+            </bean>
+             <bean id="webSSOprofileConsumer" class="org.springframework.security.saml.websso.WebSSOProfileConsumerImpl">
+                    <property name="responseSkew" value="86400"/>
+             </bean>
+             <bean id="logoutprofile" class="org.springframework.security.saml.websso.SingleLogoutProfileImpl">
+                    <property name="responseSkew" value="86400"/>
+             </bean>
+         -->
+             <!-- UNCOMMENT TO ENABLE SSO IN IBA - END  -->
+             <!-- ABOVE TWO BEANS ARE USED TO SET SAML TOKEN EXPIRATION TIME FROM GENERATION TO CONSUPTION. CURRENTLY IT IS SET TO 24 HOURS. GENERALLY, IT IS DEPENDS ON IDP AND YOUR MACHINE CLOCK DIFFERENCE -->
+    </beans>
+kind: ConfigMap
+metadata:
+  creationTimestamp: null
+  name: iba-soluminaextensioncontext-cm

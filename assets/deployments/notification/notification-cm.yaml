@@ -1,18 +1,12 @@
 apiVersion: v1
 data:
   notificationConfig: |
-    MOBILE_ENABLED=true
-    PEM=/User/sripri/xxx.pem
-    CERT_KEY=/User/sripri/yyy.key
-    TOKEN_SECRET=mysupersecretstring
     SERVER_PORT=8040
-    NOTIFICATIONS_URL=--ELB--/solumina-G8/api/v1.0/notification
-    SOLUMINA_MT_HOST=http://--ELB--
-    SOLUMINA_MT_PORT=''
-    SOLUMINA_MT_API_ENDPOINT=solumina-G8/api/s2s/v1.0/
-    SWAGGER_TOKEN_ENDPOINT=solumina-G8/api/v1.0/login
+    NOTIFICATIONS_HOST_URL=--DNS_NAME--
+    APP_HOST_NAME=https://--DNS_NAME--
     SHOW_FRIENDLY_ERROR_STACK=true;
-    DB_URI=mongodb://admin:--MongoDBAdminPassword--@--mongoprimaryip--:27017,--mongosecondaryip0--:27017,--mongosecondaryip1--:27017/admin?replicaSet=s0
+    REDIS_TTL=86400
+    DB_URI=mongodb://solumina:solumina@--mongoprimaryip--:27017,--mongosecondaryip0--:27017,--mongosecondaryip1--:27017/solumina?replicaSet=s0
     DB_POOLSIZE=20
     DB_RECONNECT_INTERVAL=500
     DB_RECONNECT_TRIES=30
@@ -30,4 +24,3 @@ metadata:
   resourceVersion: "1765383"
   selfLink: /api/v1/namespaces/default/configmaps/notification-cm
   uid: c565cbc2-8dfb-11e9-9ba1-0af663ddcdfa
-

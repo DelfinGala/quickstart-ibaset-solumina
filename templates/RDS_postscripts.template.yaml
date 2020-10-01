@@ -1,0 +1,158 @@
+AWSTemplateFormatVersion: '2010-09-09'
+
+Description: Deploys Windows instances with the same configuration, from the specified AMI ; Create a InstanceProfileRole that assigns permissions specified in the IAM policy 
+Parameters:
+  LogsBucketName:
+    Type: String
+    Description: Logs S3 Bucket
+  LogsKeyPrefix:
+    Type: String
+    Description: Logs KeyPrefix
+  RDSPSInstanceType:
+    Description: Amazon EC2 Instance Type
+    Type: String
+  PostRDSWindowsAmiId:
+    Description: Ami Id for Windows - default- Windows_Server-2019-English-Full-SQL_2019_Standard-2020.xx.xx
+    Type: String
+  InstanceProfileRoleName:
+    Description: EC2 Instance profile role name to attach
+    Type: String
+  VpcId:
+    Description: ID of the VPC (e.g., vpc-0343606e).
+    Type: AWS::EC2::VPC::Id
+  PrivateSubnet1:
+    Description: List of private subnet ids to deploy SQL Server
+    Type: AWS::EC2::Subnet::Id
+  KeyPairName:
+    Description: The name of an existing public/private key pair, which allows you
+      to securely connect to your instance after it launches
+    Type: AWS::EC2::KeyPair::KeyName
+  SQLDatabaseEndpointURL:
+    Description: URL of RDS
+    Type: String
+
+Resources:
+
+  BasicParameter:
+    Type: "AWS::SSM::Parameter"
+    Properties:
+      Name: "PostRDSStackName"
+      Type: "String"
+      Value: !Ref "AWS::StackName"
+      Description: "SSM Parameter for getting stack name as a parameter"
+      Tags:
+        "Name": "PostRDSStackName"
+
+  RDSURLParameter:
+    Type: "AWS::SSM::Parameter"
+    Properties:
+      Name: "SQLDatabaseEndpoint"
+      Type: "String"
+      Value: !Ref SQLDatabaseEndpointURL
+      Description: "SSM Parameter for getting URL as a parameter"
+      Tags:
+        "Name": "RDSURLParameter"
+
+  EC2SecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Windows EC2 Security Group
+      SecurityGroupIngress:
+      - IpProtocol: tcp
+        FromPort: '3389'
+        ToPort: '3389'
+        CidrIp: 0.0.0.0/0
+      VpcId: !Ref VpcId
+
+  Instance1:
+    Description: Example of an instance that has user data and can run shell or powershell script  
+    Type: AWS::EC2::Instance
+    Properties:
+      InstanceType: !Ref RDSPSInstanceType
+      ImageId: !Ref PostRDSWindowsAmiId
+      IamInstanceProfile: !Ref InstanceProfileRoleName
+      SecurityGroupIds:
+        - !Ref EC2SecurityGroup
+      SubnetId: !Ref PrivateSubnet1
+      KeyName: !Ref KeyPairName
+      Tags:
+      - Key: Name
+        Value: WindowsServer
+      - Key: ServerType
+        Value: IISServer
+      - Key: Environment
+        Value: Production
+      - Key: Patch Group
+        Value: Windows
+#    DependsOn: InstanceProfile
+
+  RDSPostscripts: 
+    Type: "AWS::SSM::Document"
+    Properties: 
+      DocumentType: 'Command'
+      Content: 
+        schemaVersion: "2.2"
+        description: ".Net installation and solumina installation"
+        mainSteps:
+        - action: "aws:runPowerShellScript"
+          name: "postscripts"
+          inputs:
+            runCommand:
+            -  | 
+                  echo "postscripts working"
+                  ## Set some variables ###
+                  $availabilityZone = curl http://169.254.169.254/latest/meta-data/placement/availability-zone -UseBasicParsing
+                  $results = Get-EC2Snapshot -Owner amazon -Filter @{ Name="description"; Values="Windows 2019 English Installation Media" }
+                  $volume = New-EC2Volume -AvailabilityZone $availabilityZone -VolumeType gp2 -SnapshotId $results.SnapshotId
+                  $instance = curl http://169.254.169.254/latest/meta-data/instance-id -UseBasicParsing
+                  ## Install .NET###
+                  sleep 20
+                  Add-EC2Volume -InstanceId $instance.content -VolumeId $volume.VolumeId -Device xvdh
+                  Set-Disk -Number 1 -IsOffline $False
+                  Install-WindowsFeature Net-Framework-Core -source D:\SW_DVD9_Win_Server_STD_CORE_2019_64Bit_English_DC_STD_MLF_X21-96581.ISO
+                  ### Solumina  Installation###
+                  $QSS3SourceBucketName = (Get-SSMParameter -Name /QSS3BucketName).Value
+                  $QSS3SourceKeyPrefix = (Get-SSMParameter -Name /QSS3KeyPrefix).Value
+                  cd C:\Users\Administrator\Desktop\
+                  mkdir solumina
+                  cd .\solumina\
+                  # Read-S3Object -BucketName ${QSS3SourceBucketName} -Key ${QSS3SourceKeyPrefix}templates/sqlserver/G8R2SP4.1_UPD_SQLServer_RC.zip  -File G8R2SP4.1_UPD_SQLServer_RC.zip
+                  # Read-S3Object -BucketName ${QSS3SourceBucketName} -Key ${QSS3SourceKeyPrefix}templates/sqlserver/G8_SQL_fi_vG8R2.2SS_20190529.zip  -File G8_SQL_fi_vG8R2.2SS_20190529.zip
+                  Read-S3Object -Region us-west-2 -BucketName aws-artifacts-ibaset -Key v2/templates/sqlserver/solumina_license_grants.sql   -File solumina_license_grants.sql
+                  Read-S3Object -Region us-west-2 -BucketName aws-artifacts-ibaset -Key v2/templates/sqlserver/G8R2SP4.1_UPD_SQLServer_RC.zip  -File G8R2SP4.1_UPD_SQLServer_RC.zip
+                  Read-S3Object -Region us-west-2 -BucketName aws-artifacts-ibaset -Key v2/templates/sqlserver/G8_SQL_fi_vG8R2.2SS_20190529.zip  -File G8_SQL_fi_vG8R2.2SS_20190529.zip
+                  Read-S3Object -Region us-west-2 -BucketName aws-artifacts-ibaset -Key v2/templates/sqlserver/G8R2i020_UPD_SQLServer_Rogue.zip  -File G8R2i020_UPD_SQLServer_Rogue.zip
+                  expand-archive G8_SQL_fi_vG8R2.2SS_20190529.zip
+                  expand-archive G8R2SP4.1_UPD_SQLServer_RC.zip
+                  expand-archive G8R2i020_UPD_SQLServer_Rogue.zip
+                  cd .\G8_SQL_fi_vG8R2.2SS_20190529\G8_SQL_fi_vG8R2.2SS_20190529\
+                  $RDSENDPOINT = (Get-SSMParameter -Name /SQLDatabaseEndpoint).Value
+                  $SSDBAdminPassword = (Get-SSMParameter -Name /SSDBAdminPassword -WithDecryption $True).Value
+                  sqlcmd -S $RDSENDPOINT -U admin -P $SSDBAdminPassword -I -i create_solumina_database.sql
+                  ECHO Y | .\SoluminaDatabaseInstall.exe $RDSENDPOINT Solumina SFMFG SFMFG
+                  cd ..\..
+                  cd .\G8R2SP4.1_UPD_SQLServer_RC\G8R2SP4.1_UPD_SQLServer_RC
+                  .\Update.exe $RDSENDPOINT Solumina SFMFG SFMFG -i
+                  cd ..\..
+                  cd .\G8R2i020_UPD_SQLServer_Rogue\G8R2i020_UPD_SQLServer_Rogue
+                  .\Update.exe $RDSENDPOINT Solumina SFMFG SFMFG -i
+                  cd ..\..
+                  sqlcmd -S $RDSENDPOINT -U SFMFG -P SFMFG -I -i solumina_license_grants.sql
+                  ## Sending Success Message#
+                  $UIWaitHandle = (Get-SSMParameter -Name /UIWaitHandle).Value
+                  Invoke-RestMethod -Method Put -body '{"Status" : "SUCCESS","Reason" : "Configuration Complete","UniqueId" : "ID1234","Data" : "Application has completed configuration."}' -Uri "$UIWaitHandle"
+                  ##clean up
+                  $StackName = (Get-SSMParameter -Name /PostRDSStackName).Value
+                  Remove-CFNStack -StackName $StackName -Force
+
+  association:
+    Type: AWS::SSM::Association
+    Properties:      
+      Name: !Ref RDSPostscripts
+      OutputLocation:
+        S3Location:
+          OutputS3BucketName: !Ref 'LogsBucketName'
+          OutputS3KeyPrefix: !Ref 'LogsKeyPrefix'
+      Targets:
+      - Key: InstanceIds
+        Values: [!Ref Instance1]

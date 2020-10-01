@@ -2,10 +2,8 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: iba
-  labels:
-    app: iba
 spec:
-  replicas: 1
+  replicas: 3
   selector:
     matchLabels:
       app: iba
@@ -14,63 +12,171 @@ spec:
       labels:
         app: iba
     spec:
+      nodeSelector:
+        app: app
       containers:
-      - name: iba
-        image: "279559645400.dkr.ecr.us-west-1.amazonaws.com/solui/iba:G8R2SP4"
-        ports:
-        - containerPort: 8080
-        - containerPort: 8009
-        resources:
-           requests:
-            cpu: 800m
-            memory: 900Mi
+        - image: 279559645400.dkr.ecr.us-west-1.amazonaws.com/solui/iba:G8R2i020
+          name: iba
+          imagePullPolicy: Always
+          env:
+            - name: JAVA_OPTS
+              value: -Duser.timezone=--DB_TIMEZONE--
+            - name: JAVA_HOME
+              value: /usr/local/openjdk-11
+          ports:
+            - name: http
+              containerPort: 8080
+            - name: ajp
+              containerPort: 8009
+          readinessProbe:
+            httpGet:
+              path: /solumina-G8/test
+              port: http
+            initialDelaySeconds: 300
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /solumina-G8/test
+              port: http
+            initialDelaySeconds: 450
+            failureThreshold: 3
+            periodSeconds: 30
 
-        volumeMounts:
+          resources:
+            requests:
+              cpu: 800m
+              memory: 900Mi
 
-        - name: pv-volume
-          mountPath: /opt/config/driver   
+          volumeMounts:
+            - mountPath: /opt/config/driver
+              name: driver
+              readOnly: True
 
-        - name: iba-tomcat-folder
-          mountPath: /opt/apache-tomcat-9.0.4/conf/Catalina/localhost/
+            - mountPath: /opt/apache-tomcat-9.0.11/conf/Catalina/localhost/solumina-G8.xml
+              name: solumina-g8
+              subPath: solumina-G8.xml
 
-        - name: iba-config-folder
-          mountPath: /opt/config/props
+            - mountPath: /opt/config/props/redis.properties
+              name: redis-properties
+              subPath: redis.properties
+
+            - mountPath: /opt/config/props/oauth-config.properties
+              name: oauth-config-properties
+              subPath: oauth-config.properties
+
+            - mountPath: /opt/config/props/soluminaConfig.properties
+              name: soluminaconfig-properties
+              subPath: soluminaConfig.properties
+
+            - mountPath: /opt/config/props/log4j.properties
+              name: log4j-properties
+              subPath: log4j.properties
+
+            - mountPath: /opt/config/props/jgroupconfig.xml
+              name: jgroups
+              subPath: jgroupconfig.xml
+
+            - mountPath: /opt/config/props/soluminaExtensionContext.xml
+              name: extensioncontext
+              subPath: soluminaExtensionContext.xml
+
+            - mountPath: /opt/config/props/integrationExtensionContext.xml
+              name: ibaintegrationextensioncontext
+              subPath: ibaIntegrationExtensionContext.xml
+
+            - mountPath: /opt/config/props/microServiceConfig.properties
+              name: microserviceconfigprop
+              subPath: microServiceConfig.properties
+
+            - mountPath: /opt/config/props/ldapContext.xml
+              name: ibaldapcontext
+              subPath: ibaLdapContext.xml
+
+            - mountPath: /opt/config/props/samlsso.properties
+              name: samlsso
+              subPath: samlsso.properties
+
+            - mountPath: /opt/config/props/idpmetadata.xml
+              name: idpmetadata
+              subPath: idpmetadata.xml
+
+            - mountPath: /opt/config/props/samlContextConfig.xml
+              name: samlcontextconfig
+              subPath: samlContextConfig.xml
+
+            - mountPath: /opt/apache-tomcat-9.0.11/logs
+              name: logs
+              readOnly: false
+
+            - mountPath: /opt/config/containerJRE
+              name: customjre
+              readOnly: true
 
       volumes:
+        - name: driver
+          nfs:
+            server: --fs--.efs.--region--.amazonaws.com
+            path: /driver
 
-       - name: pv-volume
-         nfs:
-          server: --fs--.efs.--region--.amazonaws.com 
-          path: /driver
+        - configMap:
+            name: iba-solumina-g8-cm
+          name: solumina-g8
 
-       - name: iba-tomcat-folder
-         configMap:
-            defaultMode: 420
-            items:
-            - key: solumina-G8.xml
-              path: solumina-G8.xml
-            name: iba-cm-soluminag8-sql
+        - configMap:
+            name: iba-redis-cm
+          name: redis-properties
 
-       - name: iba-config-folder
-         projected:
-          sources:
+        - configMap:
+            name: iba-oauth-config-cm
+          name: oauth-config-properties
 
-          -  configMap:
-               name: iba-cm-redis
+        - configMap:
+            name: iba-soluminaconfig-cm
+          name: soluminaconfig-properties
 
-          -  configMap:
-              name: iba-cm-authconfig
+        - configMap:
+            name: iba-log4j-cm
+          name: log4j-properties
 
-          -  configMap:
-               name: iba-cm-log4j
+        - configMap:
+            name: iba-jgroupconfig-cm
+          name: jgroups
 
-          -  configMap:
-               name: iba-cm-configprop
+        - configMap:
+            name: iba-soluminaextensioncontext-cm
+          name: extensioncontext
 
-          -  configMap:
-               name: iba-cm-extensioncontext
+        - configMap:
+            name: ibaintegration-extensioncontext-cm
+          name: ibaintegrationextensioncontext
 
-          -  configMap:
-               name: iba-cm-jgroups
+        - configMap:
+            name: iba-microserviceconfig-cm
+          name: microserviceconfigprop
 
-      restartPolicy: Always
+        - configMap:
+            name: ibaldapcontext-cm
+          name: ibaldapcontext
+
+        - configMap:
+            name: iba-idpmetadata-cm
+          name: idpmetadata
+
+        - configMap:
+            name: iba-samlcontextconfig-cm
+          name: samlcontextconfig
+
+        - configMap:
+            name: iba-samlsso-cm
+          name: samlsso
+
+        - name: logs
+          nfs:
+            server: --fs--.efs.--region--.amazonaws.com
+            path: /logs/iba
+
+        - name: customjre
+          nfs:
+            server: --fs--.efs.--region--.amazonaws.com
+            path: /customJRE11-driver
+status: {}

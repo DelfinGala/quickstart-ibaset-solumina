@@ -1,0 +1,113 @@
+apiVersion: v1
+data:
+  ibaLdapContext.xml: |
+    <?xml version="1.0" encoding="UTF-8"?>
+    <beans xmlns="http://www.springframework.org/schema/beans"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:util="http://www.springframework.org/schema/util"
+        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+                            http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
+        <!-- LDAP Filter for solumina thin client calls-->
+        <!-- <bean id="externalAuthenticationFilter"
+                     class="com.ibaset.solumina.security.AuthenticationFilter">
+            <constructor-arg index="0">
+                <ref bean="hibernateDAO" />
+            </constructor-arg>
+            <constructor-arg index="1">
+                <ref bean="ldapProviders" />
+            </constructor-arg>
+            <constructor-arg index="2">
+                <ref bean="ldapBypassedUsers" />
+            </constructor-arg>
+            <property name="jdbcDao" ref="extensionDaoSupport" />
+        </bean> -->
+        <!-- LDAP Filter for solumina API calls-->
+       <!--  <bean id="externalApiAuthenticationFilter"
+                     class="com.ibaset.solumina.api.security.ApiAuthenticationFilter">
+            <constructor-arg index="0">
+                <ref bean="hibernateDAO" />
+            </constructor-arg>
+            <constructor-arg index="1">
+                <ref bean="ldapProviders" />
+            </constructor-arg>
+            <constructor-arg index="2">
+                <ref bean="ldapBypassedUsers" />
+            </constructor-arg>
+            <property name="jdbcDao" ref="extensionDaoSupport" />
+        </bean> -->
+        <!--  LDAP Authentication Provider -->
+        <util:list id="ldapProviders">
+            <!-- LDAP Provider 1 - Replicate for each provider needed -->
+            <!-- Map must contain LDAPHost - Address of LDAP repository, i.e.:ldap://my.company.com:389,
+                             ldaps://my.company.com:636 ManagerDN - Distinguished Name of manager user.
+                Used to initially bind to LDAP and perform the user searches. ManagerPassword
+                - Password for manager UserBase - Starting point in the LDAP tree to search
+                for users. i.e.: DC=company,DC=com UserSearch - LDAP query to search for
+                user name. -->
+            <map>
+                <entry>
+                    <key><value>LDAPHost</value></key>
+                    <value>ldap://[host]:389</value>
+                </entry>
+                <entry>
+                    <key><value>ManagerDN</value></key>
+                    <value>CN=[LDAP user],CN=Users,DC=[company],DC=com</value>
+                </entry>
+                <entry>
+                    <key><value>ManagerPassword</value></key>
+                    <value>[LDAP user password]</value>
+                </entry>
+                <entry>
+                    <key><value>UserBase</value></key>
+                    <value>DC=[company],DC=com</value>
+                </entry>
+                <entry>
+                    <key><value>UserSearch</value></key>
+                    <value>(sAMAccountName={0})</value>
+                </entry>
+                <!-- Optional Prefix to append to user names when searching LDAP -->
+                <!-- <entry> <key><value>UserPrefix</value></key> <value></value> </entry> -->
+                <!-- Optional Query to translate the Solumina UserID to LDAP UserID -->
+                <!-- Query must 1) Select only a single column, this value is used to
+                                     search LDAP 2) One parameter will passed into the query, it is the user id
+                    entered on the login dialog. the query must accept the single parameter designated
+                    by a ? -->
+                <entry>
+                    <key>
+                        <value>LdapUserIdLookup</value>
+                    </key>
+                    <value>SELECT USERID FROM SFMFG.SFFND_USER WHERE USERID=?</value>
+                </entry>
+                <!-- Optional. This search base indicates where in the hierarchy to begin
+                                     the search of group names -->
+                <!-- <entry> <key><value>RoleBase</value></key> <value>CN=Groups,dc=[company],dc=com</value>
+                                     </entry> -->
+                <!-- Optional. The filter for a group in the LDAP registry. -->
+                <!-- <entry> <key><value>RoleSearch</value></key> <value>(member={0})</value>
+                                     </entry> -->
+                <!-- Optional. The LDAP Property that represents the name of the groups
+                                     in the LDAP registry. Default: cn -->
+                <!-- <entry> <key><value>RoleName</value></key> <value>cn</value> </entry> -->
+                <!-- Optional Prefix to append to a role name after retrieving from LDAP
+                                     registry. -->
+                <!-- <entry> <key><value>RolePrefix</value></key> <value></value> </entry> -->
+                <!-- Optional query to translate LDAP roles to Solumina role ids. -->
+                <!-- Query must 1) Select a column with name ROLE. 2) One parameter will
+                                     be passed into the query: a comma-separated list of roles selected from the
+                    LPDAP registry. The query must accept the single parameter designated by
+                    a ? -->
+                <!-- <entry> <key><value>RoleIdLookup</value></key> <value> select R.ROLE
+                                     from table(SFFND_PARSE_FCN(?, ',')) T, SFCORE_ROLES R where T.COLUMN_VALUE
+                    = R.ROLE </value> </entry> -->
+            </map>
+        </util:list>
+        <util:list id="ldapBypassedUsers">
+            <value>ANONYMOUS</value>
+            <value>SUPERUSER</value>
+            <value>SOLUMINA-ADMIN-API</value>
+        </util:list>
+    </beans>
+kind: ConfigMap
+metadata:
+  creationTimestamp: null
+  name: ibaldapcontext-cm

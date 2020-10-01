@@ -1,0 +1,79 @@
+apiVersion: v1
+data:
+  application.yml: |
+    server:
+      port: 9090
+      servlet:
+        context-path: /solumina-search/api
+    spring:
+      profiles:
+        include:
+          - tomcat # must have profile
+          - redis # must have profile
+          - ACTIVATED_PROFILE_FOR_DATABASE # Possible values - oracle, sqlserver
+      devtools:
+        restart:
+          exclude: logs/**
+      main:
+        allow-bean-definition-overriding: true
+      cloud:
+        refresh:
+          enabled: false
+      autoconfigure:
+        exclude:
+          - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
+          - org.springframework.boot.devtools.autoconfigure.DevToolsDataSourceAutoConfiguration
+          - org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration
+    elastic:
+      hostnames: --es--
+      port: 443
+      ssl:
+        scheme: https
+        username:
+        password:
+      maxrows: 10
+      maxthreads: 10
+      retrytimeout: 100000
+      maxngramdiff: 11
+
+    security:
+      oauth2:
+        resource:
+          jwt:
+            key-value: solumina+$ibaset
+
+    zipkin:
+      server:
+        url: http://zipkin:9411
+
+    solumina:
+      serviceName: solumina-search
+
+    swagger:
+      title: Solumina REST API
+      description: "REST API for integrating with Solumina Middle Tier. All API endpoint will return a response object which will contain 3 parameters 'data': it will have actual response data (API Endpoint specific response model shown in API documentation will be available in 'data' parameter of original repsonse object), 'meta': it will have some metadata information, 'error': error information if api response have any error."
+      version: 1.0
+      termsOfServiceUrl: https://www.ibaset.com
+      license: Ibaset Proprietary API
+      licenseUrl: https://www.ibaset.com
+      contactName: iBASEt
+      contactUrl: https://www.ibaset.com
+      contactEmail: support@ibaset.com
+    defaultSchema: SFMFG
+    management:
+      endpoints:
+        web:
+          exposure:
+            include: metrics
+      metrics:
+        enable:
+          http.server.requests: true
+          all: false
+        export:
+          elastic:
+            host: https://--es--:443
+            step: 60m
+kind: ConfigMap
+metadata:
+  creationTimestamp: null
+  name: search-app-cm
