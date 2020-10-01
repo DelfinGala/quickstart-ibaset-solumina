@@ -4,6 +4,14 @@
 == Test the deployment
 // If steps are required to test the deployment, add them here. If not, remove the heading
 
+. Navigate to the URL for Solumina using the endpoint that you noted in the previous section.
+. Log in to the Solumina server using the setup credentials (the default setup creates an administrator profile). Contact https://www.ibaset.com/contact/[iBASEt^] sales for licensing information. You will be able to complete the login after installing the license.
+
+[#test-page1]
+._{partner-product-short-name}_ login page
+[link=images/test-page.png]
+image::../images/test-page.png[Test-Page,width=648,height=439]
+
 == Post deployment steps
 // If Post-deployment steps are required, add them here. If not, remove the heading
 
