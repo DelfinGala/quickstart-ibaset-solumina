@@ -10,6 +10,7 @@ Parameters:
   DatabasePassword:
     Description: The database admin account password.
     Type: String
+    NoEcho: 'true'  
   VpcId:
     Description: ID of the VPC (e.g., vpc-0343606e).
     Type: AWS::EC2::VPC::Id
@@ -52,16 +53,8 @@ Metadata:
         - AllocatedStorage
         - SqlServerVersion
         - DBInstanceClass
-      ParameterLabels:
-        SqlServerInstanceName:
-            default: Instance name
-        DatabaseUsername:
-            default: Master user name
-        DatabasePassword:
-            default: Password
 Resources:
   InstanceProfileRole:
-    Description: Create a InstanceProfileRole that assigns permissions specified in the IAM policy 
     Properties:
       AssumeRolePolicyDocument:
         Statement:
@@ -111,7 +104,6 @@ Resources:
       Roles:
         - !Ref InstanceProfileRole
       InstanceProfileName: !Ref InstanceProfileRoleName
-    DependsOn: InstanceProfileRole
   
   SQLServerSecurityGroup:
     Type: AWS::EC2::SecurityGroup
@@ -119,8 +111,8 @@ Resources:
       GroupDescription: SQL Server Security Group
       SecurityGroupIngress:
       - IpProtocol: tcp
-        FromPort: '1433'
-        ToPort: '1433'
+        FromPort: 1433
+        ToPort: 1433
         CidrIp: 0.0.0.0/0
       VpcId:
         Ref: VpcId
@@ -160,7 +152,7 @@ Resources:
         Ref: DatabaseUsername
       MasterUserPassword:
         Ref: DatabasePassword
-      PubliclyAccessible: 'false'
+      PubliclyAccessible: false
       Tags:
         -
           Key: "Name"
@@ -168,8 +160,7 @@ Resources:
         -
           Key: "project"
           Value: "development unittest"
-      BackupRetentionPeriod: '1'
-    DependsOn: SQLServerSecurityGroup
+      BackupRetentionPeriod: 1
 Outputs:
    SQLDatabaseEndpoint:
      Description: Database endpoint

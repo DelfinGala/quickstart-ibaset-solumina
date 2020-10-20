@@ -1,9 +1,6 @@
 AWSTemplateFormatVersion: 2010-09-09
 Description: Deploys Lambda to run the APIs on ELK Domain and create indices
 Parameters:
-  VpcId:
-    Description: VPC id for the security group
-    Type: AWS::EC2::VPC::Id
   ELKSearchDomainURL:
     Description: Endpoint of the ELK domain
     Type: String
@@ -101,8 +98,6 @@ Resources:
         Fn::GetAtt:
           - LambdaRole
           - Arn
-    DependsOn:
-      - LambdaRole
 
 Outputs:
   DomainEndpoint:

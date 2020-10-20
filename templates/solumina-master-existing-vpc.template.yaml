@@ -86,6 +86,18 @@ Metadata:
         default: VPC CIDR
       VPCID:
         default: VPC ID
+      PrivateSubnet1ID:
+        default: Private Subnet1 ID
+      PrivateSubnet2ID:
+        default: Private Subnet2 ID
+      PrivateSubnet3ID:
+        default: Private Subnet3 ID
+      PublicSubnet1ID:
+        default: Public Subnet1 ID
+      PublicSubnet2ID:
+        default: Public Subnet2 ID
+      PublicSubnet3ID:
+        default: Public Subnet3 ID
       NodeInstanceType:
         default: Nodes instance type
       NumberOfNodes:
@@ -144,11 +156,11 @@ Parameters:
     Default: 'us-east-1'
     Description: The AWS Region where the Quick Start S3 bucket (QSS3BucketName) is hosted. When using your own bucket, you must specify this value.
     Type: String
-  AvailabilityZones:
-    Description: The list of Availability Zones to use for the subnets in the VPC. Three
-      Availability Zones are used for this deployment, and the logical order of your
-      selections is preserved.
-    Type: List<AWS::EC2::AvailabilityZone::Name>
+  # AvailabilityZones:
+  #   Description: The list of Availability Zones to use for the subnets in the VPC. Three
+  #     Availability Zones are used for this deployment, and the logical order of your
+  #     selections is preserved.
+  #   Type: List<AWS::EC2::AvailabilityZone::Name>
   KeyPairName:
     Description: The name of an existing public/private key pair, which allows you
       to securely connect to your instance after it launches
@@ -186,7 +198,7 @@ Parameters:
     Description: VPC ID
     Type: AWS::EC2::VPC::Id
   NodeInstanceType:
-    Default: t3.xlarge
+    Default: m5.2xlarge 
     AllowedValues:
       - t3.large
       - t3.xlarge
@@ -363,6 +375,7 @@ Parameters:
       - r3.2xlarge.elasticsearch
     Default: r5.large.elasticsearch
     Type: String
+    Description: Instance Type for ES service
 ## Parameters Added for MongoDB Provisioning Stack ##
   ClusterReplicaSetCount:
     Description: Number of Replica Set Members. Choose 1 or 3
@@ -468,9 +481,13 @@ Parameters:
       - i2.4xlarge
       - i2.8xlarge
   JDBCDriverBucketName:
+    Description: Bucket that contains SQL JDBC Driver
     Type: String
+    Default: aws-artifacts-ibaset
   JDBCDriverKeyPrefix:
+    Description: Key Prefix for JDBC driver S3 Bucket
     Type: String
+    Default: v2/
   RandomString:
     Type: String
     Description: 'Random String for uniqueness'
@@ -530,7 +547,7 @@ Resources:
     Type: AWS::CloudFormation::Stack
     Properties:
       TemplateURL: !Sub 
-        - 'https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}templates/lambdazipsync.template.yaml'
+        - 'https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}templates/lambda-zip-sync.template.yaml'
         - S3Bucket: !If
             - UsingDefaultBucket
             - !Sub 'aws-quickstart-${AWS::Region}'
@@ -577,7 +594,7 @@ Resources:
     Type: AWS::CloudFormation::Stack
     Properties:
       TemplateURL: !Sub 
-        - https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}templates/RDS_postscripts.template.yaml
+        - https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}templates/rds-postscripts.template.yaml
         - S3Bucket: !If
             - UsingDefaultBucket
             - !Sub 'aws-quickstart-${AWS::Region}'
@@ -602,13 +619,12 @@ Resources:
           Fn::GetAtt: [ RDSStack , Outputs.SQLDatabaseEndpointURL ]
     DependsOn:
       - PostBastionLambdastack
-      - RDSStack
 # ES Stack ##
   ELKstack:
     Type: AWS::CloudFormation::Stack
     Properties:
       TemplateURL: !Sub 
-        - https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}templates/elk_master.template.yaml
+        - https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}templates/elk-master.template.yaml
         - S3Bucket: !If
             - UsingDefaultBucket
             - !Sub 'aws-quickstart-${AWS::Region}'
@@ -638,8 +654,6 @@ Resources:
         QSS3KeyPrefix: !Ref 'QSS3KeyPrefix'
         ELKS3KeyPrefixLambdaZip: !Sub '${QSS3KeyPrefix}lambda/package/elasticsearch/elkpostscript.zip'
         RandomString: !Ref 'RandomString'
-    DependsOn:
-      - LambdaZipSyncStack
 # Mongo Stack ##
   MongoStack:
     Type: AWS::CloudFormation::Stack
@@ -678,7 +692,7 @@ Resources:
     Type: AWS::CloudFormation::Stack
     Properties:
       TemplateURL: !Sub 
-        - https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}submodules/quickstart-amazon-eks/templates/amazon-eks.template.yaml
+        - https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}submodules/quickstart-aws-eks/templates/amazon-eks.template.yaml
         - S3Bucket: !If
             - UsingDefaultBucket
             - !Sub 'aws-quickstart-${AWS::Region}'
@@ -690,7 +704,7 @@ Resources:
       Parameters:
         QSS3BucketRegion: !Ref QSS3BucketRegion
         QSS3BucketName: !Ref 'QSS3BucketName'
-        QSS3KeyPrefix: !Sub ${QSS3KeyPrefix}submodules/quickstart-amazon-eks/
+        QSS3KeyPrefix: !Sub ${QSS3KeyPrefix}submodules/quickstart-aws-eks/
         PublicSubnet1ID: !Ref 'PublicSubnet1ID'
         PublicSubnet2ID: !Ref 'PublicSubnet2ID'
         PublicSubnet3ID: !Ref 'PublicSubnet3ID'
@@ -738,7 +752,7 @@ Resources:
     Type: AWS::CloudFormation::Stack
     Properties:
       TemplateURL: !Sub 
-        - https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}templates/custombastionpolicy.template.yaml
+        - https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}templates/custom-bastion-policy.template.yaml
         - S3Bucket: !If
             - UsingDefaultBucket
             - !Sub 'aws-quickstart-${AWS::Region}'
@@ -762,7 +776,6 @@ Resources:
             - !Ref 'AWS::Region'
             - !Ref 'QSS3BucketRegion'
       Parameters:
-        VpcId: !Ref 'VPCID'
         InstanceProfileRoleName: !Join
           - ''
           - - 'rdspostrcriptrole'
@@ -784,8 +797,6 @@ Resources:
         BastionSecurityGroupID:
           Fn::GetAtt: [ EKSStack , Outputs.BastionSecurityGroup]
     DependsOn:
-      - PostBastionPolicystack
-      - LambdaZipSyncStack
       - RDSStack
 
   EFSFileSystem:
@@ -831,14 +842,13 @@ Resources:
     Properties:
       GroupDescription: Enable NFS access from EC2
       SecurityGroupIngress:
-      - FromPort: '2049'
+      - FromPort: 2049
         IpProtocol: tcp
-        ToPort: '2049'
+        ToPort: 2049
         CidrIp: !Ref VPCCIDR
       VpcId: !Ref 'VPCID'
   SSMParameterEFSID:
     Type: "AWS::SSM::Parameter"
-    DependsOn: EFSFileSystem
     Properties:
       Name: "EFSId"
       Type: "String"
@@ -972,8 +982,6 @@ Resources:
             - !Ref 'AWS::Region'
             - !Ref 'QSS3BucketRegion'
       Parameters:
-        QSS3BucketName: !Ref 'QSS3BucketName'
-        QSS3KeyPrefix: !Ref 'QSS3KeyPrefix'
         LogsBucketName: !GetAtt LambdaZipSyncStack.Outputs.S3SyncNewBucket
         LogsKeyPrefix: 'logs/UI_Install'
     DependsOn:

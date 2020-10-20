@@ -22,39 +22,38 @@ tests:
       KeyPairName:
       JDBCDriverBucketName: aws-artifacts-ibaset # Do not change #
       JDBCDriverKeyPrefix: v2/ # Do not change #
-      DatabasePassword: 
-      PostRDSWindowsAmiId:  #N.Vir:ami-0996bb3412a951993, Ohio: ami-029c39a68018071e1, Oregon: ami-056170e9bf495d382
-      MongoDBAdminPassword: Solumina123
-      RandomString: 
+      DatabasePassword: #For eg: Solumina123
+      PostRDSWindowsAmiId: #N.Vir:ami-0996bb3412a951993, Ohio: ami-029c39a68018071e1, Oregon: ami-056170e9bf495d382
+      MongoDBAdminPassword: #For eg. #Solumina123
+      RandomString: #For eg: s02. 3 letter preferred to shorten the name of resources.
       QSS3BucketName: $[taskcat_autobucket]
       QSS3KeyPrefix: quickstart-ibaset-solumina/
-      R53HostedZoneName: #mycompany.com.
-      R53LBRecordSetName: #mydns.mycompany.com
-      QSS3BucketRegion: $[taskcat_current_region]
-
+      R53HostedZoneName: #For eg: mycompany.com.
+      R53LBRecordSetName: #For eg: mydns.mycompany.com
+      qSS3BucketRegion: $[taskcat_current_region]
   existing-vpc:
     template: templates/solumina-master-existing-vpc.template.yaml
     regions:
       - us-east-2
     parameters:
       AvailabilityZones: $[taskcat_getaz_3]
-      KeyPairName: 
+      KeyPairName:
       JDBCDriverBucketName: aws-artifacts-ibaset # Do not change #
       JDBCDriverKeyPrefix: v2/ # Do not change #
-      DatabasePassword: 
-      PostRDSWindowsAmiId:
-      MongoDBAdminPassword: 
-      RandomString: 
+      DatabasePassword: #For eg: Solumina123
+      PostRDSWindowsAmiId: #N.Vir:ami-0996bb3412a951993, Ohio: ami-029c39a68018071e1, Oregon: ami-056170e9bf495d382
+      MongoDBAdminPassword: Solumina123
+      RandomString: r02 #For eg: 3 letter preferred to shorten the name of resources.
       QSS3BucketName: $[taskcat_autobucket]
       QSS3KeyPrefix: quickstart-ibaset-solumina/
-      R53HostedZoneName: #mycompany.com.
+      R53HostedZoneName:  #mycompany.com.
       R53LBRecordSetName: #mydns.mycompany.com
-      VPCID: 
-      VPCCIDR: 
-      PrivateSubnet1ID: 
-      PrivateSubnet2ID: 
-      PrivateSubnet3ID: 
-      PublicSubnet1ID: 
-      PublicSubnet2ID: 
-      PublicSubnet3ID: 
+      VPCID:
+      VPCCIDR:
+      PrivateSubnet1ID:
+      PrivateSubnet2ID:
+      PrivateSubnet3ID:
+      PublicSubnet1ID:
+      PublicSubnet2ID:
+      PublicSubnet3ID:
       QSS3BucketRegion: $[taskcat_current_region]

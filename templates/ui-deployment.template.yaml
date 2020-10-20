@@ -4,11 +4,6 @@ Parameters:
   bastionIDValue:
     Type: 'AWS::SSM::Parameter::Value<String>'
     Default: bastionID
-  QSS3BucketName:
-    Type: String
-  QSS3KeyPrefix:
-    Type: String
-    Default: quickstart-ibaset-solumina/
   LogsBucketName:
     Type: String
     Description: Logs S3 Bucket
@@ -30,8 +25,8 @@ Resources:
             QSS3KeyPrefix=$(aws ssm get-parameters --name QSS3KeyPrefix --region $EC2_REGION --query Parameters[0].Value)
             QSS3KeyPrefix=${QSS3KeyPrefix//\"/}
             QSS3BucketName=${QSS3BucketName//\"/}
-            S3SyncURL=${QSS3BucketName}/${QSS3KeyPrefix}
-            sudo aws s3 cp s3://${S3SyncURL}assets/scripts/UIDeploymentScript.sh /
+            S3SyncURL="$QSS3BucketName"/"$QSS3KeyPrefix"
+            sudo aws s3 cp s3://"$S3SyncURL"assets/scripts/UIDeploymentScript.sh /
             sudo chmod +x /UIDeploymentScript.sh
             sudo chown ec2-user:ec2-user /UIDeploymentScript.sh
             sudo mkdir -p /exec-ui
