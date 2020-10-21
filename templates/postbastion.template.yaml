@@ -1,9 +1,6 @@
 AWSTemplateFormatVersion: 2010-09-09
 Description: Deploys Lambda to run the APIs on Bastion Domain
 Parameters:
-  VpcId:
-    Description: VPC id for the security group
-    Type: AWS::EC2::VPC::Id
   LambdaSubnetID:
     Description: Private SubnetID for Lambda
     Type: 'List<AWS::EC2::Subnet::Id>'
@@ -107,8 +104,6 @@ Resources:
         Fn::GetAtt:
           - LambdaRoleBastion
           - Arn
-    DependsOn:
-      - LambdaRoleBastion
 
 Outputs:
   RoleName:
