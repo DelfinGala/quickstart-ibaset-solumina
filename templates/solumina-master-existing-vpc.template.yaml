@@ -8,7 +8,7 @@ Metadata:
       - Label:
           default: VPC network configuration
         Parameters:
-          - AvailabilityZones
+#          - AvailabilityZones
           - RemoteAccessCIDR
           - VPCCIDR
           - VPCID
@@ -72,8 +72,8 @@ Metadata:
         - R53LBRecordSetName
 
     ParameterLabels:
-      AvailabilityZones:
-        default: Availability Zones
+#      AvailabilityZones:
+#        default: Availability Zones
       KeyPairName:
         default: SSH key name
       QSS3BucketName:
