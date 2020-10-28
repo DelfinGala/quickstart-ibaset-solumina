@@ -233,58 +233,54 @@ Parameters:
     Description: The CIDR block for the VPC
     Type: String
   NodeInstanceType:
-    Default: t3.xlarge
+    Default: m5.2xlarge
     AllowedValues:
+      - t3.nano
+      - t3.micro
+      - t3.small
+      - t3.medium
       - t3.large
       - t3.xlarge
       - t3.2xlarge
-      - m3.medium
-      - m3.large
-      - m3.xlarge
-      - m3.2xlarge
-      - m4.large
-      - m4.xlarge
-      - m4.2xlarge
-      - m4.4xlarge
-      - m4.10xlarge
+      - t3a.nano
+      - t3a.micro
+      - t3a.small
+      - t3a.medium
+      - t3a.large
+      - t3a.xlarge
+      - t3a.2xlarge
       - m5.large
       - m5.xlarge
       - m5.2xlarge
       - m5.4xlarge
       - m5.12xlarge
       - m5.24xlarge
-      - c4.large
-      - c4.xlarge
-      - c4.2xlarge
-      - c4.4xlarge
-      - c4.8xlarge
+      - m5a.large
+      - m5a.xlarge
+      - m5a.2xlarge
+      - m5a.4xlarge
+      - m5a.12xlarge
+      - m5a.24xlarge
       - c5.large
       - c5.xlarge
       - c5.2xlarge
       - c5.4xlarge
       - c5.9xlarge
       - c5.18xlarge
+      - c5a.large
+      - c5a.xlarge
+      - c5a.2xlarge
+      - c5a.4xlarge
+      - c5a.12xlarge
+      - c5a.24xlarge
       - i3.large
       - i3.xlarge
       - i3.2xlarge
       - i3.4xlarge
       - i3.8xlarge
       - i3.16xlarge
-      - r3.xlarge
-      - r3.2xlarge
-      - r3.4xlarge
-      - r3.8xlarge
-      - r4.large
-      - r4.xlarge
-      - r4.2xlarge
-      - r4.4xlarge
-      - r4.8xlarge
-      - r4.16xlarge
       - x1.16xlarge
       - x1.32xlarge
-      - p2.xlarge
-      - p2.8xlarge
-      - p2.16xlarge
       - p3.2xlarge
       - p3.8xlarge
       - p3.16xlarge
@@ -294,6 +290,12 @@ Parameters:
       - r5.4xlarge
       - r5.12xlarge
       - r5.24xlarge
+      - r5a.large
+      - r5a.xlarge
+      - r5a.2xlarge
+      - r5a.4xlarge
+      - r5a.12xlarge
+      - r5a.24xlarge
       - r5d.large
       - r5d.xlarge
       - r5d.2xlarge
@@ -318,7 +320,7 @@ Parameters:
     Description: The name for EKS node group.
     Type: String
   NodeVolumeSize:
-    Default: 20
+    Default: 100
     Description: "The size for the node's root EBS volumes."
     Type: String
   KubernetesVersion:
@@ -382,7 +384,7 @@ Parameters:
       - db.m5.12xlarge
       - db.m5.24xlarge
     ConstraintDescription: "Must select a valid database instance type."
-    Default: db.m4.large
+    Default: db.m4.xlarge
     Description: "The name of the compute and memory capacity class of the database instance."
     Type: String
 ## Parameters Added for RDS Postscripts Stack##
@@ -410,6 +412,7 @@ Parameters:
       - r3.2xlarge.elasticsearch
     Default: r5.large.elasticsearch
     Type: String
+    Description: Instance Type for ES service
 ## Parameters Added for MongoDB Provisioning Stack ##
   ClusterReplicaSetCount:
     Description: Number of Replica Set Members. Choose 1 or 3
@@ -515,11 +518,13 @@ Parameters:
       - i2.4xlarge
       - i2.8xlarge
   JDBCDriverBucketName:
+    Description: Bucket that contains SQL JDBC Driver
     Type: String
-    Description: 'JDBC Driver Storage Bucket Name'
+    Default: aws-artifacts-ibaset
   JDBCDriverKeyPrefix:
+    Description: Key Prefix for JDBC driver S3 Bucket
     Type: String
-    Description: 'JDBC Driver Storage Bucket Key Prefix'
+    Default: v2/
   RandomString:
     Type: String
     Description: 'Random String for uniqueness'
@@ -587,7 +592,7 @@ Resources:
     Type: AWS::CloudFormation::Stack
     Properties:
       TemplateURL: !Sub 
-        - 'https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}templates/lambdazipsync.template.yaml'
+        - 'https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}templates/lambda-zip-sync.template.yaml'
         - S3Bucket: !If
             - UsingDefaultBucket
             - !Sub 'aws-quickstart-${AWS::Region}'
@@ -628,13 +633,12 @@ Resources:
           - ''
           - - 'rdspostrcriptrole'
             - !Ref RandomString
-    DependsOn: VPCStack
 ## RDS Postscripts ##
   RDSPostScriptsStack:
     Type: AWS::CloudFormation::Stack
     Properties:
       TemplateURL: !Sub 
-        - https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}templates/RDS_postscripts.template.yaml
+        - https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}templates/rds-postscripts.template.yaml
         - S3Bucket: !If
             - UsingDefaultBucket
             - !Sub 'aws-quickstart-${AWS::Region}'
@@ -659,13 +663,12 @@ Resources:
           Fn::GetAtt: [ RDSStack , Outputs.SQLDatabaseEndpointURL ]
     DependsOn: 
       - PostBastionLambdastack
-      - RDSStack
 # ES Stack ##
   ELKstack:
     Type: AWS::CloudFormation::Stack
     Properties:
       TemplateURL: !Sub 
-        - https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}templates/elk_master.template.yaml
+        - https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}templates/elk-master.template.yaml
         - S3Bucket: !If
             - UsingDefaultBucket
             - !Sub 'aws-quickstart-${AWS::Region}'
@@ -695,9 +698,6 @@ Resources:
         QSS3KeyPrefix: !Ref 'QSS3KeyPrefix'
         ELKS3KeyPrefixLambdaZip: !Sub '${QSS3KeyPrefix}lambda/package/elasticsearch/elkpostscript.zip'
         RandomString: !Ref 'RandomString'
-    DependsOn:
-      - VPCStack
-      - LambdaZipSyncStack
 # Mongo Stack ##
   MongoStack:
     Type: AWS::CloudFormation::Stack
@@ -733,12 +733,11 @@ Resources:
         KeyPairName: !Ref KeyPairName
         BastionSecurityGroupID:
           Fn::GetAtt: [ EKSStack , Outputs.BastionSecurityGroup]
-    DependsOn: VPCStack
   EKSStack:
     Type: AWS::CloudFormation::Stack
     Properties:
       TemplateURL: !Sub 
-        - https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}submodules/quickstart-amazon-eks/templates/amazon-eks.template.yaml
+        - https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}submodules/quickstart-aws-eks/templates/amazon-eks.template.yaml
         - S3Bucket: !If
             - UsingDefaultBucket
             - !Sub 'aws-quickstart-${AWS::Region}'
@@ -750,7 +749,7 @@ Resources:
       Parameters:
         QSS3BucketRegion: !Ref QSS3BucketRegion
         QSS3BucketName: !Ref 'QSS3BucketName'
-        QSS3KeyPrefix: !Sub ${QSS3KeyPrefix}submodules/quickstart-amazon-eks/
+        QSS3KeyPrefix: !Sub ${QSS3KeyPrefix}submodules/quickstart-aws-eks/
         PublicSubnet1ID: !GetAtt VPCStack.Outputs.PublicSubnet1ID
         PublicSubnet2ID: !GetAtt VPCStack.Outputs.PublicSubnet2ID
         PublicSubnet3ID: !GetAtt VPCStack.Outputs.PublicSubnet3ID
@@ -767,7 +766,8 @@ Resources:
         VPCID: !GetAtt VPCStack.Outputs.VPCID
         KubernetesVersion: !Ref KubernetesVersion
         ProvisionClusterAutoScaler: Disabled
-    DependsOn: VPCStack
+        # ConfigSetName: ''
+        # NodeInstanceFamily: 'Standard'
   BastionIDSSMParameter:
     Type: "AWS::SSM::Parameter"
     Properties:
@@ -799,7 +799,7 @@ Resources:
     Type: AWS::CloudFormation::Stack
     Properties:
       TemplateURL: !Sub 
-        - https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}templates/custombastionpolicy.template.yaml
+        - https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}templates/custom-bastion-policy.template.yaml
         - S3Bucket: !If
             - UsingDefaultBucket
             - !Sub 'aws-quickstart-${AWS::Region}'
@@ -823,7 +823,6 @@ Resources:
             - !Ref 'AWS::Region'
             - !Ref 'QSS3BucketRegion'
       Parameters:
-        VpcId: !GetAtt 'VPCStack.Outputs.VPCID'
         InstanceProfileRoleName: !Join
           - ''
           - - 'rdspostrcriptrole'
@@ -845,8 +844,6 @@ Resources:
         BastionSecurityGroupID:
           Fn::GetAtt: [ EKSStack , Outputs.BastionSecurityGroup]
     DependsOn:
-      - PostBastionPolicystack
-      - LambdaZipSyncStack
       - RDSStack
 
   EFSFileSystem:
@@ -892,15 +889,14 @@ Resources:
     Properties:
       GroupDescription: Enable NFS access from EC2
       SecurityGroupIngress:
-      - FromPort: '2049'
+      - FromPort: 2049
         IpProtocol: tcp
-        ToPort: '2049'
+        ToPort: 2049
         CidrIp: !Ref VPCCIDR
       VpcId:
         !GetAtt VPCStack.Outputs.VPCID
   SSMParameterEFSID:
     Type: "AWS::SSM::Parameter"
-    DependsOn: EFSFileSystem
     Properties:
       Name: "EFSId"
       Type: "String"
@@ -1034,8 +1030,6 @@ Resources:
             - !Ref 'AWS::Region'
             - !Ref 'QSS3BucketRegion'
       Parameters:
-        QSS3BucketName: !Ref 'QSS3BucketName'
-        QSS3KeyPrefix: !Ref 'QSS3KeyPrefix'
         LogsBucketName: !GetAtt LambdaZipSyncStack.Outputs.S3SyncNewBucket
         LogsKeyPrefix: 'logs/UI_Install'
     DependsOn:

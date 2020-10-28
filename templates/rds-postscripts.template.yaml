@@ -59,13 +59,12 @@ Resources:
       GroupDescription: Windows EC2 Security Group
       SecurityGroupIngress:
       - IpProtocol: tcp
-        FromPort: '3389'
-        ToPort: '3389'
+        FromPort: 3389
+        ToPort: 3389
         CidrIp: 0.0.0.0/0
       VpcId: !Ref VpcId
 
   Instance1:
-    Description: Example of an instance that has user data and can run shell or powershell script  
     Type: AWS::EC2::Instance
     Properties:
       InstanceType: !Ref RDSPSInstanceType
@@ -116,8 +115,6 @@ Resources:
                   cd C:\Users\Administrator\Desktop\
                   mkdir solumina
                   cd .\solumina\
-                  # Read-S3Object -BucketName ${QSS3SourceBucketName} -Key ${QSS3SourceKeyPrefix}templates/sqlserver/G8R2SP4.1_UPD_SQLServer_RC.zip  -File G8R2SP4.1_UPD_SQLServer_RC.zip
-                  # Read-S3Object -BucketName ${QSS3SourceBucketName} -Key ${QSS3SourceKeyPrefix}templates/sqlserver/G8_SQL_fi_vG8R2.2SS_20190529.zip  -File G8_SQL_fi_vG8R2.2SS_20190529.zip
                   Read-S3Object -Region us-west-2 -BucketName aws-artifacts-ibaset -Key v2/templates/sqlserver/solumina_license_grants.sql   -File solumina_license_grants.sql
                   Read-S3Object -Region us-west-2 -BucketName aws-artifacts-ibaset -Key v2/templates/sqlserver/G8R2SP4.1_UPD_SQLServer_RC.zip  -File G8R2SP4.1_UPD_SQLServer_RC.zip
                   Read-S3Object -Region us-west-2 -BucketName aws-artifacts-ibaset -Key v2/templates/sqlserver/G8_SQL_fi_vG8R2.2SS_20190529.zip  -File G8_SQL_fi_vG8R2.2SS_20190529.zip

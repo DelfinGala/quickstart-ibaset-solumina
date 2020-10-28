@@ -66,18 +66,18 @@ Resources:
       DomainName: !Ref ELKSearchDomain
       ElasticsearchVersion: !Ref ELKVersion
       ElasticsearchClusterConfig:
-        InstanceCount: '4'
+        InstanceCount: 4
         InstanceType: !Ref InstanceType
-        ZoneAwarenessEnabled: 'true'
-        DedicatedMasterCount: '3'
-        DedicatedMasterEnabled: 'true'
+        ZoneAwarenessEnabled: true
+        DedicatedMasterCount: 3
+        DedicatedMasterEnabled: true
       EBSOptions:
-        EBSEnabled: 'true'
+        EBSEnabled: true
         Iops: 0
         VolumeSize: 10
         VolumeType: standard
       SnapshotOptions:
-        AutomatedSnapshotStartHour: '0'
+        AutomatedSnapshotStartHour: 0
       AccessPolicies:
           Version: 2012-10-17
           Statement:
@@ -105,16 +105,15 @@ Resources:
       VpcId: !Ref VPCID
       GroupName: !Ref SecurityGroupName
       SecurityGroupIngress:
-        - FromPort: '443'
+        - FromPort: 443
           IpProtocol: tcp
-          ToPort: '443'
+          ToPort: 443
           CidrIp: 0.0.0.0/0
   LambdaStack:
-    DependsOn: ElkSecurityGroup
     Type: AWS::CloudFormation::Stack
     Properties:
       TemplateURL: !Sub 
-        - 'https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}templates/elk_lambda.template.yaml'
+        - 'https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}templates/elk-lambda.template.yaml'
         - S3Bucket: !If
             - UsingDefaultBucket
             - !Sub 'aws-quickstart-${AWS::Region}'
@@ -124,7 +123,6 @@ Resources:
             - !Ref 'AWS::Region'
             - !Ref 'QSS3BucketRegion'
       Parameters:
-        VpcId: !Ref 'VPCID'
         ELKSearchDomainURL: !GetAtt ElasticsearchDomain.DomainEndpoint
         LambdaSecurityGroup: !Join
           - ','
