@@ -29,7 +29,7 @@ tests:
       QSS3BucketName: $[taskcat_autobucket]
       QSS3KeyPrefix: quickstart-ibaset-solumina/
       R53HostedZoneName: uirandom.com.
-      R53LBRecordSetName: mydns.uirandom.com
+      R53LBRecordSetName: test.uirandom.com
       QSS3BucketRegion: $[taskcat_current_region]
 
   # existing-vpc:
