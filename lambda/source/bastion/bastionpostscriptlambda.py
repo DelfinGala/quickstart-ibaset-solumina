@@ -3,17 +3,17 @@
 
 from __future__ import print_function
 from botocore.vendored import requests
+from collections import defaultdict
 
 # import cfnresponse
 
 import json
 import requests
-
 import boto3
 import os
 import time
 
-from collections import defaultdict
+
 
 #  Copyright 2016 Amazon Web Services, Inc. or its affiliates. All Rights Reserved.
 #  This file is licensed to you under the AWS Customer Agreement (the "License").
@@ -66,7 +66,7 @@ print('Loading function')
 def setup_bastion(event, context, stack_name):
 
     try:
-        print("Fethcing instance_id by searching for tag Name:EKSBastion")
+        print("Fetching Instance_ID  by searching for tag Name:EKSBastion")
 
         BastionInstanceID = ''
         ec2 = boto3.resource('ec2')
@@ -75,7 +75,6 @@ def setup_bastion(event, context, stack_name):
         running_instances = ec2.instances.filter(Filters=[{
             'Name': 'instance-state-name',
             'Values': ['running']}])
-        
         ec2info = defaultdict()
         for instance in running_instances:
             for tag in instance.tags:
@@ -86,7 +85,7 @@ def setup_bastion(event, context, stack_name):
         
         print("BastionInstanceID :" + BastionInstanceID)
         
-        print("Creating ssm parameter bastionID")
+        print("Creating ssm parameter bastionID") 
         ssm_client = boto3.client('ssm')
         # create a ssm parameter
         response = ssm_client.put_parameter(
@@ -97,54 +96,96 @@ def setup_bastion(event, context, stack_name):
             Overwrite=True,
             Tier='Standard'
         )
-
-        ec2 = boto3.resource('ec2')
+        ### Get Instance Profile from BastionInstanceID
         instance = ec2.Instance(BastionInstanceID)
-        iam_instance_profile = instance.iam_instance_profile
-        
-        print ('iam_instance_profile: ' + iam_instance_profile['Arn'])
-        
-        iam_instance_profile_arn = iam_instance_profile['Arn']
-        # rolename = iam_instance_profile_arn.split('/')[len(iam_instance_profile_arn.split('/'))-1]
+        print("EKS bastion instance profile metadata")
+        print(instance)
+        print(instance.iam_instance_profile)
+        bastion_instance_profile_arn = instance.iam_instance_profile['Arn']
+        print("EKS bastion instance profile ARN")
+        print(bastion_instance_profile_arn)
+        bastion_instance_profile_name = bastion_instance_profile_arn.split("instance-profile/")[len(bastion_instance_profile_arn.split("instance-profile/"))-1]
+        print("bastion_instance_profile_name")
+        print(bastion_instance_profile_name)
 
-        rolename = ''
+        iam = boto3.resource('iam')
+        instance_profile = iam.InstanceProfile(bastion_instance_profile_name)
+        print("List of instance profile role attributes")
+        print(instance_profile.roles_attribute)
+        print("first element of the list")
+        print(instance_profile.roles_attribute[0]['RoleName'])
+        eks_bastion_role = instance_profile.roles_attribute[0]['RoleName']
+        ##
+        ## Appending Bastion IAM Role to KMS key##
         kms_policy_arns = []
-        client_iam = boto3.client('iam')
-        response_list_roles = client_iam.list_roles()
-        Role_list = response_list_roles['Roles']
-        for key in Role_list:
-            if 'BastionRole' in key['RoleName']:
-                rolename = key['RoleName']
-                print('RoleName: ' + key['RoleName']) 
-                print('ARN: ' + key['Arn'])
-                kms_policy_arns.append(key['Arn']) 
+        print("ARN for Bastion IAM Role")
+        print(instance_profile.roles_attribute[0]['Arn'])
+        kms_policy_arns.append(instance_profile.roles_attribute[0]['Arn'])
+
+        iam = boto3.client('iam')
+        policy_arn = os.environ['CustomBastionPolicyARN']
+        response = iam.attach_role_policy (
+            RoleName=eks_bastion_role,
+            PolicyArn=policy_arn
+        )
+        ### Done with Instance Profile
+
+## Old implementation, will be cleaned up in later iteration - Dhruvit Patel ###
+        #ec2 = boto3.resource('ec2')
+        # instance = ec2.Instance(BastionInstanceID)
+        # iam_instance_profile = instance.iam_instance_profile
         
-                print('rolename: ' + rolename)
-                
-                iam = boto3.resource('iam')
-                role = iam.Role(rolename)
-                
-                iam = boto3.resource('iam')
-                role = iam.Role(rolename)
+        # print ('iam_instance_profile: ' + iam_instance_profile['Arn'])
         
-                # policy_arn = 'arn:aws:iam::977306392285:policy/random'
-                policy_arn = os.environ['CustomBastionPolicyARN']
+        # iam_instance_profile_arn = iam_instance_profile['Arn']
+        # # rolename = iam_instance_profile_arn.split('/')[len(iam_instance_profile_arn.split('/'))-1]
+
+        # rolename = ''
+        # kms_policy_arns = []
+        # client_iam = boto3.client('iam')
+        # response_list_roles = client_iam.list_roles()
+        # Role_list = response_list_roles['Roles']
+        # print('role_list -----------------------------------------------------------')
+        # print(Role_list)
+        # for key in Role_list:
+        #     if 'BastionRole' in key['RoleName']:
+        #         rolename = key['RoleName']
+        #         print('RoleName: ' + key['RoleName']) 
+        #         print('ARN: ' + key['Arn'])
+        #         kms_policy_arns.append(key['Arn']) 
         
-                print('-----------------------------------------------------------')
-                print(rolename)
-                print('-----------------------------------------------------------')
+        #         print('rolename: ' + rolename)
+            
+        #         iam = boto3.resource('iam')
+        #         role = iam.Role(rolename)
+        
+        #         # policy_arn = 'arn:aws:iam::977306392285:policy/random'
+        #         #policy_arn = os.environ['CustomBastionPolicyARN']
+        
+        #         print('---------------rolename--------------------------------------------')
+        #         print(rolename)
+        #         print('-----------------------------------------------------------')
                 
-                print('-----------------------------------------------------------')
-                print(role)
-                print('-----------------------------------------------------------')
+        #         print('---------------role--------------------------------------------')
+        #         print(role)
+        #         print('-----------------------------------------------------------')
                 
-                response = role.attach_policy(
-                    PolicyArn=policy_arn
-                )
-                print('-----------------------------------------------------------')
-                print(response)
-                print('-----------------------------------------------------------')
-                print('policy_arn: ' + os.environ['CustomBastionPolicyARN'])
+        #         # response = role.attach_policy(
+        #         #     PolicyArn=policy_arn
+        #         #)
+        #         print('-----------------------------------------------------------')
+        #         #print(response)
+        #         print('-----------------------------------------------------------')
+        #         print('policy_arn: ' + os.environ['CustomBastionPolicyARN'])
+
+# For Attaching policy##        
+        # iam = boto3.client('iam')
+        # policy_arn = os.environ['CustomBastionPolicyARN']
+        # response = iam.attach_role_policy (
+        #     RoleName=eks_bastion_role,
+        #     PolicyArn=policy_arn
+        # )
+## Done attaching policy ##
 
         responseBody['Status']=SUCCESS
         json_responseBody = json.dumps(responseBody)
