@@ -130,63 +130,6 @@ def setup_bastion(event, context, stack_name):
         )
         ### Done with Instance Profile
 
-## Old implementation, will be cleaned up in later iteration - Dhruvit Patel ###
-        #ec2 = boto3.resource('ec2')
-        # instance = ec2.Instance(BastionInstanceID)
-        # iam_instance_profile = instance.iam_instance_profile
-        
-        # print ('iam_instance_profile: ' + iam_instance_profile['Arn'])
-        
-        # iam_instance_profile_arn = iam_instance_profile['Arn']
-        # # rolename = iam_instance_profile_arn.split('/')[len(iam_instance_profile_arn.split('/'))-1]
-
-        # rolename = ''
-        # kms_policy_arns = []
-        # client_iam = boto3.client('iam')
-        # response_list_roles = client_iam.list_roles()
-        # Role_list = response_list_roles['Roles']
-        # print('role_list -----------------------------------------------------------')
-        # print(Role_list)
-        # for key in Role_list:
-        #     if 'BastionRole' in key['RoleName']:
-        #         rolename = key['RoleName']
-        #         print('RoleName: ' + key['RoleName']) 
-        #         print('ARN: ' + key['Arn'])
-        #         kms_policy_arns.append(key['Arn']) 
-        
-        #         print('rolename: ' + rolename)
-            
-        #         iam = boto3.resource('iam')
-        #         role = iam.Role(rolename)
-        
-        #         # policy_arn = 'arn:aws:iam::977306392285:policy/random'
-        #         #policy_arn = os.environ['CustomBastionPolicyARN']
-        
-        #         print('---------------rolename--------------------------------------------')
-        #         print(rolename)
-        #         print('-----------------------------------------------------------')
-                
-        #         print('---------------role--------------------------------------------')
-        #         print(role)
-        #         print('-----------------------------------------------------------')
-                
-        #         # response = role.attach_policy(
-        #         #     PolicyArn=policy_arn
-        #         #)
-        #         print('-----------------------------------------------------------')
-        #         #print(response)
-        #         print('-----------------------------------------------------------')
-        #         print('policy_arn: ' + os.environ['CustomBastionPolicyARN'])
-
-# For Attaching policy##        
-        # iam = boto3.client('iam')
-        # policy_arn = os.environ['CustomBastionPolicyARN']
-        # response = iam.attach_role_policy (
-        #     RoleName=eks_bastion_role,
-        #     PolicyArn=policy_arn
-        # )
-## Done attaching policy ##
-
         responseBody['Status']=SUCCESS
         json_responseBody = json.dumps(responseBody)
         print("Completed assigning Role stack response success:\n" + json_responseBody)
