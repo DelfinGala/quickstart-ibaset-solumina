@@ -460,7 +460,7 @@ Parameters:
   MongoNodeInstanceType:
     Description: Amazon EC2 instance type for the MongoDB nodes.
     Type: String
-    Default: m4.large
+    Default: m5.large
     AllowedValues:
       - m5.large
       - m5.xlarge
