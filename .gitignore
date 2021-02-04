@@ -4,3 +4,4 @@ taskcat_outputs/
 *.zip
 .taskcat_overrides.yml
 backup/*
+docs/generated/*
