@@ -384,7 +384,7 @@ Parameters:
       - db.m5.12xlarge
       - db.m5.24xlarge
     ConstraintDescription: "Must select a valid database instance type."
-    Default: db.m4.xlarge
+    Default: db.m5.xlarge
     Description: "The name of the compute and memory capacity class of the database instance."
     Type: String
 ## Parameters Added for RDS Postscripts Stack##
@@ -460,7 +460,7 @@ Parameters:
   MongoNodeInstanceType:
     Description: Amazon EC2 instance type for the MongoDB nodes.
     Type: String
-    Default: m4.large
+    Default: m5.large
     AllowedValues:
       - m5.large
       - m5.xlarge
@@ -542,25 +542,6 @@ Conditions:
     - !Ref QSS3BucketName
     - 'aws-quickstart'
 
-Rules:
-  EKSSupport:
-    Assertions:
-      - AssertDescription: Your AWS Region does *NOT* yet support Amazon EKS
-        Assert: !Contains
-          -  - us-west-2
-             - us-east-1
-             - us-east-2
-             - eu-west-1
-             - eu-west-2
-             - eu-west-3
-             - eu-north-1
-             - eu-central-1
-             - ap-southeast-1
-             - ap-southeast-2
-             - ap-northeast-1
-             - ap-northeast-2
-             - ap-south-1
-          - !Ref 'AWS::Region'
 Resources:
   VPCStack:
     Type: AWS::CloudFormation::Stack
@@ -702,7 +683,7 @@ Resources:
   MongoStack:
     Type: AWS::CloudFormation::Stack
     Properties:
-      # TemplateURL: !Sub 'https://${QSS3BucketName}.s3.amazonaws.com/${QSS3KeyPrefix}submodules/quickstart-mongodb/templates/mongodb.template'
+      # TemplateURL: !Sub 'https://${QSS3BucketName}.s3.amazonaws.com/${QSS3KeyPrefix}submodules/quickstart-mongodb/templates/mongodb.template.yaml'
       TemplateURL: !Sub
         - https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}submodules/quickstart-mongodb/templates/mongodb.template
         - S3Bucket: !If
@@ -735,9 +716,11 @@ Resources:
           Fn::GetAtt: [ EKSStack , Outputs.BastionSecurityGroup]
   EKSStack:
     Type: AWS::CloudFormation::Stack
+    Metadata:
+      cfn-lint: { config: { ignore_checks: [ W9901 ] } }
     Properties:
       TemplateURL: !Sub 
-        - https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}submodules/quickstart-aws-eks/templates/amazon-eks.template.yaml
+        - https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}submodules/quickstart-aws-eks/templates/amazon-eks-entrypoint-existing-vpc.template.yaml
         - S3Bucket: !If
             - UsingDefaultBucket
             - !Sub 'aws-quickstart-${AWS::Region}'
@@ -759,15 +742,15 @@ Resources:
         PrivateSubnet3ID: !GetAtt VPCStack.Outputs.PrivateSubnet3AID
         NumberOfNodes: !Ref NumberOfNodes
         MaxNumberOfNodes: !Ref NumberOfNodes
-        NodeGroupName: !Ref NodeGroupName
-        NodeVolumeSize: !Ref NodeVolumeSize
+        #NodeGroupName: !Ref NodeGroupName
+        #NodeVolumeSize: !Ref NodeVolumeSize
         NodeInstanceType: !Ref NodeInstanceType
         RemoteAccessCIDR: !Ref RemoteAccessCIDR
         VPCID: !GetAtt VPCStack.Outputs.VPCID
-        KubernetesVersion: !Ref KubernetesVersion
-        ProvisionClusterAutoScaler: Disabled
-        # ConfigSetName: ''
-        # NodeInstanceFamily: 'Standard'
+        #KubernetesVersion: !Ref KubernetesVersion
+        ClusterAutoScaler: Disabled
+        #ConfigSetName: ''
+        #NodeInstanceFamily: 'Standard'
   BastionIDSSMParameter:
     Type: "AWS::SSM::Parameter"
     Properties:
