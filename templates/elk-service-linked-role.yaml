@@ -1,8 +1,0 @@
-AWSTemplateFormatVersion: "2010-09-09"
-Description: "ElasticSearch Service Linked Role"
-Resources:
-  ServiceLinkedRole:
-    Type: "AWS::IAM::ServiceLinkedRole"
-    Properties:
-      AWSServiceName: "es.amazonaws.com"
-      Description: "Role for AWS ElK Stack to access VPC Resources"

@@ -1,6 +1,0 @@
-apiVersion: v1
-data:
-  loader.properties: loader.path=lib,config
-kind: ConfigMap
-metadata:
-  name: userinfo-loader-cm

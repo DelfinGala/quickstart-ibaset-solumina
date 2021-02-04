@@ -1,1 +1,0 @@
-Create a zip file called "elkpostscript.zip" consisting of "elkpostscriptlambda.py", "requests-2.9.1.dist-info" and "requests".

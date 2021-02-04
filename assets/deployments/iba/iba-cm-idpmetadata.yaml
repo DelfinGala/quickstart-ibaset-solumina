@@ -1,7 +1,0 @@
-apiVersion: v1
-data:
-  idpmetadata.xml: <!-- IDP METADATA CONTENT GOES HERE -->
-kind: ConfigMap
-metadata:
-  creationTimestamp: null
-  name: iba-idpmetadata-cm
