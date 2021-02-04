@@ -803,15 +803,13 @@ p.footer-text a{color:#d7d8d8}
 </li>
 <li><a href="#_deployment_steps">Deployment steps</a>
 <ul class="sectlevel2">
+<li><a href="#_sign_in_to_your_aws_account">Sign in to your AWS account</a></li>
+<li><a href="#_launch_the_quick_start">Launch the Quick Start</a></li>
 <li><a href="#_parameters_for_deploying_in_an_existing_vpc">Parameters for deploying in an existing VPC</a></li>
 <li><a href="#_parameters_for_deploying_in_a_new_vpc">Parameters for deploying in a new VPC</a></li>
 </ul>
 </li>
 <li><a href="#_test_the_deployment">Test the deployment</a></li>
-<li><a href="#_post_deployment_steps">Post deployment steps</a></li>
-<li><a href="#_best_practices_for_using_ibaset_solumina_manufacturing_execution_system_mes_on_aws">Best practices for using iBASEt Solumina Manufacturing Execution System (MES) on AWS</a></li>
-<li><a href="#_security">Security</a></li>
-<li><a href="#_other_useful_information">Other useful information</a></li>
 <li><a href="#_faq">FAQ</a></li>
 <li><a href="#_troubleshooting">Troubleshooting</a></li>
 <li><a href="#_send_us_feedback">Send us feedback</a></li>
@@ -832,9 +830,9 @@ p.footer-text a{color:#d7d8d8}
 </div>
 </div>
 <div class="paragraph text-center">
-<p><strong>September 2020</strong><br>
+<p><strong>February 2021</strong><br>
 <em>Dhruvit Patel and Ivo Ivanov, iBASEt Inc.</em><br>
-<em>Jim Smith - AWS Global Partner SA, AWS + Joe Jones - Technical Product Manager, AWS</em></p>
+<em>Shivansh Singh, AWS Quick Start team</em></p>
 </div>
 <div class="admonitionblock tip text-left">
 <table>
@@ -884,7 +882,9 @@ Amazon may share user-deployment information with the AWS Partner that collabora
 <div class="sect1">
 <h2 id="_ibaset_solumina_manufacturing_execution_system_mes_on_aws">iBASEt Solumina Manufacturing Execution System (MES) on AWS</h2>
 <div class="sectionbody">
-
+<div class="paragraph">
+<p>Solumina is an MES software suite that manages work and quality processes for the manufacturing maintenance, repair, and overhaul of engineered products. iBASEt software for MES improves manufacturing productivity, quality, and compliance by providing transparency to operators, supervisors, and plant managers. It also allows operators to spend more time being productive and less time looking for work instructions, amending them, and waiting for corrections.</p>
+</div>
 </div>
 </div>
 <div class="sect1">
@@ -918,7 +918,7 @@ After you deploy the Quick Start, <a href="https://docs.aws.amazon.com/awsaccoun
 <h2 id="_software_licenses">Software licenses</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Contact <a href="https://www.ibaset.com/contact/" target="_blank" rel="noopener">iBASEt</a> sales for licensing information. You will be able to complete the login after installing the license.</p>
+<p>This Quick Start requires a Solumina license. To use the Quick Start in your evaluation of the software or in a production environment, contact <a href="https://www.ibaset.com/contact/" target="_blank" rel="noopener">iBASEt</a> sales for licensing information. You will be able to complete the login after installing the license.</p>
 </div>
 </div>
 </div>
@@ -1165,22 +1165,21 @@ Certain Regions are available on an opt-in basis. For more information, see <a h
 <div class="sect1">
 <h2 id="_deployment_steps">Deployment steps</h2>
 <div class="sectionbody">
-<div class="paragraph">
-<p><strong>Step 1. Sign in to your AWS account</strong></p>
-</div>
+<div class="sect2">
+<h3 id="_sign_in_to_your_aws_account">Sign in to your AWS account</h3>
 <div class="olist arabic">
 <ol class="arabic">
 <li>
 <p>Sign in to your AWS account at <a href="https://aws.amazon.com" class="bare">https://aws.amazon.com</a> with an IAM user role that has the necessary permissions. For details, see <a href="#_planning_the_deployment">Planning the deployment</a> earlier in this guide.</p>
 </li>
 <li>
-<p>Make sure that your AWS account is configured correctly, as discussed in the <a href="#_technical_requirements">Technical requirements</a> section.</p>
+<p>Ensure that your AWS account is configured correctly, as discussed in the <a href="#_technical_requirements">Technical requirements</a> section.</p>
 </li>
 </ol>
 </div>
-<div class="paragraph">
-<p><strong>Step 2. Launch the Quick Start</strong></p>
 </div>
+<div class="sect2">
+<h3 id="_launch_the_quick_start">Launch the Quick Start</h3>
 <div class="admonitionblock note">
 <table>
 <tr>
@@ -1275,6 +1274,7 @@ Unless you are customizing the Quick Start templates for your own deployment pro
 </td>
 </tr>
 </table>
+</div>
 </div>
 <div class="sect2">
 <h3 id="_parameters_for_deploying_in_an_existing_vpc">Parameters for deploying in an existing VPC</h3>
@@ -2077,36 +2077,6 @@ Unless you are customizing the Quick Start templates for your own deployment pro
 <a class="image" href="images/test-page.png"><img src="images/test-page.png" alt="Test-Page" width="648" height="439"></a>
 </div>
 <div class="title">Figure 3. <em>iBASEt Solumina Manufacturing Execution System (MES)</em> login page</div>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_post_deployment_steps">Post deployment steps</h2>
-<div class="sectionbody">
-
-</div>
-</div>
-<div class="sect1">
-<h2 id="_best_practices_for_using_ibaset_solumina_manufacturing_execution_system_mes_on_aws">Best practices for using iBASEt Solumina Manufacturing Execution System (MES) on AWS</h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p><em>Add any best practices for using the software.</em></p>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_security">Security</h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p><em>Add any security-related information.</em></p>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_other_useful_information">Other useful information</h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p><em>Add any other details that will help the customer use the software on AWS.</em></p>
 </div>
 </div>
 </div>
