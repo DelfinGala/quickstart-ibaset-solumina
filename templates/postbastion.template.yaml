@@ -92,7 +92,7 @@ Resources:
         S3Key: !Ref BastionS3KeyPrefixLambdaZip
       Timeout: 400
       Handler: 'bastionpostscriptlambda.lambda_handler'
-      Runtime: 'python2.7'
+      Runtime: 'python3.8'
       FunctionName: !Join
         - ''
         - - 'BastionFunction'
