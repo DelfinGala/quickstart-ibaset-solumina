@@ -3,3 +3,4 @@
 // Include the benefits of using the software on AWS, and provide details on usage scenarios.
 
 //<Describe how the software works on AWS.>
+Solumina is an MES software suite that manages work and quality processes for the manufacturing maintenance, repair, and overhaul of engineered products. iBASEt software for MES improves manufacturing productivity, quality, and compliance by providing transparency to operators, supervisors, and plant managers. It also allows operators to spend more time being productive and less time looking for work instructions, amending them, and waiting for corrections.

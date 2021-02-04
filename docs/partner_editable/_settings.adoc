@@ -2,10 +2,10 @@
 :partner-product-name: iBASEt Solumina Manufacturing Execution System (MES)
 :partner-product-short-name: iBASEt Solumina Manufacturing Execution System (MES)
 :partner-company-name: iBASEt Inc.
-:doc-month: September
-:doc-year: 2020
+:doc-month: February
+:doc-year: 2021
 :partner-contributors: Dhruvit Patel and Ivo Ivanov, {partner-company-name}
-:quickstart-contributors: Jim Smith - AWS Global Partner SA, AWS + Joe Jones - Technical Product Manager, AWS
+:quickstart-contributors: Shivansh Singh, AWS Quick Start team
 :deployment_time: 2 hours
 :default_deployment_region: us-east-1
 // Uncomment these two attributes if you are leveraging
