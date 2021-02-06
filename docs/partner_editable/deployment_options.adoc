@@ -7,4 +7,4 @@ This Quick Start provides two deployment options:
 
 The Quick Start provides separate templates for these options. It also lets you configure Classless Inter-Domain Routing (CIDR) blocks, instance types, and {partner-product-short-name} settings, as discussed later in this guide.
 
-The Quick Start installs the latest version of the Solumina environment on an Amazon EC2 cluster running CentOS 7 (x86_64) with Hardware Virtual Machine (HVM) using Amazon EKS for container orchestration.
+This Quick Start installs the latest version of the Solumina environment on an Amazon EC2 cluster running CentOS 7 (x86_64) with Hardware Virtual Machine (HVM) using Amazon EKS for container orchestration.

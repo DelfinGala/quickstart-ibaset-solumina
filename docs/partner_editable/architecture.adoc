@@ -24,18 +24,20 @@ Shell (SSH) access to EC2 instances in public and private subnets.*
 In the private subnets:
 // Add bullet points for any additional components that are included in the deployment. Make sure that the additional components are also represented in the architecture diagram.
 
-* The Solumina proprietary software.
+* Solumina proprietary software.
 * Amazon Elasticsearch Service (Amazon ES).
 * A MongoDB resource.
 * Amazon Relational Database Service (Amazon RDS).
 
-Other Resources:
+Other resources:
+//TODO Why is this separate from the rest of the bullet list? Suggest integrating
+//it as the original deployment did.
 
 * An Application Load Balancer to route traffic to the Solumina web application over HTTP.
 * Amazon Elastic Kubernetes Service (Amazon EKS).
 * An Amazon S3 bucket for storing Quick Start assets.
 * Amazon Elastic File System (Amazon EFS) to provide on-demand scaling and management of AWS Cloud services and resources.
-* A recordset in Route53 for web application.
+* A Recordset object in Amazon Route 53 for the web application.
 
 *The template that deploys the Quick Start into an existing VPC skips
 the components marked by asterisks and prompts you for your existing VPC

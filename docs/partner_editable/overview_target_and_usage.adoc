@@ -4,7 +4,9 @@
 
 This Quick Start reference deployment guide provides step-by-step instructions for deploying {partner-product-short-name} on the AWS Cloud.
 
-This Quick Start is for users who want to run iSeries of Solumina within an existing or new virutal private cloud (VPC) in their own AWS account. When deploying to a new VPC, the Quick Start builds a new AWS environment with the VPC and all required infrastructure components.
+This Quick Start is for users who want to run iSeries
+//TODO What is "iSeries"? It's not mentioned in the original guide.
+ of Solumina within an existing or new virutal private cloud (VPC) in their own AWS account. When deploying to a new VPC, the Quick Start builds a new AWS environment with the VPC and all required infrastructure components.
 
 This Quick Start reference deployment guide provides step-by-step instructions for deploying
 iBASEt Solumina Manufacturing Execution System (MES) on the AWS Cloud.
