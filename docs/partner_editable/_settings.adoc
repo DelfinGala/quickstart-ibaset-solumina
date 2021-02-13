@@ -1,6 +1,6 @@
 :quickstart-project-name: quickstart-documentation-base
-:partner-product-name: iBASEt Solumina Manufacturing Execution System (MES)
-:partner-product-short-name: iBASEt Solumina Manufacturing Execution System (MES)
+:partner-product-name: iBASEt Solumina iSeries
+:partner-product-short-name: iBASEt Solumina iSeries
 :partner-company-name: iBASEt Inc.
 :doc-month: February
 :doc-year: 2021
